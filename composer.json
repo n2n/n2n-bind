@@ -1,7 +1,7 @@
 {
-	"name" : "n2n/n2n-batch",
+	"name" : "n2n/n2n-bind",
 	"type" : "library",
-	"description" : "batch job support for n2n framework",
+	"description" : "bind/json support for n2n framework",
 	"keywords" : [
 		"n2n",
 		"batch job"
@@ -21,7 +21,7 @@
 	},
 	"autoload" : {
 		"psr-4" : {
-			"n2n\\batch\\" : "src/app/n2n/batch"
+			"n2n\\bind\\" : "src/app/n2n/bind"
 		}
 	}
 }
