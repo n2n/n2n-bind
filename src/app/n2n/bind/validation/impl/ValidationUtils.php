@@ -3,14 +3,14 @@ namespace n2n\util;
 
 use n2n\util\uri\Url;
 
-class Validate {
+class ValidationUtils {
 	/**
 	 * checks a string, if it is a valid e-mail address
 	 *
 	 * @param string $email
 	 * @return bool
 	 */
-	public static function email(string $email) {
+	public static function isEmail(string $email) {
 		return false !== filter_var($email, FILTER_VALIDATE_EMAIL);
 	}
 	
@@ -20,7 +20,7 @@ class Validate {
 	 * @param string $url
 	 * @return bool
 	 */
-	public static function url(string $url, bool $schemeRequired = true) {
+	public static function isUrl(string $url, bool $schemeRequired = true) {
 		try {
 			$url = Url::create($url)->toIdnaAsciiString();
 		} catch (\InvalidArgumentException $e) {
@@ -38,5 +38,9 @@ class Validate {
 		}
 		
 		return false;
+	}
+	
+	public static function isNotLongerThen(string $str, int $maxlength) {
+		
 	}
 }

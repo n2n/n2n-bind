@@ -9,8 +9,8 @@ interface ValidatableModel {
 	function getPromotedProperties(): array;
 	
 	/**
-	 * @param string $name
+	 * @param string $id
 	 * @return ValidatableProperty
 	 */
-	function getPropertyByName(string $name): ValidatableProperty;
+	function getProperty(string $id): ValidatableProperty;
 }
