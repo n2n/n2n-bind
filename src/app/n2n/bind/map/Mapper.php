@@ -2,6 +2,7 @@
 namespace n2n\bind\map;
 
 use n2n\util\type\TypeConstraint;
+use n2n\util\magic\MagicContext;
 
 interface Mapper {
 	/**
@@ -13,12 +14,12 @@ interface Mapper {
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	function marshal($value);
+	function marshal($value, MagicContext $magicContext);
 	
 	/**
 	 * @param mixed $value
 	 * @return mixed
 	 * @throws \InvalidArgumentException
 	 */
-	function unmarshal($value);
+	function unmarshal($value, MagicContext $magicContext);
 }

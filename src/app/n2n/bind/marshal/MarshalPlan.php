@@ -1,27 +1,28 @@
 <?php
 namespace n2n\bind\marshal;
 
-use n2n\reflection\ReflectionUtils;
-use n2n\bind\type\TypeSafeForge;
 use n2n\core\container\N2nContext;
 use n2n\bind\Bindable;
 use n2n\bind\map\Mapper;
 use n2n\util\type\attrs\AttributePath;
-use n2n\bind\type\TypeSafeModel;
-use n2n\reflection\magic\MagicMethodInvoker;
+use n2n\bind\type\BindableInvoker;
+use n2n\util\magic\MagicContext;
+use n2n\util\magic\MagicArray;
 
-class MarshalPlan {
-	private $tsf;
+class MarshalPlan implements MagicArray {
+	private $rootBindable;
 	private $attributePaths = [];
-	private $mappers = [];
+	private $mapperMap;
 	
 	private $activeAttributePaths = [];
+	private $invoker;
 	
-	private function __construct(Bindable $rootBindable) {
-		$class = ReflectionUtils::createReflectionClass(get_class($rootBindable));
-		
-		$this->tsf = new TypeSafeForge(false);
-		
+	/**
+	 * @param Bindable $rootBindable
+	 */
+	function __construct(Bindable $rootBindable) {
+		$this->mapperMap = new \ArrayObject();
+		$this->rootBindable = $rootBindable;
 	}
 	
 	/**
@@ -44,63 +45,20 @@ class MarshalPlan {
 	 */
 	function map(?Mapper $mapper) {
 		foreach ($this->activeAttributePaths as $str => $attributePath) {
-			$this->mappers[$str] = $mapper;
+			$this->mapperMap[$str] = $mapper;
 		}
 		
 		return $this;
 	}
 	
-	function exec(N2nContext $n2nContext) {
-		$this->asdf($this->rootBindable, $this->rootTsModel, 
-				new AttributePathPool($this->activeAttributePaths));
-		
-	}
-	
-	
-	private function asdf(Bindable $obj, TypeSafeModel $tsModel, AttributePathPool $pool) {
-		
-		$composer = new MarshalComposer($tsModel);
-		
-		
-		$tsModel->createMar();
-	}
-	
-	
-}
-
-class AttributePathPool {
 	/**
-	 * @var AttributePath[]
+	 * @param N2nContext $n2nContext
+	 * @return array
 	 */
-	private $attributePaths = [];
-	private $pushedNum = 0;
-	
-	/**
-	 * @param AttributePath[] $attributePaths
-	 */
-	function __construct($attributePaths) {
-		$this->attributePaths = $attributePaths;
-	}
-	
-	function push(string $name) {
+	function toArray(MagicContext $n2nContext): array {
+		$marshalTask = new MarshalTask(new BindableInvoker($n2nContext));
 		
+		return $marshalTask->processBindable($this->rootBindable,  
+				new InterceptorPool(new \ArrayObject($this->mapperMap), $this->activeAttributePaths));
 	}
-}
-
-
-class MarshalTask {
-	
-	private $tsf;
-	private $n2nContext;
-	
-	public function __construct(TypeSafeForge $tsf, N2nContext $n2nContext) {
-		$this->tsf = $tsf;
-		$this->n2nContext = $n2nContext;
-	}
-	
-	public function exec(Bindable $rootObj) {
-		$this->tsf->optainModel($rootObj);
-	}
-	
-	
 }

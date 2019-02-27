@@ -1,0 +1,21 @@
+{
+	"minimum-stability" : "dev",
+	"prefer-stable" : true,
+	"require" : {
+		"n2n/n2n-reflection" : "master-dev",
+		"n2n/n2n-util" : "master-dev"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^8.0"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"n2n\\bind\\": "app/n2n/bind"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"n2n\\bind\\": "test/n2n/bind"
+		}
+	}
+}

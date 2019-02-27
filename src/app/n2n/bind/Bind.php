@@ -21,6 +21,15 @@
  */
 namespace n2n\bind; 
 
+use n2n\bind\marshal\MarshalPlan;
+
 class Bind {
 	
+	/**
+	 * @param Bindable $bindable
+	 * @return \n2n\bind\marshal\MarshalPlan
+	 */
+	public function marshal(Bindable $bindable) {
+		return new MarshalPlan($bindable);
+	}
 }

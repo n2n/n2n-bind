@@ -4,13 +4,14 @@ namespace n2n\bind\marshal;
 use n2n\util\type\TypeConstraint;
 use n2n\util\ex\UnsupportedOperationException;
 use n2n\bind\map\Mapper;
+use n2n\util\magic\MagicContext;
 
 class AutoMarshalMapper implements Mapper {
 	/**
 	 * {@inheritDoc}
 	 * @see \n2n\bind\map\Mapper::unmarshal()
 	 */
-	public function unmarshal($value) {
+	public function unmarshal($value, MagicContext $magicContext) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -18,7 +19,7 @@ class AutoMarshalMapper implements Mapper {
 	 * {@inheritDoc}
 	 * @see \n2n\bind\map\Mapper::marshal()
 	 */
-	public function marshal($value) {
+	public function marshal($value, MagicContext $magicContext) {
 		if ($value === null || is_scalar($value)) {
 			return $value;
 		}
@@ -40,6 +41,6 @@ class AutoMarshalMapper implements Mapper {
 	 */
 	public static function testCompatibility(TypeConstraint $typeConstraint) {
 		return $typeConstraint->isTypeSafe()
-		&& ($typeConstraint->isScalar() || $typeConstraint->getTypeName() == \DateTime::class);
+				&& ($typeConstraint->isScalar() || $typeConstraint->getTypeName() == \DateTime::class);
 	}
 }

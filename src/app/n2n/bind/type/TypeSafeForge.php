@@ -16,16 +16,11 @@ class TypeSafeForge {
 	
 	/**
 	 * @param \ReflectionClass $class
-	 * @throws InvalidBindableExcpetion
 	 * @return \n2n\bind\type\TypeSafeModel
 	 */
 	function optainModel(\ReflectionClass $class) {
 		if (isset($this->models[$class->getName()])) {
 			return $this->models[$class->getName()];
-		}
-		
-		if (!self::isClassBindable($class)) {
-			throw new InvalidBindableExcpetion($class->getName() . ' does not implement ' . Bindable::class);
 		}
 		
 		return $this->models[$class->getName()] = new TypeSafeModel($class, $this->writable);	

@@ -4,9 +4,10 @@ namespace n2n\bind\marshal;
 use n2n\bind\type\TypeSafeModel;
 use n2n\reflection\property\AccessProxy;
 use n2n\bind\map\Mapper;
-use n2n\bind\type\InvalidBindableExcpetion;
-use n2n\util\type\TypeConstraint;
-use n2n\util\ex\UnsupportedOperationException;
+use n2n\bind\type\BindingFailedExcpetion;
+use n2n\util\magic\MagicContext;
+use n2n\bind\Bindable;
+use n2n\bind\map\impl\MarshalClosureMapper;
 
 class MarshalComposer {
 	/**
@@ -36,12 +37,12 @@ class MarshalComposer {
 	/**
 	 * @param string ...$names
 	 * @return \n2n\bind\marshal\MarshalComposer
+	 * @throws BindingFailedExcpetion
 	 */
 	function prop(string ...$names) {
 		$this->activeAccessProxies = [];
 		foreach ($names as $name) {
-			$this->activeAccessProxies[$name] = $this->accessProxy[$name] 
-					= $this->tsModel->obtainAccessProxy($name, false);
+			$this->bindProp($name);
 		}
 		
 		return $this;
@@ -53,13 +54,13 @@ class MarshalComposer {
 	function autoProps() {
 		$this->activeAccessProxies = [];
 		
-		foreach ($this->tsModel->optionAutoAccessProxies() as $name => $accessProxy) {
+		foreach ($this->tsModel->obtainAccessProxies() as $name => $accessProxy) {
 			if (isset($this->accessProxies[$name]) || null === $accessProxy->getConstraint()) {
 				continue;
 			}
 			
 			if (AutoMarshalMapper::testCompatibility($accessProxy->getConstraint())) {
-				$this->activeAccessProxies[$name] = $this->accessProxies[$name] = $accessProxy;
+				$this->bindProp($name);		
 				$this->mappers[$name] = new AutoMarshalMapper();
 			}
 		}
@@ -67,16 +68,25 @@ class MarshalComposer {
 		return $this;
 	}
 	
+	private function bindProp($name) {
+		try {
+			$this->activeAccessProxies[$name] = $this->accessProxies[$name]
+					= $this->tsModel->obtainAccessProxy($name, false);
+		} catch (\ReflectionException $e) {
+			throw new BindingFailedExcpetion($e->getMessage());
+		}
+	}
+	
 	/**
 	 * @param Mapper $mapper
-	 * @throws InvalidBindableExcpetion
+	 * @throws BindingFailedExcpetion
 	 * @return \n2n\bind\marshal\MarshalComposer
 	 */
 	function map(?Mapper $mapper) {
 		foreach ($this->activeAccessProxies as $name => $accessProxy) {
 			if ($mapper !== null && null !== $accessProxy->getConstraint() && null !== $mapper->getTypeConstraint()
 					&& !$accessProxy->getConstraint()->isPassableBy($mapper->getTypeConstraint())) {
-				throw new InvalidBindableExcpetion('Mapper' . get_class($mapper) 
+				throw new BindingFailedExcpetion('Mapper' . get_class($mapper) 
 						. ' (TypeConstraint: ' . $mapper->getTypeConstraint() 
 						. ') is not compatible with ' . $accessProxy);
 			}
@@ -86,4 +96,44 @@ class MarshalComposer {
 		
 		return $this;
 	}	
+	
+	/**
+	 * @param \Closure $closure
+	 * @return \n2n\bind\marshal\MarshalComposer
+	 */
+	function mapc(\Closure $closure) {
+		foreach ($this->activeAccessProxies as $name => $accessProxy) {
+			$typeName = null;
+			if (null !== ($typeConstraint = $accessProxy->getConstraint())) {
+				$typeName = $typeConstraint->getTypeName();
+			}
+			
+			$this->mappers[$name] = new MarshalClosureMapper($closure, $typeName);
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @param Bindable $bindable
+	 * @param MagicContext $magicContext
+	 * @return array
+	 * @throws \n2n\reflection\ReflectionException
+	 */
+	function execute(Bindable $bindable, MagicContext $magicContext) {
+		$array = [];
+		
+		foreach ($this->accessProxies as $name => $accessProxy) {
+			$accessProxy->setNullReturnAllowed(true);
+			$value = $accessProxy->getValue($bindable);
+			
+			if (isset($this->mappers[$name])) {
+				$value = $this->mappers[$name]->marshal($value, $magicContext);
+			}
+				
+			$array[$name] = $value;
+		}
+		
+		return $array;
+	}
 }

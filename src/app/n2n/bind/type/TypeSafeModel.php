@@ -30,9 +30,16 @@ class TypeSafeModel {
 	 * @param \ReflectionClass $class
 	 * @param bool $writable
 	 */
-	function __constuct(\ReflectionClass $class, bool $writable) {
+	function __construct(\ReflectionClass $class, bool $writable) {
 		$this->analyzer = new PropertiesAnalyzer($class, false, false);
 		$this->writable = $writable;
+	}
+	
+	/**
+	 * @return \ReflectionClass
+	 */
+	function getClass() {
+		return $this->analyzer->getClass();
 	}
 	
 	/**
@@ -69,7 +76,7 @@ class TypeSafeModel {
 			return $this->defaultAccessProxies;
 		}
 		
-		$this->defaultAccessProxies = $this->analyzer->analyzeProperties();
+		$this->defaultAccessProxies = $this->analyzer->analyzeProperties(true, false);
 		foreach ($this->defaultAccessProxies as $name => $accessProxy) {
 			$this->accessProxies[$name] = $accessProxy;
 		}
