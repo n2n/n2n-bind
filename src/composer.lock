@@ -57,12 +57,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/n2n/n2n-reflection.git",
-                "reference": "ae0a7f4120fe8d607bbd6cd6ec5cb0d415f16e8c"
+                "reference": "b9a0e5db7bdf99b41bbaa53db3a7fe012356edba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/n2n/n2n-reflection/zipball/ae0a7f4120fe8d607bbd6cd6ec5cb0d415f16e8c",
-                "reference": "ae0a7f4120fe8d607bbd6cd6ec5cb0d415f16e8c",
+                "url": "https://api.github.com/repos/n2n/n2n-reflection/zipball/b9a0e5db7bdf99b41bbaa53db3a7fe012356edba",
+                "reference": "b9a0e5db7bdf99b41bbaa53db3a7fe012356edba",
                 "shasum": ""
             },
             "require": {
@@ -93,7 +93,7 @@
                 "awesome",
                 "framework"
             ],
-            "time": "2019-01-22T20:59:51+00:00"
+            "time": "2019-02-28T10:09:41+00:00"
         },
         {
             "name": "n2n/n2n-util",
@@ -101,12 +101,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/n2n/n2n-util.git",
-                "reference": "e1ac1f751b22d76d7c6d7948ed074f7e82e3daa7"
+                "reference": "3c3790a2782a0eb586df55af49090798aab21b5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/n2n/n2n-util/zipball/e1ac1f751b22d76d7c6d7948ed074f7e82e3daa7",
-                "reference": "e1ac1f751b22d76d7c6d7948ed074f7e82e3daa7",
+                "url": "https://api.github.com/repos/n2n/n2n-util/zipball/3c3790a2782a0eb586df55af49090798aab21b5f",
+                "reference": "3c3790a2782a0eb586df55af49090798aab21b5f",
                 "shasum": ""
             },
             "require": {
@@ -137,7 +137,7 @@
                 "n2n",
                 "util"
             ],
-            "time": "2019-01-23T16:04:03+00:00"
+            "time": "2019-02-28T10:13:27+00:00"
         }
     ],
     "packages-dev": [
