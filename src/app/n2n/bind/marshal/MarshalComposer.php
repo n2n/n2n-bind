@@ -8,6 +8,7 @@ use n2n\bind\type\BindingFailedExcpetion;
 use n2n\util\magic\MagicContext;
 use n2n\bind\Bindable;
 use n2n\bind\map\impl\MarshalClosureMapper;
+use n2n\util\type\ArgUtils;
 
 class MarshalComposer {
 	/**
@@ -78,30 +79,55 @@ class MarshalComposer {
 	}
 	
 	/**
-	 * @param Mapper $mapper
+	 * @return \n2n\bind\marshal\MarshalComposer
+	 */
+	function curProps() {
+		$this->activeAccessProxies = $this->accessProxies;
+		return $this;
+	}
+	
+	/**
+	 * @param Mapper|\Closure|null $mapper
 	 * @throws BindingFailedExcpetion
 	 * @return \n2n\bind\marshal\MarshalComposer
 	 */
-	function map(?Mapper $mapper) {
-		foreach ($this->activeAccessProxies as $name => $accessProxy) {
-			if ($mapper !== null && null !== $accessProxy->getConstraint() && null !== $mapper->getTypeConstraint()
-					&& !$accessProxy->getConstraint()->isPassableBy($mapper->getTypeConstraint())) {
-				throw new BindingFailedExcpetion('Mapper' . get_class($mapper) 
-						. ' (TypeConstraint: ' . $mapper->getTypeConstraint() 
-						. ') is not compatible with ' . $accessProxy);
-			}
+	function map($mapper) {
+		ArgUtils::valType($mapper, [Mapper::class, \Closure::class], true, 'mapper');
+		
+		if ($mapper instanceof Mapper) {
+			$this->applyMapper($mapper);
+			return $this;
+		}
 			
-			$this->mappers[$name] = $accessProxy;
+		if ($mapper instanceof \Closure) {
+			$this->applyMapperClosure($mapper);
+			return $this;
+		}
+		
+		foreach ($this->activeAccessProxies as $name => $accessProxy) {
+			$this->mappers[$name] = null;
 		}
 		
 		return $this;
 	}	
 	
+	private function applyMapper(Mapper $mapper) {
+		foreach ($this->activeAccessProxies as $name => $accessProxy) {
+			if (null !== $accessProxy->getConstraint() && null !== $mapper->getTypeConstraint()
+					&& !$accessProxy->getConstraint()->isPassableBy($mapper->getTypeConstraint())) {
+				throw new BindingFailedExcpetion('Mapper' . get_class($mapper)
+						. ' (TypeConstraint: ' . $mapper->getTypeConstraint()
+						. ') is not compatible with ' . $accessProxy);
+			}
+			
+			$this->mappers[$name] = $mapper;
+		}
+	}
+	
 	/**
 	 * @param \Closure $closure
-	 * @return \n2n\bind\marshal\MarshalComposer
 	 */
-	function mapc(\Closure $closure) {
+	private function applyMapperClosure(\Closure $closure) {
 		foreach ($this->activeAccessProxies as $name => $accessProxy) {
 			$typeName = null;
 			if (null !== ($typeConstraint = $accessProxy->getConstraint())) {
@@ -110,8 +136,6 @@ class MarshalComposer {
 			
 			$this->mappers[$name] = new MarshalClosureMapper($closure, $typeName);
 		}
-		
-		return $this;
 	}
 	
 	/**

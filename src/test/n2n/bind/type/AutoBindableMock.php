@@ -32,7 +32,11 @@ class AutoBindableMock implements Bindable {
 	}
 	
 	function setBindable1Mock(Bindable1Mock $arg) {
-		$this->$bindable1Mock = $arg;
+		$this->bindable1Mock = $arg;
+	}
+	
+	function getBindable1Mock() {
+		return $this->bindable1Mock;
 	}
 	
 	function getUnknown() {

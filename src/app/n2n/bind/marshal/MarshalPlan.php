@@ -8,11 +8,12 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\type\BindableInvoker;
 use n2n\util\magic\MagicContext;
 use n2n\util\magic\MagicArray;
+use n2n\util\type\ArgUtils;
 
 class MarshalPlan implements MagicArray {
 	private $rootBindable;
 	private $attributePaths = [];
-	private $mapperMap;
+	private $mapperArgs;
 	
 	private $activeAttributePaths = [];
 	private $invoker;
@@ -21,7 +22,7 @@ class MarshalPlan implements MagicArray {
 	 * @param Bindable $rootBindable
 	 */
 	function __construct(Bindable $rootBindable) {
-		$this->mapperMap = new \ArrayObject();
+		$this->mapperArgs = array();
 		$this->rootBindable = $rootBindable;
 	}
 	
@@ -32,6 +33,7 @@ class MarshalPlan implements MagicArray {
 	function prop(...$attributePaths) {
 		$this->activeAttributePaths = [];
 		foreach ($attributePaths as $attributePath) {
+			$attributePath  = AttributePath::create($attributePath);
 			$str = (string) $attributePath;
 			$this->activeAttributePaths[$str] = $this->attributePaths[$str] = $attributePath;
 		}
@@ -40,12 +42,14 @@ class MarshalPlan implements MagicArray {
 	}
 	
 	/**
-	 * @param Mapper $mapper
+	 * @param Mapper|\Closure|null $mapper
 	 * @return \n2n\bind\marshal\MarshalPlan
 	 */
-	function map(?Mapper $mapper) {
+	function map($mapper) {
+		ArgUtils::valType($mapper, [Mapper::class, \Closure::class], true, 'mapper');
+		
 		foreach ($this->activeAttributePaths as $str => $attributePath) {
-			$this->mapperMap[$str] = $mapper;
+			$this->mapperArgs[$str] = $mapper;
 		}
 		
 		return $this;
@@ -59,6 +63,6 @@ class MarshalPlan implements MagicArray {
 		$marshalTask = new MarshalTask(new BindableInvoker($n2nContext));
 		
 		return $marshalTask->processBindable($this->rootBindable,  
-				new InterceptorPool(new \ArrayObject($this->mapperMap), $this->activeAttributePaths));
+				new InterceptorPool(new \ArrayObject($this->mapperArgs), $this->activeAttributePaths));
 	}
 }

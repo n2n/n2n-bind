@@ -55,15 +55,16 @@ class MarshalTask {
 				continue;
 			}
 			
-			$pool->assertNotBindable(TypeUtils::getTypeInfo($value));
+			$pushedPool = $pool->push($key);
+			$pushedPool->assertNotBindable(TypeUtils::getTypeInfo($value));
 			
 			if (is_array($value)) {
-				$array[$key] = $this->processsArray($value, $pool->push($key));
+				$array[$key] = $this->processsArray($value, $pushedPool);
 				continue;
 			}
 			
 			if ($value instanceof \ArrayObject) {
-				$array[$key] = $this->processsArray($value->getArrayCopy(), $pool->push($key));
+				$array[$key] = $this->processsArray($value->getArrayCopy(), $pushedPool);
 				continue;
 			}
 		}

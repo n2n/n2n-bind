@@ -21,12 +21,12 @@ class InterceptorPool {
 	private $pushedNum;
 	
 	/**
-	 * @param \ArrayObject $mapperMap
+	 * @param \ArrayObject $mapperArgMap
 	 * @param AttributePath[] $attributePaths
 	 * @param int $pushedNum
 	 */
-	function __construct(\ArrayObject $mapperMap, array $attributePaths, int $pushedNum = 0) {
-		$this->mapperMap = $mapperMap;
+	function __construct(\ArrayObject $mapperArgMap, array $attributePaths, int $pushedNum = 0) {
+		$this->mapperMap = $mapperArgMap;
 		$this->attributePaths = $attributePaths;
 		$this->pushedNum = $pushedNum;
 	}
@@ -37,11 +37,13 @@ class InterceptorPool {
 	 */
 	function push(string $name) {
 		$attributePaths = [];
+		$pushedDepth = $this->pushedNum + 1;
 		
 		foreach ($this->attributePaths as $apStr => $attributePath) {
 			$parts = $attributePath->toArray();
+			
 			if (!isset($parts[$this->pushedNum])
-					|| count($parts) == $this->pushedNum
+					|| count($parts) == $pushedDepth
 					|| !AttributePath::match($parts[$this->pushedNum], $name)) {
 				continue;
 			}
@@ -64,7 +66,7 @@ class InterceptorPool {
 			}
 			
 			throw new BindingFailedExcpetion('Could not resolve attribute path ' . $attributePath 
-					. '. Reson: ' . $attributePath->slices(0, $this->pushedNum) . ' is not of type ' 
+					. '. Reason: ' . $attributePath->slices(0, $this->pushedNum) . ' is not of type ' 
 					. Bindable::class . ' but ' . $typeName . '.');
 		}
 	}
@@ -74,24 +76,27 @@ class InterceptorPool {
 	 * @throws BindingFailedExcpetion
 	 */
 	function intercept(MarshalComposer $marshalComposer) {
+		$pushedDepth = $this->pushedNum + 1;
+		
 		foreach ($this->attributePaths as $apStr => $attributePath) {
 			$pathParts = $attributePath->toArray();
 			
 			IllegalStateException::assertTrue(isset($pathParts[$this->pushedNum]));
 			
 			$name = $pathParts[$this->pushedNum];
+			
 			if (AttributePath::matchesWildcard($name)) {
-				continue;
+				$marshalComposer->curProps();	
+			} else {
+				try {
+					$marshalComposer->prop($name);
+				} catch (BindingFailedExcpetion $e) {
+					throw new BindingFailedExcpetion('Could not resolve attribute path ' . $attributePath 
+							. '. Reason: ' . $e->getMessage());
+				}
 			}
 			
-			try {
-				$marshalComposer->prop($pathParts[$this->pushedNum]);
-			} catch (BindingFailedExcpetion $e) {
-				throw new BindingFailedExcpetion('Could not resolve attribute path ' . $attributePath . '. Reason: '
-						. $e->getMessage());
-			}
-			
-			if ($this->pushedNum == count($pathParts) && $this->mapperMap->offsetExists($apStr)) {
+			if ($pushedDepth == count($pathParts) && $this->mapperMap->offsetExists($apStr)) {
 				try {
 					$marshalComposer->map($this->mapperMap->offsetGet($apStr));
 				} catch (BindingFailedExcpetion $e) {

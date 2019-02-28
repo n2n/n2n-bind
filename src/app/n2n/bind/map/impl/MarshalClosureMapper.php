@@ -30,7 +30,7 @@ class MarshalClosureMapper implements Mapper {
 	 */
 	public function marshal($value, MagicContext $magicContext) {
 		$mmi = new MagicMethodInvoker($magicContext);
-		$mmi->setMethod($this->closure);
+		$mmi->setMethod(new \ReflectionFunction($this->closure));
 		$mmi->setParamValue('value', $value);
 		
 		if ($this->paramTypeName !== null){
