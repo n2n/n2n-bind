@@ -1,27 +1,28 @@
 {
-	"name" : "n2n/n2n-bind",
-	"type" : "library",
-	"description" : "bind/json support for n2n framework",
-	"keywords" : [
-		"n2n",
-		"batch job"
-	],
-	"homepage" : "http://n2n.rocks/",
-	"license" : "LGPL-3.0-or-later",
-	"authors" : [{
-			"name" : "Andreas von Burg",
-			"email" : "a@von-burg.net",
-			"homepage" : "https://www.von-burg.net/"
-		}
-	],
-	"require" : {
-		"php" : ">=7.0",
-		"n2n/n2n-reflection" : "master-dev",
-		"n2n/n2n-util" : "master-dev"
-	},
-	"autoload" : {
-		"psr-4" : {
-			"n2n\\bind\\" : "src/app/n2n/bind"
-		}
-	}
+    "name": "n2n/n2n-bind",
+    "type": "library",
+    "description": "bind/json support for n2n framework",
+    "keywords": [
+        "n2n",
+        "batch job"
+    ],
+    "homepage": "http://n2n.rocks/",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Andreas von Burg",
+            "email": "a@von-burg.net",
+            "homepage": "https://www.von-burg.net/"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "n2n/n2n-reflection": "^7.2.28",
+        "n2n/n2n-util": "^7.2.28"
+    },
+    "autoload": {
+        "psr-4": {
+            "n2n\\bind\\": "src/app/n2n/bind"
+        }
+    }
 }
