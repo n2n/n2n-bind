@@ -61,7 +61,7 @@ class MarshalComposer {
 			}
 			
 			if (AutoMarshalMapper::testCompatibility($accessProxy->getConstraint())) {
-				$this->bindProp($name);		
+				$this->bindProp($name);
 				$this->mappers[$name] = new AutoMarshalMapper();
 			}
 		}
@@ -85,7 +85,7 @@ class MarshalComposer {
 		$this->activeAccessProxies = $this->accessProxies;
 		return $this;
 	}
-	
+
 	/**
 	 * @param Mapper|\Closure|null $mapper
 	 * @throws BindingFailedExcpetion
@@ -109,7 +109,7 @@ class MarshalComposer {
 		}
 		
 		return $this;
-	}	
+	}
 	
 	private function applyMapper(Mapper $mapper) {
 		foreach ($this->activeAccessProxies as $name => $accessProxy) {
@@ -144,7 +144,7 @@ class MarshalComposer {
 	 * @return array
 	 * @throws \n2n\reflection\ReflectionException
 	 */
-	function execute(Bindable $bindable, MagicContext $magicContext) {
+	function execute(Bindable $bindable, MagicContext $magicContext): array {
 		$array = [];
 		
 		foreach ($this->accessProxies as $name => $accessProxy) {
@@ -154,7 +154,7 @@ class MarshalComposer {
 			if (isset($this->mappers[$name])) {
 				$value = $this->mappers[$name]->marshal($value, $magicContext);
 			}
-				
+			
 			$array[$name] = $value;
 		}
 		
