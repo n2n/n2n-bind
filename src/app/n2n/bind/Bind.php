@@ -22,6 +22,7 @@
 namespace n2n\bind; 
 
 use n2n\bind\marshal\MarshalPlan;
+use n2n\util\type\attrs\DataMap;
 
 class Bind {
 	
@@ -31,5 +32,23 @@ class Bind {
 	 */
 	public function marshal(Bindable $bindable) {
 		return new MarshalPlan($bindable);
+	}
+	
+	/**
+	 * @param DataMap $dataMap
+	 * @param Bindable $bindable
+	 * @return \n2n\bind\UnmarshalComposer
+	 */
+	static function unmarshalAttrs(DataMap $dataMap, Bindable $bindable) {
+		return new UnmarshalComposer($data, $bindable);
+	}
+	
+	/**
+	 * 
+	 * @param array $data
+	 * @param Bindable $bindable
+	 */
+	static function unmarshalArray(array $data, Bindable $bindable) {
+		
 	}
 }
