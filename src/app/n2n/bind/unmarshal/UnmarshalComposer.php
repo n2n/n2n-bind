@@ -50,5 +50,4 @@ class UnmarshalComposer {
 
 class UnmarshalMappingJob {
 	
-	function 
 }
