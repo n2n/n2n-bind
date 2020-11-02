@@ -23,6 +23,9 @@ namespace n2n\bind;
 
 use n2n\bind\marshal\MarshalPlan;
 use n2n\util\type\attrs\DataMap;
+use n2n\bind\marshal\UnmarshalComposer;
+use n2n\util\type\attrs\AttributeReader;
+use n2n\util\type\attrs\DataSet;
 
 class Bind {
 	
@@ -39,8 +42,8 @@ class Bind {
 	 * @param Bindable $bindable
 	 * @return \n2n\bind\UnmarshalComposer
 	 */
-	static function unmarshalAttrs(DataMap $dataMap, Bindable $bindable) {
-		return new UnmarshalComposer($data, $bindable);
+	static function unmarshalAttrs(AttributeReader $attributeReader, Bindable $bindable) {
+		return new UnmarshalComposer($attributeReader, $bindable);
 	}
 	
 	/**
@@ -49,6 +52,6 @@ class Bind {
 	 * @param Bindable $bindable
 	 */
 	static function unmarshalArray(array $data, Bindable $bindable) {
-		
+		return self::unmarshalAttrs(new DataSet($data), $bindable);
 	}
 }
