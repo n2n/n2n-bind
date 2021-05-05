@@ -33,5 +33,8 @@
 		"psr-4" : {
 			"n2n\\bind\\": "src/test/n2n/bind"
 		}
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^9.5"
 	}
 }
