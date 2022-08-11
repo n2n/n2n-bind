@@ -3,7 +3,7 @@ namespace n2n\bind\marshal;
 
 use n2n\bind\type\BindableInvoker;
 use n2n\bind\type\TypeSafeForge;
-use n2n\bind\Bindable;
+use n2n\bind\plan\Bindable;
 use n2n\util\type\TypeUtils;
 
 class MarshalTask {

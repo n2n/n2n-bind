@@ -6,9 +6,10 @@
 		"n2n",
 		"batch job"
 	],
-	"homepage" : "http://n2n.rocks/",
+	"homepage" : "https://n2n.rocks/",
 	"license" : "LGPL-3.0-or-later",
-	"authors" : [{
+	"authors" : [
+        {
 			"name" : "Andreas von Burg",
 			"email" : "a@von-burg.net",
 			"homepage" : "https://www.von-burg.net/"
@@ -20,9 +21,10 @@
 		"vendor-dir" : "src/vendor"
 	},
 	"require" : {
-		"php" : ">=7.0",
+		"php" : ">=8.0",
 		"n2n/n2n-reflection" : "^7.2.33",
-		"n2n/n2n-util" : "^7.2.33"
+		"n2n/n2n-util" : "^7.2.33",
+        "n2n/n2n-validation": "^7.2.33"
 	},
 	"autoload" : {
 		"psr-4" : {

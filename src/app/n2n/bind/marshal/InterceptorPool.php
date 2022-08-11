@@ -4,7 +4,7 @@ namespace n2n\bind\marshal;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\type\BindingFailedExcpetion;
 use n2n\util\ex\IllegalStateException;
-use n2n\bind\Bindable;
+use n2n\bind\plan\Bindable;
 
 class InterceptorPool {
 	/**

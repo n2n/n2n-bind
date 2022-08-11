@@ -1,7 +1,7 @@
 <?php
 namespace n2n\bind\type;
 
-use n2n\bind\Bindable;
+use n2n\bind\plan\Bindable;
 
 class TypeSafeForge {
 	private $writable;
