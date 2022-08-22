@@ -22,6 +22,7 @@
 namespace n2n\bind\plan;
 
 use n2n\util\magic\MagicContext;
+use n2n\validation\build\impl\Validate;
 
 class BindPlan {
 
@@ -36,23 +37,22 @@ class BindPlan {
 
 	function exec(MagicContext $magicContext) {
 		foreach ($this->bindGroups as $bindGroup) {
-			$bindGroup->exec($this->bindContext, $magicContext);
+			if (!$bindGroup->exec($this->bindContext, $magicContext)) {
+				return new BindResult(true, $this->bindContext->createErrorMap());
+			}
 		}
 
-		foreach ($bindContext->getBindables() as $bindable) {
+		if ($this->bindContext->hasErrors()) {
+			return new BindResult(true, $this->bindContext->createErrorMap());
+		}
+
+		foreach ($this->bindContext->getBindables() as $bindable) {
 			if (!$bindable->doesExist()) {
 				continue;
 			}
 
-			if ($bin)
-		}
-
-
-		new BindGroup()
-
-
-
-			$
+			$this->bindableTarget->acquireBindableOutput($bindable->getName())
+					->setValue($bindable->getValue());
 		}
 	}
 

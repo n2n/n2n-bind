@@ -25,25 +25,22 @@ use n2n\util\type\ArgUtils;
 use n2n\bind\map\Mapper;
 use n2n\validation\plan\ValidationContext;
 use n2n\util\magic\MagicContext;
+use n2n\validation\err\UnresolvableValidationException;
+use n2n\bind\err\UnresolvableBindException;
 
 class BindGroup {
 
 	/**
 	 * @param Mapper[] $mappers
-	 * @param Bindable[] $bindables
+	 * @param BindableAcquirer $bindableAcquirer
 	 */
-	function __construct(private array $mappers, private array $bindables) {
+	function __construct(private array $mappers, private BindableAcquirer $bindableAcquirer) {
 		ArgUtils::valArray($mappers, Mapper::class);
-		ArgUtils::valArray($this->bindables, Bindable::class);
 	}
 
 	function exec(BindContext $bindContext, MagicContext $magicContext): void {
 		foreach ($this->mappers as $mapper) {
-			$mapper->map($this->bindables, $bindContext, $magicContext);
+			$mapper->map($this->bindableAcquirer, $bindContext, $magicContext);
 		}
-	}
-
-	private handleMapReturn(array $bindables) {
-
 	}
 }

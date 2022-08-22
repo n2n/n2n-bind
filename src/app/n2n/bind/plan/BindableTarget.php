@@ -26,9 +26,9 @@ use n2n\validation\plan\Validatable;
 interface BindableTarget {
 
 	/**
-	 * @return Mapper[]
+	 * @return Validatable[]
 	 */
-	function getMappers(): array;
+	function getValidators(): array;
 
 	/**
 	 * @param mixed $value
