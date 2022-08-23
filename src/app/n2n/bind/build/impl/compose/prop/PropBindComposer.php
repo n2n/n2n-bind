@@ -1,6 +1,6 @@
 <?php
 
-namespace n2n\bind\build\impl\prop;
+namespace n2n\bind\build\impl\compose\prop;
 
 use n2n\validation\plan\Validator;
 use n2n\validation\build\impl\compose\prop\PropValidationComposer;

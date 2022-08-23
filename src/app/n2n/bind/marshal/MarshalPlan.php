@@ -3,7 +3,7 @@ namespace n2n\bind\marshal;
 
 use n2n\core\container\N2nContext;
 use n2n\bind\plan\Bindable;
-use n2n\bind\map\Mapper;
+use n2n\bind\mapper\Mapper;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\type\BindableInvoker;
 use n2n\util\magic\MagicContext;

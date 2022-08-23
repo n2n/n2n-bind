@@ -1,7 +1,11 @@
 <?php
 
-namespace n2n\bind\build\impl\prop;
+namespace n2n\bind\build\impl\compose\prop;
 
+
+use n2n\bind\build\impl\prop\BindableResolver;
+use n2n\bind\build\impl\prop\UnresolvableBindableException;
+use n2n\bind\build\impl\prop\Bindable;
 
 class PropBindableSource implements BindableResolver {
 

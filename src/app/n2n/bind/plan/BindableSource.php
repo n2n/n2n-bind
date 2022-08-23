@@ -21,8 +21,17 @@
  */
 namespace n2n\bind\plan;
 
-use n2n\validation\plan\ValidationContext;
+interface BindableSource {
 
-class BindContext extends ValidationContext  {
+	/**
+	 * A new bind cycle begins. All errors of defined validatables should be removed
+	 *
+	 * @return void
+	 */
+	function reset(): void;
 
+	/**
+	 * @return Bindable[]
+	 */
+	function getBindables(): array;
 }

@@ -28,36 +28,14 @@ use n2n\util\type\attrs\AttributeReader;
 use n2n\util\type\attrs\DataSet;
 use n2n\bind\plan\Bindable;
 use n2n\bind\LazyAttrsBindableSource;
+use n2n\util\type\attrs\AttributeWriter;
+use n2n\bind\build\impl\compose\prop\PropBindComposer;
 
 class Bind {
 
-	function attrs(AttributeReader $attributeReader) {
-		new LazyAttrsPropBindableSource($attributeReader);
+	function attrs(AttributeReader $attributeReader, AttributeWriter $attributeWriter) {
+		new PropBindComposer(new LazyAttrsPropBindableSource($attributeReader),
+				new LazyAttrsBindableTarget());
 	}
 
-	/**
-	 * @param Bindable $bindable
-	 * @return \n2n\bind\marshal\MarshalPlan
-	 */
-	public function marshal(Bindable $bindable) {
-		return new MarshalPlan($bindable);
-	}
-	
-	/**
-	 * @param DataMap $dataMap
-	 * @param Bindable $bindable
-	 * @return \n2n\bind\UnmarshalComposer
-	 */
-	static function unmarshalAttrs(AttributeReader $attributeReader, Bindable $bindable) {
-		return new UnmarshalComposer($attributeReader, $bindable);
-	}
-	
-	/**
-	 * 
-	 * @param array $data
-	 * @param Bindable $bindable
-	 */
-	static function unmarshalArray(array $data, Bindable $bindable) {
-		return self::unmarshalAttrs(new DataSet($data), $bindable);
-	}
 }

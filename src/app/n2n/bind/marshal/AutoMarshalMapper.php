@@ -3,13 +3,13 @@ namespace n2n\bind\marshal;
 
 use n2n\util\type\TypeConstraint;
 use n2n\util\ex\UnsupportedOperationException;
-use n2n\bind\map\Mapper;
+use n2n\bind\mapper\Mapper;
 use n2n\util\magic\MagicContext;
 
 class AutoMarshalMapper implements Mapper {
 	/**
 	 * {@inheritDoc}
-	 * @see \n2n\bind\map\Mapper::unmarshal()
+	 * @see \n2n\bind\mapper\Mapper::unmarshal()
 	 */
 	public function unmarshal($value, MagicContext $magicContext) {
 		throw new UnsupportedOperationException();
@@ -17,7 +17,7 @@ class AutoMarshalMapper implements Mapper {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \n2n\bind\map\Mapper::marshal()
+	 * @see \n2n\bind\mapper\Mapper::marshal()
 	 */
 	public function marshal($value, MagicContext $magicContext) {
 		if ($value === null || is_scalar($value)) {

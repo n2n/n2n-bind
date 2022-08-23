@@ -22,7 +22,7 @@
 namespace n2n\bind\plan;
 
 use n2n\util\type\ArgUtils;
-use n2n\bind\map\Mapper;
+use n2n\bind\mapper\Mapper;
 use n2n\validation\plan\ValidationContext;
 use n2n\util\magic\MagicContext;
 use n2n\validation\err\UnresolvableValidationException;
@@ -32,15 +32,15 @@ class BindGroup {
 
 	/**
 	 * @param Mapper[] $mappers
-	 * @param BindableAcquirer $bindableAcquirer
+	 * @param BendableBoundary $bindableBoundry
 	 */
-	function __construct(private array $mappers, private BindableAcquirer $bindableAcquirer) {
+	function __construct(private array $mappers, private BendableBoundary $bindableBoundry) {
 		ArgUtils::valArray($mappers, Mapper::class);
 	}
 
 	function exec(BindContext $bindContext, MagicContext $magicContext): void {
 		foreach ($this->mappers as $mapper) {
-			$mapper->map($this->bindableAcquirer, $bindContext, $magicContext);
+			$mapper->map($this->bindableBoundry, $bindContext, $magicContext);
 		}
 	}
 }

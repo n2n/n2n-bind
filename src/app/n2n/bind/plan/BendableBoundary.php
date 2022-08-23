@@ -2,7 +2,12 @@
 
 namespace n2n\bind\plan;
 
-interface BindableAcquirer {
+class BendableBoundary {
+
+	function prepare() {
+
+	}
+
 	/**
 	 * @return Bindable[]
 	 */

@@ -3,11 +3,11 @@ namespace n2n\bind\marshal;
 
 use n2n\bind\type\TypeSafeModel;
 use n2n\reflection\property\AccessProxy;
-use n2n\bind\map\Mapper;
+use n2n\bind\mapper\Mapper;
 use n2n\bind\type\BindingFailedExcpetion;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\Bindable;
-use n2n\bind\map\impl\MarshalClosureMapper;
+use n2n\bind\mapper\impl\MarshalClosureMapper;
 use n2n\util\type\ArgUtils;
 
 class MarshalComposer {

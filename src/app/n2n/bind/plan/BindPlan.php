@@ -31,13 +31,19 @@ class BindPlan {
 	 */
 	private array $bindGroups = [];
 
-	function __construct(private BindContext $bindContext, private BindableTarget $bindableTarget) {
+	function __construct(private BindableSource $bindableSource, private BindableTarget $bindableTarget) {
 
 	}
 
+	function addBindGroup(BindGroup $bindGroup) {
+		$this->bindGroups[] = $bindGroup;
+	}
+
 	function exec(MagicContext $magicContext) {
+		$this->bindableSource->reset();
+
 		foreach ($this->bindGroups as $bindGroup) {
-			if (!$bindGroup->exec($this->bindContext, $magicContext)) {
+			if (!$bindGroup->exec($this->bindableSource, $magicContext)) {
 				return new BindResult(true, $this->bindContext->createErrorMap());
 			}
 		}
