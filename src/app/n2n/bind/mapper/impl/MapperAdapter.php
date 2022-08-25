@@ -41,10 +41,8 @@ abstract class MapperAdapter implements Mapper {
 	 * @return mixed
 	 */
 	protected function readSafeValue(Bindable $bindable, TypeConstraint $typeConstraint) {
-		$value = $bindable->getValue();
-
 		try {
-			return $typeConstraint->validate($value);
+			return $typeConstraint->validate($bindable->getValue());
 		} catch (ValueIncompatibleWithConstraintsException $e) {
 			throw new BindMismatchException('Bindable ' . $bindable->getName() . ' is not compatible with '
 					. get_class($this), 0, $e);

@@ -51,7 +51,7 @@ class BindPlan {
 		$this->bindableSource->reset();
 
 		foreach ($this->bindGroups as $bindGroup) {
-			if (!$bindGroup->exec( $magicContext)) {
+			if (!$bindGroup->exec($magicContext)) {
 				return new SimpleBindResult($this->bindableSource->createErrorMap());
 			}
 		}

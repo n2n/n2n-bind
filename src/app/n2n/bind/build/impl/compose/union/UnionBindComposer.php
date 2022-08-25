@@ -41,7 +41,7 @@ class UnionBindComposer implements ValidationTask {
 	 */
 	private BindPlan $bindPlan;
 
-	function __construct(private private UnionBindComposerSource $source, private BindableTarget $bindableTarget) {
+	function __construct(private UnionBindComposerSource $source, private BindableTarget $bindableTarget) {
 		$this->bindPlan = new BindPlan($source, $this->bindableTarget);
 	}
 
@@ -54,7 +54,9 @@ class UnionBindComposer implements ValidationTask {
 
 		$this->bindPlan->addBindGroup(
 				new BindGroup($mappers, new UnionBindableGroupSource($this->source), $this->source));
-		
+
+		$this->bindableTarget->write($this->source->getBindables());
+
 		return $this;
 	}
 

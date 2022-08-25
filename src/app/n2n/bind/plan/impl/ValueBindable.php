@@ -24,11 +24,13 @@ namespace n2n\bind\plan\impl;
 use n2n\validation\plan\DetailedName;
 
 class ValueBindable extends BindableAdapter {
+	private mixed $origValue;
+	private bool $origDoesExist;
 
 	function __construct(DetailedName $name, private mixed $value, bool $doesExist, string $label = null) {
-		parent::__construct($name, $label);
+		parent::__construct($name, $label, $doesExist);
 
-		$this->setExist($doesExist);
+		$this->origValue = $this->value;
 	}
 	
 	function getValue(): mixed {
@@ -37,6 +39,12 @@ class ValueBindable extends BindableAdapter {
 
 	function setValue(mixed $value): void {
 		$this->value = $value;
+	}
+
+	function reset(): void {
+		parent::reset();
+
+		$this->value = $this->origValue;
 	}
 
 }

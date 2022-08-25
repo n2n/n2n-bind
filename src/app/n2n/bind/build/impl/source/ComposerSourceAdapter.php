@@ -35,7 +35,11 @@ abstract class ComposerSourceAdapter implements BindableSource, BindContext {
 	/**
 	 * @var Bindable[]
 	 */
-	private array $bindables = [];
+	private array $bindables;
+	/**
+	 * @var Bindable[]
+	 */
+	private array $originalBindables;
 	/**
 	 * @var Message[]
 	 */
@@ -46,9 +50,13 @@ abstract class ComposerSourceAdapter implements BindableSource, BindContext {
 	 */
 	function __construct(array $bindables = []) {
 		ArgUtils::valArray($bindables, Bindable::class);
+
+		$this->bindables = [];
 		foreach ($bindables as $bindable) {
 			$this->addBindable($bindable);
 		}
+
+		$this->originalBindables = $this->bindables;
 	}
 	
 	public function addGeneralError(Message $message) {
@@ -92,6 +100,10 @@ abstract class ComposerSourceAdapter implements BindableSource, BindContext {
 
 	function reset(): void {
 		$this->generalMessages = [];
-		$this->bindables = [];
+		$this->bindables = $this->originalBindables;
+
+		foreach ($this->bindables as $bindable) {
+			$bindable->reset();
+		}
 	}
 }

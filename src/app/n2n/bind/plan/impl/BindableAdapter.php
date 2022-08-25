@@ -24,9 +24,17 @@ namespace n2n\bind\plan\impl;
 use n2n\validation\plan\DetailedName;
 use n2n\bind\plan\Bindable;
 use n2n\validation\plan\impl\ValidatableAdapter;
+use n2n\l10n\Lstr;
 
 abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
-	private bool $exist = true;
+	private bool $origExist;
+
+	function __construct(DetailedName $name, string|Lstr $label = null, private bool $exist = true) {
+		parent::__construct($name, $label);
+
+		$this->origExist = $this->exist;
+	}
+
 
 	function doesExist(): bool {
 		return $this->exist;
@@ -34,5 +42,11 @@ abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
 
 	function setExist(bool $exist): void {
 		$this->exist = $exist;
+	}
+
+	function reset(): void {
+		parent::reset();
+
+		$this->exist = $this->origExist;
 	}
 }

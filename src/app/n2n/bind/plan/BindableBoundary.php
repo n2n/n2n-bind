@@ -8,14 +8,12 @@ class BindableBoundary {
 	/**
 	 * @var Bindable[]
 	 */
-	private array $bindable = [];
+	private array $bindables = [];
 
 	/**
 	 * @param BindableGroupSource $bindableGroupSource
 	 */
 	function __construct(private BindableGroupSource $bindableGroupSource) {
-		ArgUtils::valArray($this->bindables, Bindable::class);
-
 		foreach ($this->bindableGroupSource->acquireDefaultBindables() as $bindable) {
 			$this->addBindable($bindable);
 		}

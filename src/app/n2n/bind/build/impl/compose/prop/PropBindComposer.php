@@ -30,6 +30,7 @@ use n2n\bind\plan\BindGroup;
 use n2n\validation\validator\Validator;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\ValidatorMapper;
+use n2n\bind\plan\BindResult;
 
 class PropBindComposer implements MagicTask {
 
@@ -116,7 +117,7 @@ class PropBindComposer implements MagicTask {
 				$this->proBindComposerSource));
 	}
 
-	function exec(MagicContext $magicContext): TaskResult {
+	function exec(MagicContext $magicContext): BindResult {
 		return $this->bindPlan->exec($magicContext);
 	}
 }

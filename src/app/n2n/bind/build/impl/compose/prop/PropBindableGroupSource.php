@@ -36,7 +36,7 @@ class PropBindableGroupSource implements BindableGroupSource {
 		$bindables = [];
 		foreach ($this->expressions as $expression) {
 			$iBindables = $this->propBindableSource->acquireBindables($expression, $this->mustExist);
-			ArgUtils::valTypeReturn($iBindables, Bindable::class, $this->propBindableSource, 'acquireBindables');
+			ArgUtils::valArrayReturn($iBindables, $this->propBindableSource, 'acquireBindables', Bindable::class);
 
 			array_push($bindables, ...$iBindables);
 		}

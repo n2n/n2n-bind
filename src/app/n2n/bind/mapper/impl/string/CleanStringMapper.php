@@ -18,7 +18,7 @@ class CleanStringMapper extends SingleMapperAdapter {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
-		$value = $this->readSafeValue($bindable->getValue(), TypeConstraints::string(true));
+		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		if ($value !== null) {
 			$bindable->setValue(StringUtils::clean($value));

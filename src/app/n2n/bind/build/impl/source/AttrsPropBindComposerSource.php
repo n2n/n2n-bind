@@ -77,8 +77,4 @@ class AttrsPropBindComposerSource extends ComposerSourceAdapter implements PropB
 
 		return $valueBindable;
 	}
-
-	function getBindables(): array {
-		return parent::getBindables();
-	}
 }
