@@ -25,6 +25,7 @@ use n2n\validation\plan\Validatable;
 
 interface Bindable extends Validatable {
 
-	 function setValue(mixed $value): void;
+	function setExist(bool $exist): void;
 
+	function setValue(mixed $value): void;
 }

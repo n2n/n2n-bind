@@ -21,21 +21,47 @@
  */
 namespace n2n\bind\build\impl;
 
-use n2n\bind\marshal\MarshalPlan;
 use n2n\util\type\attrs\DataMap;
-use n2n\bind\marshal\UnmarshalComposer;
 use n2n\util\type\attrs\AttributeReader;
-use n2n\util\type\attrs\DataSet;
-use n2n\bind\plan\Bindable;
-use n2n\bind\LazyAttrsBindableSource;
-use n2n\util\type\attrs\AttributeWriter;
-use n2n\bind\build\impl\compose\prop\PropBindComposer;
+use n2n\bind\build\impl\compose\union\UnionBindComposerSource;
+use n2n\bind\build\impl\compose\prop\PropBindComposerSource;
+use n2n\bind\build\impl\source\AttrsPropBindComposerSource;
+use n2n\validation\plan\DetailedName;
+use n2n\bind\build\impl\source\StaticUnionBindComposerSource;
+use n2n\bind\plan\impl\ValueBindable;
 
 class Bind {
 
-	function attrs(AttributeReader $attributeReader, AttributeWriter $attributeWriter) {
-		new PropBindComposer(new LazyAttrsPropBindableSource($attributeReader),
-				new LazyAttrsBindableTarget());
+	static function attrs(AttributeReader|array|PropBindComposerSource $source): PropBindTo {
+		if (is_array($source)) {
+			$source = new DataMap($source);
+		}
+
+		if ($source instanceof AttributeReader) {
+			$source = new AttrsPropBindComposerSource($source);
+		}
+
+		return self::props($source);
 	}
 
+	/**
+	 * @param PropBindComposerSource $source
+	 * @return PropBindTo
+	 */
+	static function props(PropBindComposerSource $source): PropBindTo {
+		return new PropBindTo($source);
+	}
+
+	static function values(...$values): UnionBindTo {
+		$bindables = [];
+		foreach ($values as $key => $value) {
+			$bindables[] = new ValueBindable(new DetailedName([(string) $key]), $value, true);
+		}
+
+		return self::union(new StaticUnionBindComposerSource($bindables));
+	}
+
+	static function union(UnionBindComposerSource $source): UnionBindTo {
+		return new UnionBindTo($source);
+	}
 }

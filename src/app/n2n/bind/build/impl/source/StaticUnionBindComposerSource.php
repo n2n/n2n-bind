@@ -19,10 +19,30 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\source;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\validation\plan\DetailedName;
+use n2n\bind\plan\Bindable;
+use n2n\bind\build\impl\compose\union\UnionBindComposerSource;
+use n2n\bind\plan\impl\ValueBindable;
 
-interface BindContext extends ValidationContext  {
+class StaticUnionBindComposerSource extends ComposerSourceAdapter implements UnionBindComposerSource {
 
+	function acquireBindable(string $name): Bindable {
+		$detailedName = new DetailedName([$name]);
+
+		$bindable = $this->getBindable($detailedName);
+		if ($bindable !== null) {
+			return $bindable;
+		}
+
+		$bindable = new ValueBindable($detailedName, null, false);
+		$this->addBindable($bindable);
+
+		return $bindable;
+	}
+
+	function getBindables(): array {
+		return $this->getBindables();
+	}
 }

@@ -19,10 +19,24 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\plan\impl;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\validation\plan\DetailedName;
 
-interface BindContext extends ValidationContext  {
+class ValueBindable extends BindableAdapter {
+
+	function __construct(DetailedName $name, private mixed $value, bool $doesExist, string $label = null) {
+		parent::__construct($name, $label);
+
+		$this->setExist($doesExist);
+	}
+	
+	function getValue(): mixed {
+		return $this->value;
+	}
+
+	function setValue(mixed $value): void {
+		$this->value = $value;
+	}
 
 }

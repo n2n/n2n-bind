@@ -19,10 +19,38 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\target;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindableTarget;
+use n2n\util\type\attrs\AttributeWriter;
+use n2n\util\type\attrs\AttributePath;
+use n2n\util\type\attrs\AttributesException;
+use n2n\bind\err\BindTargetException;
+use n2n\util\type\ArgUtils;
+use n2n\bind\plan\Bindable;
 
-interface BindContext extends ValidationContext  {
+class AttrsBindableTarget implements BindableTarget {
 
+	function __construct(private AttributeWriter $attributeWriter) {
+	}
+
+	function write(array $bindables): void {
+		ArgUtils::valArray($bindables, Bindable::class);
+
+		foreach ($bindables as $bindable) {
+			if (!$bindable->doesExist()) {
+				continue;
+			}
+
+			try {
+				$this->attributeWriter->writeAttribute(
+						AttributePath::create((string) $bindable->getName()),
+						$bindable->getValue());
+			} catch (AttributesException $e) {
+				throw new BindTargetException('Could not write bindable \'' . $bindable->getName(), 0, $e);
+
+			}
+		}
+
+	}
 }

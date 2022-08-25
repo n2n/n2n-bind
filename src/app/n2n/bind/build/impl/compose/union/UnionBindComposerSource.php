@@ -19,10 +19,21 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\compose\union;
 
+use n2n\validation\plan\Validatable;
+use n2n\validation\plan\ValidatableSource;
 use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindableSource;
+use n2n\bind\plan\BindContext;
+use n2n\bind\plan\Bindable;
 
-interface BindContext extends ValidationContext  {
-
+interface UnionBindComposerSource extends BindableSource, BindContext {
+	/**
+	 * Must not exist.
+	 *
+	 * @param string $name
+	 * @return Bindable
+	 */
+	function acquireBindable(string $name): Bindable;
 }

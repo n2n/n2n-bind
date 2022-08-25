@@ -22,25 +22,43 @@
 namespace n2n\bind\plan;
 
 use n2n\util\type\ArgUtils;
-use n2n\bind\mapper\Mapper;
-use n2n\validation\plan\ValidationContext;
 use n2n\util\magic\MagicContext;
-use n2n\validation\err\UnresolvableValidationException;
-use n2n\bind\err\UnresolvableBindException;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\mapper\Mapper;
 
 class BindGroup {
 
 	/**
 	 * @param Mapper[] $mappers
-	 * @param BendableBoundary $bindableBoundry
+	 * @param BindableGroupSource $bindableGroupSource
 	 */
-	function __construct(private array $mappers, private BendableBoundary $bindableBoundry) {
+	function __construct(private array $mappers, private BindableGroupSource $bindableGroupSource,
+			private BindContext $bindContext) {
 		ArgUtils::valArray($mappers, Mapper::class);
 	}
 
-	function exec(BindContext $bindContext, MagicContext $magicContext): void {
+	/**
+	 * @param BindContext $bindContext
+	 * @param MagicContext $magicContext
+	 * @return bool false if a Mapper could not perform a modification of value due to errors. The bind process should be
+	 * aborted in this case.
+	 * @throws BindMismatchException
+	 */
+	function exec(MagicContext $magicContext): bool {
+		$bindableBoundary = new BindableBoundary($this->bindableGroupSource);
+
 		foreach ($this->mappers as $mapper) {
-			$mapper->map($this->bindableBoundry, $bindContext, $magicContext);
+			$bindables = $bindableBoundary->getBindables();
+			try {
+				if (!$mapper->map($bindableBoundary, $this->bindContext, $magicContext)) {
+					return false;
+				}
+			} catch (BindMismatchException $e) {
+				throw new BindMismatchException('Mapper ' . get_class($mapper) . ' rejected bindables group '
+						. implode(', ', array_map(fn ($b) => $b->getName(), $bindables)), 0, $e);
+			}
 		}
+
+		return true;
 	}
 }

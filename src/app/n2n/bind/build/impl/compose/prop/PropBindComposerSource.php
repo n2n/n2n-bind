@@ -19,10 +19,26 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\compose\prop;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindableSource;
+use n2n\bind\plan\Bindable;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindContext;
 
-interface BindContext extends ValidationContext  {
+interface PropBindComposerSource extends BindableSource, BindContext {
 
+	/**
+	 * @param string $expression
+	 * @param bool $mustExist
+	 * @return Bindable[]
+	 * @throws UnresolvableBindableException only if $mustExist is true
+	 */
+	function acquireBindables(string $expression, bool $mustExist): array;
+
+	/**
+	 * @param string $name
+	 * @return Bindable
+	 */
+	function acquireBindable(string $name): Bindable;
 }

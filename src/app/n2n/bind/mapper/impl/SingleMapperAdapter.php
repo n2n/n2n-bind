@@ -19,10 +19,30 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\mapper\impl;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\util\type\ArgUtils;
+use n2n\bind\plan\Bindable;
+use n2n\bind\plan\BindContext;
+use n2n\util\magic\MagicContext;
+use n2n\bind\plan\BindableBoundary;
 
-interface BindContext extends ValidationContext  {
+abstract class SingleMapperAdapter extends MapperAdapter {
+	
+	final function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
+		foreach ($bindableBoundary->getBindables() as $bindable) {
+			if (!$bindable->doesExist()) {
+				continue;
+			}
 
+			if (!$this->mapSingle($bindable, $bindContext, $magicContext)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	protected abstract function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool;
+	
 }

@@ -19,10 +19,20 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\plan\impl;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\validation\plan\DetailedName;
+use n2n\bind\plan\Bindable;
+use n2n\validation\plan\impl\ValidatableAdapter;
 
-interface BindContext extends ValidationContext  {
+abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
+	private bool $exist = true;
 
+	function doesExist(): bool {
+		return $this->exist;
+	}
+
+	function setExist(bool $exist): void {
+		$this->exist = $exist;
+	}
 }

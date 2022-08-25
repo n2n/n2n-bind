@@ -22,7 +22,7 @@
 namespace n2n\bind\plan;
 
 use n2n\util\magic\MagicContext;
-use n2n\validation\build\impl\Validate;
+use n2n\bind\plan\impl\SimpleBindResult;
 
 class BindPlan {
 
@@ -35,31 +35,34 @@ class BindPlan {
 
 	}
 
-	function addBindGroup(BindGroup $bindGroup) {
+	/**
+	 * @param BindGroup $bindGroup
+	 * @return void
+	 */
+	function addBindGroup(BindGroup $bindGroup): void {
 		$this->bindGroups[] = $bindGroup;
 	}
 
-	function exec(MagicContext $magicContext) {
+	/**
+	 * @param MagicContext $magicContext
+	 * @return BindResult
+	 */
+	function exec(MagicContext $magicContext): BindResult {
 		$this->bindableSource->reset();
 
 		foreach ($this->bindGroups as $bindGroup) {
-			if (!$bindGroup->exec($this->bindableSource, $magicContext)) {
-				return new BindResult(true, $this->bindContext->createErrorMap());
+			if (!$bindGroup->exec( $magicContext)) {
+				return new SimpleBindResult($this->bindableSource->createErrorMap());
 			}
 		}
 
-		if ($this->bindContext->hasErrors()) {
-			return new BindResult(true, $this->bindContext->createErrorMap());
+		$errorMap = $this->bindableSource->createErrorMap();
+		if (!$errorMap->isEmpty()) {
+			return new SimpleBindResult($errorMap);
 		}
 
-		foreach ($this->bindContext->getBindables() as $bindable) {
-			if (!$bindable->doesExist()) {
-				continue;
-			}
+		$this->bindableTarget->write($this->bindableSource->getBindables());
 
-			$this->bindableTarget->acquireBindableOutput($bindable->getName())
-					->setValue($bindable->getValue());
-		}
+		return new SimpleBindResult(null);
 	}
-
 }

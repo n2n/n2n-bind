@@ -19,10 +19,31 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\compose\prop;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindableGroupSource;
+use n2n\bind\plan\Bindable;
+use n2n\util\type\ArgUtils;
 
-interface BindContext extends ValidationContext  {
+class PropBindableGroupSource implements BindableGroupSource {
 
+	function __construct(private PropBindComposerSource $propBindableSource,
+			private array $expressions, private bool $mustExist) {
+		ArgUtils::valArray($this->expressions, 'string');
+	}
+
+	function acquireDefaultBindables(): array {
+		$bindables = [];
+		foreach ($this->expressions as $expression) {
+			$iBindables = $this->propBindableSource->acquireBindables($expression, $this->mustExist);
+			ArgUtils::valTypeReturn($iBindables, Bindable::class, $this->propBindableSource, 'acquireBindables');
+
+			array_push($bindables, ...$iBindables);
+		}
+		return $bindables;
+	}
+
+	function acquireBindable(string $name): Bindable {
+		return $this->propBindableSource->acquireBindable($name);
+	}
 }

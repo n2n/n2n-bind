@@ -19,10 +19,9 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\err;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\util\magic\MagicTaskExecutionException;
 
-interface BindContext extends ValidationContext  {
-
+class UnresolvableBindableException extends BindException implements MagicTaskExecutionException {
 }

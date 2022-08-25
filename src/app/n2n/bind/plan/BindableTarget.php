@@ -21,18 +21,14 @@
  */
 namespace n2n\bind\plan;
 
-use n2n\validation\plan\Validatable;
+use n2n\bind\err\BindTargetException;
 
 interface BindableTarget {
 
 	/**
-	 * @return Validatable[]
-	 */
-	function getValidators(): array;
-
-	/**
-	 * @param mixed $value
+	 * @param Bindable[] $bindables includes {@link Bindable}s which do not exists.
 	 * @return void
+	 * @throws BindTargetException
 	 */
-	function setValue(mixed $value): void;
+	function write(array $bindables): void;
 }

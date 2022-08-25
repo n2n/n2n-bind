@@ -19,10 +19,22 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\compose\union;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindableGroupSource;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\Bindable;
 
-interface BindContext extends ValidationContext  {
+class UnionBindableGroupSource implements BindableGroupSource {
 
+	function __construct(private UnionBindComposerSource $unionBindComposerSource) {
+	}
+
+	function acquireDefaultBindables(): array {
+		return $this->unionBindComposerSource->getBindables();
+	}
+
+	function acquireBindable(string $name): Bindable {
+		return $this->unionBindComposerSource->acquireBindable($name);
+	}
 }

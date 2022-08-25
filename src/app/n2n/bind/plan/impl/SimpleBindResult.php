@@ -19,8 +19,11 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\err;
+namespace n2n\bind\plan\impl;
 
-class UnresolvableBindException extends  BindException {
+use n2n\bind\plan\BindResult;
+use n2n\validation\plan\impl\SimpleValidationResult;
+
+class SimpleBindResult extends SimpleValidationResult implements BindResult {
+
 }
-

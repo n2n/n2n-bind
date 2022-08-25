@@ -21,6 +21,6 @@
  */
 namespace n2n\bind\err;
 
-class BindMismatchException extends ValidationException {
+class BindMismatchException extends BindException {
 }
 

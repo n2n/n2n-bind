@@ -21,8 +21,8 @@
  */
 namespace n2n\bind\plan;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\validation\plan\ValidationResult;
 
-interface BindContext extends ValidationContext  {
+interface BindResult extends ValidationResult {
 
 }

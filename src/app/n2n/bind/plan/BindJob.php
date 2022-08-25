@@ -21,8 +21,16 @@
  */
 namespace n2n\bind\plan;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\util\magic\MagicTask;
+use n2n\util\magic\MagicContext;
+use n2n\bind\err\BindException;
 
-interface BindContext extends ValidationContext  {
+interface BindJob extends MagicTask {
 
+	/**
+	 * @param MagicContext $magicContext
+	 * @return BindResult
+	 * @throws BindException
+	 */
+	function exec(MagicContext $magicContext): BindResult;
 }

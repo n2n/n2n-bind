@@ -21,10 +21,12 @@
  */
 namespace n2n\bind\plan;
 
+use n2n\validation\plan\ErrorMap;
+
 interface BindableSource {
 
 	/**
-	 * A new bind cycle begins. All errors of defined validatables should be removed
+	 * A new bind cycle begins. All errors of defined bindables should be removed
 	 *
 	 * @return void
 	 */
@@ -34,4 +36,9 @@ interface BindableSource {
 	 * @return Bindable[]
 	 */
 	function getBindables(): array;
+
+	/**
+	 * @return ErrorMap
+	 */
+	function createErrorMap(): ErrorMap;
 }

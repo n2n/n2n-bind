@@ -2,20 +2,20 @@
 
 namespace n2n\bind\plan;
 
-class BendableBoundary {
+use n2n\bind\err\UnresolvableBindableException;
 
-	function prepare() {
-
-	}
+interface BindableGroupSource {
 
 	/**
 	 * @return Bindable[]
+	 * @throws UnresolvableBindableException
 	 */
-	function getBindables(): array;
+	function acquireDefaultBindables(): array;
 
 	/**
 	 * @param string $name
 	 * @return Bindable
 	 */
 	function acquireBindable(string $name): Bindable;
+
 }

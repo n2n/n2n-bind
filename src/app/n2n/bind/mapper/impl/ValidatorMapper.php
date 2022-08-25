@@ -19,10 +19,34 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\mapper\impl;
 
-use n2n\validation\plan\ValidationContext;
+use n2n\validation\validator\Validator;
+use n2n\bind\plan\BindableBoundary;
+use n2n\util\magic\MagicContext;
+use n2n\bind\plan\BindContext;
 
-interface BindContext extends ValidationContext  {
+class ValidatorMapper extends MapperAdapter {
 
+	function __construct(private Validator $validator) {
+
+	}
+
+	function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
+		$this->validator->validate($bindableBoundary->getBindables(), $bindContext, $magicContext);
+		return true;
+	}
+
+	/**
+	 * @param array
+	 * @return array
+	 */
+	static function convertValidators(array $validators) {
+		foreach ($validators as $key => $validator) {
+			if ($validator instanceof Validator) {
+				$validators[$key] = new ValidatorMapper($validator);
+			}
+		}
+		return $validators;
+	}
 }
