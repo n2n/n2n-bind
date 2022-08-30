@@ -31,7 +31,7 @@ use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\build\impl\Bind;
 
-class CleanStringTest extends TestCase {
+class CleanStringMapperTest extends TestCase {
 
 
 	function testAttrs() {
@@ -53,9 +53,9 @@ class CleanStringTest extends TestCase {
 		$this->assertFalse(ctype_print("\x06"));
 
 		$sdm = new DataMap([
-				'firstname' => str_repeat('A', 256) ,
-				'lastname' => 'von  ' . "\t" . 'Testen ' . "\r\n",
-				'huii' => [ 'hoi' => null ]
+			'firstname' => str_repeat('A', 256) ,
+			'lastname' => 'von  ' . "\t" . 'Testen ' . "\r\n",
+			'huii' => [ 'hoi' => null ]
 		]);
 		$tdm = new DataMap();
 
