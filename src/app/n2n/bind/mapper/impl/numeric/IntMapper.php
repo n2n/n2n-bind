@@ -31,7 +31,7 @@ use n2n\validation\validator\Validator;
 use n2n\bind\plan\BindContext;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
 
-class CleanIntMapper extends SingleMapperAdapter {
+class IntMapper extends SingleMapperAdapter {
 
 	function __construct(private bool $mandatory, private ?int $minlength, private ?int $maxlength) {
 	}

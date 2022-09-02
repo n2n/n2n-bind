@@ -22,7 +22,8 @@
 namespace n2n\bind\mapper\impl;
 
 use n2n\bind\mapper\impl\string\CleanStringMapper;
-use n2n\bind\mapper\impl\numeric\CleanIntMapper;
+use n2n\bind\mapper\impl\numeric\IntMapper;
+use n2n\bind\mapper\impl\string\EmailMapper;
 
 class Mappers {
 
@@ -30,7 +31,11 @@ class Mappers {
 		return new CleanStringMapper($mandatory, $minlength, $maxlength);
 	}
 
-	static function cleanInt(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): CleanIntMapper {
-		return new CleanIntMapper($mandatory, $min, $max);
+	static function int(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): IntMapper {
+		return new IntMapper($mandatory, $min, $max);
+	}
+
+	static function email(bool $mandatory = false) {
+		return new EmailMapper($mandatory);
 	}
 }
