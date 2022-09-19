@@ -8,6 +8,7 @@ use n2n\bind\build\impl\compose\union\UnionBindComposer;
 use n2n\bind\build\impl\target\AttrsBindableTarget;
 use n2n\bind\build\impl\target\RefBindableTarget;
 use n2n\bind\plan\BindableTarget;
+use n2n\bind\build\impl\target\ObjectBindableTarget;
 
 class UnionBindTo {
 
@@ -37,6 +38,15 @@ class UnionBindTo {
 	function toValue(&$value): UnionBindComposer {
 		return $this->to(new RefBindableTarget($value, false));
 	}
+
+	/**
+	 * @param object $obj
+	 * @return UnionBindComposer
+	 */
+	function toObj(object $obj): UnionBindComposer {
+		return $this->to(new ObjectBindableTarget($obj));
+	}
+
 
 	/**
 	 * @param BindableTarget $target
