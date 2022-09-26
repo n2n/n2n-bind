@@ -37,12 +37,16 @@ class Mappers {
 		return new IntMapper($mandatory, $min, $max);
 	}
 
-	static function email(bool $mandatory = false) {
+	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
 	}
 
-	public static function propsClosure(\Closure $closure) {
-		return new PropsClosureMapper($closure);
+	public static function propsClosure(\Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, true);
+	}
+
+	public static function propsClosureAny(\Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, false);
 	}
 
 	public static function valueClosure(\Closure $closure) {

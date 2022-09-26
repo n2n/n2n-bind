@@ -14,7 +14,7 @@ class PropsClosureMapper extends MapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure) {
+	public function __construct(\Closure $closure, private bool $executeIfNotExist) {
 		$this->closure = $closure;
 	}
 
@@ -28,18 +28,20 @@ class PropsClosureMapper extends MapperAdapter {
 			$bindablesMap[(string) $bindable->getName()] = $bindable;
 		}
 
-		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(), $bindablesMap);
+		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(),
+				array_filter($bindablesMap, fn (Bindable $b) => $b->doesExist()));
+
+		if (!$this->executeIfNotExist && empty($valuesMap)) {
+			return true;
+		}
+
 		$returnValuesMap = $invoker->invoke(null, null, [$valuesMap]);
 
 		foreach ($returnValuesMap as $name => $value) {
-			if (isset($bindablesMap[$name])) {
-				$bindable = $bindablesMap[$name];
-				unset($bindablesMap[$name]);
-			} else {
-				$bindable = $bindableBoundary->acquireBindable($name);
-			}
-
+			$bindable = $bindablesMap[$name] ?? $bindableBoundary->acquireBindable($name);
 			$bindable->setValue($value);
+			unset($bindablesMap[$name]);
+			$bindable->setExist(true);
 		}
 
 		foreach ($bindablesMap as $leftoverBindable) {

@@ -35,4 +35,38 @@ class PropsClosureMapperTest extends TestCase {
 		$this->assertEquals([], $obj->getArray());
 		$this->assertEquals( null, $obj->getObj());
 	}
+
+	function testOptProps() {
+		$arr = [];
+		Bind::attrs([])->toArray($arr)
+				->optProps(['password'], Mappers::propsClosureAny(function ($values) {
+					$this->assertEquals([], $values);
+
+					return ['passwordHash' => 'very good hash 82o4jklj'];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals([], $arr);
+
+
+		$arr = [];
+		Bind::attrs([])->toArray($arr)
+				->optProps(['password'], Mappers::propsClosure(function ($values) {
+					$this->assertEquals([], $values);
+
+					return ['passwordHash' => 'very good hash'];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals(['passwordHash' => 'very good hash'], $arr);
+
+
+		$arr = [];
+		Bind::attrs(['password' => 'huii'])->toArray($arr)
+				->optProps(['password'], Mappers::propsClosure(function ($values) {
+					$this->assertEquals(['password' => 'huii'], $values);
+
+					return ['passwordHash' => 'very good hash ' . $values['password']];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals(['passwordHash' => 'very good hash huii'], $arr);
+	}
 }
