@@ -5,7 +5,7 @@ class BindTestClass {
 	private string $string = '';
 	private int $int = 0;
 	private array $array = [];
-	private ?BindTestClass $obj;
+	private ?BindTestClass $obj = null;
 	private $unaccessible;
 
 	/**

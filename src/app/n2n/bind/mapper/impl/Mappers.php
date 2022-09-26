@@ -24,6 +24,8 @@ namespace n2n\bind\mapper\impl;
 use n2n\bind\mapper\impl\string\CleanStringMapper;
 use n2n\bind\mapper\impl\numeric\IntMapper;
 use n2n\bind\mapper\impl\string\EmailMapper;
+use n2n\bind\mapper\impl\closure\PropsClosureMapper;
+use n2n\bind\mapper\impl\closure\ValueClosureMapper;
 
 class Mappers {
 
@@ -37,5 +39,13 @@ class Mappers {
 
 	static function email(bool $mandatory = false) {
 		return new EmailMapper($mandatory);
+	}
+
+	public static function propsClosure(\Closure $closure) {
+		return new PropsClosureMapper($closure);
+	}
+
+	public static function valueClosure(\Closure $closure) {
+		return new ValueClosureMapper($closure);
 	}
 }
