@@ -37,6 +37,7 @@ class PropsClosureMapper extends MapperAdapter {
 				unset($bindablesMap[$name]);
 			} else {
 				$bindable = $bindableBoundary->acquireBindable($name);
+				$bindable->setExist(true);
 			}
 
 			$bindable->setValue($value);
