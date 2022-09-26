@@ -42,11 +42,15 @@ class Mappers {
 	}
 
 	public static function propsClosure(\Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, true);
+		return new PropsClosureMapper($closure, null);
 	}
 
 	public static function propsClosureAny(\Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, false);
+	}
+
+	public static function propsClosureEvery(\Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, true);
 	}
 
 	public static function valueClosure(\Closure $closure) {

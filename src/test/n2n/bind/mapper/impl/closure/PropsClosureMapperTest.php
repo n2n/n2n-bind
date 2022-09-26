@@ -39,17 +39,6 @@ class PropsClosureMapperTest extends TestCase {
 	function testOptProps() {
 		$arr = [];
 		Bind::attrs([])->toArray($arr)
-				->optProps(['password'], Mappers::propsClosureAny(function ($values) {
-					$this->assertEquals([], $values);
-
-					return ['passwordHash' => 'very good hash 82o4jklj'];
-				}))->exec($this->createMock(MagicContext::class));
-
-		$this->assertEquals([], $arr);
-
-
-		$arr = [];
-		Bind::attrs([])->toArray($arr)
 				->optProps(['password'], Mappers::propsClosure(function ($values) {
 					$this->assertEquals([], $values);
 
@@ -68,5 +57,51 @@ class PropsClosureMapperTest extends TestCase {
 				}))->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals(['passwordHash' => 'very good hash huii'], $arr);
+	}
+
+	function testOptPropsAny() {
+		$resultArr = [];
+		Bind::attrs([])->toArray($resultArr)
+				->optProps(['password'], Mappers::propsClosureAny(function ($values) {
+					$this->assertEquals([], $values);
+
+					return ['passwordHash' => 'very good hash 82o4jklj'];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals([], $resultArr);
+
+
+		$resultArr = [];
+		Bind::attrs(['huii' => 'hoi'])->toArray($resultArr)
+				->optProps(['huii'], Mappers::propsClosureAny(function ($values) {
+					$this->assertEquals(['huii' => 'hoi'], $values);
+
+					return ['huii' => 'very good hash'];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals(['huii' => 'very good hash'], $resultArr);
+	}
+
+
+
+	function testOptPropsEvery() {
+		$resultArr = [];
+		Bind::attrs(['huii' => 'hoi'])->toArray($resultArr)
+				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function ($values) {
+					$this->fail('Must not be executed.');
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals(['huii' => 'hoi'], $resultArr);
+
+
+		$resultArr = [];
+		Bind::attrs(['huii' => 'hoi', 'huii2' => 'hoi2'])->toArray($resultArr)
+				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function ($values) {
+					$this->assertEquals(['huii' => 'hoi', 'huii2' => 'hoi2'], $values);
+
+					return ['huii' => 'changed'];
+				}))->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals(['huii' => 'changed'], $resultArr);
 	}
 }

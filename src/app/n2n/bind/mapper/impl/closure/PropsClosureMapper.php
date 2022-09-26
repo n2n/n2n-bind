@@ -14,7 +14,7 @@ class PropsClosureMapper extends MapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure, private bool $executeIfNotExist) {
+	public function __construct(\Closure $closure, private ?bool $everyBindableMustExist) {
 		$this->closure = $closure;
 	}
 
@@ -31,7 +31,8 @@ class PropsClosureMapper extends MapperAdapter {
 		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(),
 				array_filter($bindablesMap, fn (Bindable $b) => $b->doesExist()));
 
-		if (!$this->executeIfNotExist && empty($valuesMap)) {
+		if (($this->everyBindableMustExist === false && empty($valuesMap))
+				|| ($this->everyBindableMustExist === true && count($valuesMap) < count($bindablesMap))) {
 			return true;
 		}
 
