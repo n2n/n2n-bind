@@ -40,8 +40,9 @@ abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
 		return $this->exist;
 	}
 
-	function setExist(bool $exist): void {
+	function setExist(bool $exist): static {
 		$this->exist = $exist;
+		return $this;
 	}
 
 	function reset(): void {

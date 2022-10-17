@@ -29,42 +29,92 @@ use n2n\bind\mapper\impl\closure\ValueClosureMapper;
 use n2n\util\type\TypeConstraint;
 use n2n\bind\mapper\impl\type\TypeMapper;
 use n2n\bind\mapper\impl\closure\BindableClosureMapper;
+use n2n\bind\mapper\impl\closure\BindablesClosureMapper;
+use Closure;
 
 class Mappers {
 
+	/**
+	 * @param bool $mandatory
+	 * @param int|null $minlength
+	 * @param int|null $maxlength
+	 * @return CleanStringMapper
+	 */
 	static function cleanString(bool $mandatory = false, ?int $minlength = 0, ?int $maxlength = 255): CleanStringMapper {
 		return new CleanStringMapper($mandatory, $minlength, $maxlength);
 	}
 
+	/**
+	 * @param bool $mandatory
+	 * @param int|null $min
+	 * @param int|null $max
+	 * @return IntMapper
+	 */
 	static function int(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
 	}
 
+	/**
+	 * @param TypeConstraint $typeConstraint
+	 * @return TypeMapper
+	 */
 	static function type(TypeConstraint $typeConstraint): TypeMapper {
 		return new TypeMapper($typeConstraint);
 	}
 
+	/**
+	 * @param bool $mandatory
+	 * @return EmailMapper
+	 */
 	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
 	}
 
-	public static function propsClosure(\Closure $closure): PropsClosureMapper {
+	/**
+	 * @param Closure $closure
+	 * @return PropsClosureMapper
+	 */
+	public static function propsClosure(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, null);
 	}
 
-	public static function propsClosureAny(\Closure $closure): PropsClosureMapper {
+	/**
+	 * @param Closure $closure
+	 * @return PropsClosureMapper
+	 */
+	public static function propsClosureAny(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, false);
 	}
 
-	public static function propsClosureEvery(\Closure $closure): PropsClosureMapper {
+	/**
+	 * @param Closure $closure
+	 * @return PropsClosureMapper
+	 */
+	public static function propsClosureEvery(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, true);
 	}
 
-	public static function valueClosure(\Closure $closure) {
+	/**
+	 * @param Closure $closure
+	 * @return ValueClosureMapper
+	 */
+	public static function valueClosure(Closure $closure) {
 		return new ValueClosureMapper($closure);
 	}
 
-	static function bindableClosure(\Closure $closure) {
+	/**
+	 * @param Closure $closure
+	 * @return BindableClosureMapper
+	 */
+	static function bindableClosure(Closure $closure): BindableClosureMapper {
 		return new BindableClosureMapper($closure);
+	}
+
+	/**
+	 * @param Closure $closure
+	 * @return BindablesClosureMapper
+	 */
+	static function bindablesClosure(Closure $closure): BindablesClosureMapper {
+		return new BindablesClosureMapper($closure);
 	}
 }
