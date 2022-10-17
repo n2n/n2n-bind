@@ -33,11 +33,35 @@ class BindableClosureMapperTest extends TestCase {
 
 
 		Bind::attrs($dm)->toObj($obj)
-				->prop('int', Mappers::bindableClosure(function ($bindable) use ($dm) {
-					$bindable->setValue($bindable->getValue() + 1);
-				}))
+				->prop('int',
+						Mappers::bindableClosure(function ($bindable) use ($dm) {
+							$bindable->setValue($bindable->getValue() + 1);
+							return true;
+						}),
+						Mappers::bindableClosure(function ($bindable) use ($dm) {
+							$bindable->setValue($bindable->getValue() + 1);
+						}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertEquals(322, $obj->getInt());
+		$this->assertEquals(323, $obj->getInt());
+	}
+
+	function testBindableClosureAbort() {
+		$dm = new DataMap(['string' => 'test', 'obj' => null, 'int' => 321]);
+		$obj = new BindTestClass();
+
+		$result = Bind::attrs($dm)->toObj($obj)
+				->prop('int',
+						Mappers::bindableClosure(function ($bindable) use ($dm) {
+							$bindable->setValue($bindable->getValue() + 1);
+							return true;
+						}),
+						Mappers::bindableClosure(function ($bindable) use ($dm) {
+							$bindable->setValue($bindable->getValue() + 1);
+							return false;
+						}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$this->assertTrue($result->hasErrors());
+		$this->assertEquals(0, $obj->getInt());
 	}
 
 	function testBindableClosureWrongType() {
@@ -47,6 +71,7 @@ class BindableClosureMapperTest extends TestCase {
 				->prop('string', Mappers::bindableClosure(function (Bindable $bindable) use ($dm) {
 					$this->assertEquals(123, $bindable->getValue());
 					$bindable->setValue(123);
+					return true;
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}

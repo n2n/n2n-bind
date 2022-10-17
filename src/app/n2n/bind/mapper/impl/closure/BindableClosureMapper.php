@@ -20,10 +20,8 @@ class BindableClosureMapper extends SingleMapperAdapter {
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setClosure($this->closure);
-		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
+		$invoker->setReturnTypeConstraint(TypeConstraints::bool(true));
 
-		$invoker->invoke(null, null, [$bindable]);
-
-		return true;
+		return $invoker->invoke(null, null, [$bindable]) ?? true;
 	}
 }
