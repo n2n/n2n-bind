@@ -28,6 +28,7 @@ use n2n\bind\mapper\impl\closure\PropsClosureMapper;
 use n2n\bind\mapper\impl\closure\ValueClosureMapper;
 use n2n\util\type\TypeConstraint;
 use n2n\bind\mapper\impl\type\TypeMapper;
+use n2n\bind\mapper\impl\closure\BindableClosureMapper;
 
 class Mappers {
 
@@ -61,5 +62,9 @@ class Mappers {
 
 	public static function valueClosure(\Closure $closure) {
 		return new ValueClosureMapper($closure);
+	}
+
+	static function bindableClosure(\Closure $closure) {
+		return new BindableClosureMapper($closure);
 	}
 }
