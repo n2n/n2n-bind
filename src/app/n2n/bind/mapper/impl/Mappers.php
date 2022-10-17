@@ -26,6 +26,8 @@ use n2n\bind\mapper\impl\numeric\IntMapper;
 use n2n\bind\mapper\impl\string\EmailMapper;
 use n2n\bind\mapper\impl\closure\PropsClosureMapper;
 use n2n\bind\mapper\impl\closure\ValueClosureMapper;
+use n2n\util\type\TypeConstraint;
+use n2n\bind\mapper\impl\type\TypeMapper;
 
 class Mappers {
 
@@ -35,6 +37,10 @@ class Mappers {
 
 	static function int(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
+	}
+
+	static function type(TypeConstraint $typeConstraint): TypeMapper {
+		return new TypeMapper($typeConstraint);
 	}
 
 	static function email(bool $mandatory = false): EmailMapper {
