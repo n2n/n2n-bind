@@ -21,8 +21,8 @@
 		"vendor-dir" : "src/vendor"
 	},
 	"require" : {
-		"n2n/n2n-util" : "~7.3",
-        "n2n/n2n-validation": "~7.3"
+		"n2n/n2n-util" : "~7.4",
+        "n2n/n2n-validation": "~7.4"
 	},
 	"autoload" : {
 		"psr-4" : {
