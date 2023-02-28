@@ -29,7 +29,7 @@ class EnumMapperTest extends TestCase {
 
 		$this->expectException(InvalidArgumentException::class);
 
-		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['timezone'], Mappers::enum(false, MockEnum::class))
+		Bind::attrs($sdm)->toAttrs($tdm)->props(['timezone'], Mappers::enum(false, MockEnum::class))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 }
