@@ -30,13 +30,13 @@ class ObjectBindableTarget implements BindableTarget {
 				$propertyAccessProxy = $this->propertiesAnalyzer->analyzeProperty($bindable->getName());
 			} catch (ReflectionException $e) {
 				throw new BindTargetException('Property \'' . $bindable->getName() . '\' in '
-						. $this->propertiesAnalyzer->getClass()->getName() . ' not accessible.', null, $e);
+						. $this->propertiesAnalyzer->getClass()->getName() . ' not accessible.', 0, $e);
 			}
 
 			try {
 				$propertyAccessProxy->setValue($this->obj, $bindable->getValue());
 			} catch (ValueIncompatibleWithConstraintsException|ReflectionException $e) {
-				throw new BindTargetException('Could not write: \'' . $bindable->getName() . '\'', null, $e);
+				throw new BindTargetException('Could not write: \'' . $bindable->getName() . '\'', 0, $e);
 			}
 		}
 	}

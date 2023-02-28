@@ -44,9 +44,15 @@ abstract class MapperAdapter implements Mapper {
 		try {
 			return $typeConstraint->validate($bindable->getValue());
 		} catch (ValueIncompatibleWithConstraintsException $e) {
-			throw new BindMismatchException('Bindable ' . $bindable->getName() . ' is not compatible with '
-					. get_class($this), 0, $e);
+//			throw new BindMismatchException('Bindable ' . $bindable->getName() . ' is not compatible with '
+//					. get_class($this), 0, $e);
+			throw $this->createMismatchException($bindable, null, $e);
 		}
+	}
+
+	protected function createMismatchException(Bindable $bindable, string $reason = null, \Throwable $previous = null) {
+		throw new BindMismatchException('Bindable ' . $bindable->getName() . ' is not compatible with '
+				. get_class($this) . ($reason === null ? '' : 'Reason: ' . $reason), 0, $previous);
 	}
 
 	/**

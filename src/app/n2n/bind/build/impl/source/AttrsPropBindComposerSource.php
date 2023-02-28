@@ -67,7 +67,7 @@ class AttrsPropBindComposerSource extends ComposerSourceAdapter implements PropB
 			$valueBindable = new ValueBindable($detailedName, $value, true);
 		} catch (AttributesException $e) {
 			if ($mustExist) {
-				throw new UnresolvableBindableException('Could not resolve bindable: ' . $name, null, $e);
+				throw new UnresolvableBindableException('Could not resolve bindable: ' . $name, 0, $e);
 			}
 
 			$valueBindable = new ValueBindable($detailedName, null, false);

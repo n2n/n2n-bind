@@ -37,8 +37,9 @@ class ValueBindable extends BindableAdapter {
 		return $this->value;
 	}
 
-	function setValue(mixed $value): void {
+	function setValue(mixed $value): static {
 		$this->value = $value;
+		return $this;
 	}
 
 	function reset(): void {
