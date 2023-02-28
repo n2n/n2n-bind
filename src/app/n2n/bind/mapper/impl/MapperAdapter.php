@@ -39,6 +39,7 @@ abstract class MapperAdapter implements Mapper {
 	 * @param Bindable $bindable
 	 * @param TypeConstraint $typeConstraint
 	 * @return mixed
+	 * @throws BindMismatchException {@see Mapper::map()}
 	 */
 	protected function readSafeValue(Bindable $bindable, TypeConstraint $typeConstraint) {
 		try {

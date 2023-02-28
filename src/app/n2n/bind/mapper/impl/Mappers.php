@@ -32,6 +32,7 @@ use n2n\bind\mapper\impl\closure\BindableClosureMapper;
 use n2n\bind\mapper\impl\closure\BindablesClosureMapper;
 use Closure;
 use n2n\bind\mapper\impl\enum\EnumMapper;
+use n2n\util\EnumUtils;
 
 class Mappers {
 
@@ -119,7 +120,7 @@ class Mappers {
 		return new BindablesClosureMapper($closure);
 	}
 
-	public static function enum(bool $mandatory, \ReflectionEnum|string $class) {
-		return new EnumMapper($mandatory, $class);
+	public static function enum(\ReflectionEnum|string $enum, bool $mandatory = false): EnumMapper {
+		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
 	}
 }

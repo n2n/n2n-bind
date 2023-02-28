@@ -26,9 +26,16 @@ use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindableBoundary;
+use n2n\bind\err\BindMismatchException;
 
 abstract class SingleMapperAdapter extends MapperAdapter {
-	
+	/**
+	 * @param BindableBoundary $bindableBoundary
+	 * @param BindContext $bindContext
+	 * @param MagicContext $magicContext
+	 * @return bool
+	 * @throws BindMismatchException {@see Mapper::map()}
+	 */
 	final function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
 		foreach ($bindableBoundary->getBindables() as $bindable) {
 			if (!$bindable->doesExist()) {
@@ -42,7 +49,14 @@ abstract class SingleMapperAdapter extends MapperAdapter {
 
 		return true;
 	}
-	
+
+	/**
+	 * @param Bindable $bindable
+	 * @param BindContext $bindContext
+	 * @param MagicContext $magicContext
+	 * @return bool
+	 * @throws BindMismatchException {@see Mapper::map()}
+	 */
 	protected abstract function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool;
 	
 }

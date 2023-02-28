@@ -1,5 +1,4 @@
 <?php
-
 namespace n2n\bind\mapper\impl\enum\mock;
 
 enum MockEnum: string {

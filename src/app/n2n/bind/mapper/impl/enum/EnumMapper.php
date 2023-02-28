@@ -9,19 +9,20 @@ use n2n\validation\plan\ValidationGroup;
 use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
-use n2n\util\type\UnionTypeConstraint;
+use n2n\util\type\TypeConstraints;
 use n2n\util\EnumUtils;
 
 class EnumMapper extends SingleMapperAdapter {
-	function __construct(private bool $mandatory, private \ReflectionEnum|string $enum) {
+	function __construct(private \ReflectionEnum $enum, private bool $mandatory) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
-		$value = $this->readSafeValue($bindable, UnionTypeConstraint::from('string|int|null', false));
+		$value = $this->readSafeValue($bindable, TypeConstraints::namedType($this->enum, true, true));
+		// @todo: test null without ''
 
-		if ($value !== null) {
-			$bindable->setValue(EnumUtils::backedToUnit($value, $this->enum));
-		}
+		if (EnumUtils::valEnumArg())
+
+		$bindable->setValue($value);
 
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
 		$validationGroup->exec($magicContext);
