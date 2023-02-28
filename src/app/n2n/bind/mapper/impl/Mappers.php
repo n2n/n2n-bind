@@ -26,6 +26,7 @@ use n2n\bind\mapper\impl\numeric\IntMapper;
 use n2n\bind\mapper\impl\string\EmailMapper;
 use n2n\bind\mapper\impl\closure\PropsClosureMapper;
 use n2n\bind\mapper\impl\closure\ValueClosureMapper;
+use n2n\bind\mapper\impl\enum\EnumMapper;
 
 class Mappers {
 
@@ -55,5 +56,9 @@ class Mappers {
 
 	public static function valueClosure(\Closure $closure) {
 		return new ValueClosureMapper($closure);
+	}
+
+	public static function enum(bool $mandatory, \ReflectionEnum|string $class) {
+		return new EnumMapper($mandatory, $class);
 	}
 }
