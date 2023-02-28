@@ -20,8 +20,6 @@ class EnumMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::namedType($this->enum, true, true));
 		// @todo: test null without ''
 
-		if (EnumUtils::valEnumArg())
-
 		$bindable->setValue($value);
 
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
