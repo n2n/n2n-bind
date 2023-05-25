@@ -33,6 +33,7 @@ use n2n\bind\mapper\impl\closure\BindablesClosureMapper;
 use Closure;
 use n2n\bind\mapper\impl\enum\EnumMapper;
 use n2n\util\EnumUtils;
+use n2n\bind\mapper\impl\date\DateTimeMapper;
 
 class Mappers {
 
@@ -122,5 +123,9 @@ class Mappers {
 
 	public static function enum(\ReflectionEnum|string $enum, bool $mandatory = false): EnumMapper {
 		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
+	}
+
+	public static function dateTime(bool $mandatory = false, ?\DateTime $min = null, ?\DateTime $max = null): DateTimeMapper {
+		return new DateTimeMapper($mandatory, $min, $max);
 	}
 }

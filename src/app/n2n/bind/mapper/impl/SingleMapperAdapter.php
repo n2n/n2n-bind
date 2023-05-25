@@ -21,7 +21,6 @@
  */
 namespace n2n\bind\mapper\impl;
 
-use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
