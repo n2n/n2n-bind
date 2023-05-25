@@ -22,8 +22,9 @@
 	},
 	"require" : {
 		"n2n/n2n-util" : "~7.4",
-        "n2n/n2n-validation": "~7.4"
-	},
+        "n2n/n2n-validation": "~7.4",
+        "ext-ctype": "*"
+    },
 	"autoload" : {
 		"psr-4" : {
 			"n2n\\bind\\" : "src/app/n2n/bind"

@@ -34,6 +34,7 @@ use Closure;
 use n2n\bind\mapper\impl\enum\EnumMapper;
 use n2n\util\EnumUtils;
 use n2n\bind\mapper\impl\date\DateTimeMapper;
+use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
 
 class Mappers {
 
@@ -121,11 +122,15 @@ class Mappers {
 		return new BindablesClosureMapper($closure);
 	}
 
-	public static function enum(\ReflectionEnum|string $enum, bool $mandatory = false): EnumMapper {
+	static function enum(\ReflectionEnum|string $enum, bool $mandatory = false): EnumMapper {
 		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
 	}
 
 	public static function dateTime(bool $mandatory = false, ?\DateTime $min = null, ?\DateTime $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
+	}
+
+	static function n2nLocale(bool $mandatory = false, array $allowedValues = null) {
+		return new N2nLocaleMapper($mandatory, $allowedValues);
 	}
 }

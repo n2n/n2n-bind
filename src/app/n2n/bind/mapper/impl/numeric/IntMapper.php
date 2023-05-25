@@ -33,7 +33,7 @@ use n2n\bind\mapper\impl\SingleMapperAdapter;
 
 class IntMapper extends SingleMapperAdapter {
 
-	function __construct(private bool $mandatory, private ?int $minlength, private ?int $maxlength) {
+	function __construct(private bool $mandatory, private ?int $min, private ?int $max) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
@@ -58,12 +58,12 @@ class IntMapper extends SingleMapperAdapter {
 			$validators[] = Validators::mandatory();
 		}
 
-		if ($this->minlength !== null) {
-			$validators[] = Validators::minlength($this->minlength);
+		if ($this->min !== null) {
+			$validators[] = Validators::min($this->min);
 		}
 
-		if ($this->maxlength !== null) {
-			$validators[] = Validators::maxlength($this->maxlength);
+		if ($this->max !== null) {
+			$validators[] = Validators::max($this->max);
 		}
 
 		return $validators;

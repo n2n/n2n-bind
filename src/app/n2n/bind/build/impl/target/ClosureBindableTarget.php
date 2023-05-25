@@ -29,16 +29,16 @@ use n2n\bind\err\BindTargetException;
 use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 
-class RefBindableTarget implements BindableTarget {
+class ClosureBindableTarget implements BindableTarget {
+
 	private TargetValueCompiler $targetValueCompiler;
 
-	function __construct(private &$ref, bool $arrayStrict) {
-		$this->targetValueCompiler = new TargetValueCompiler($arrayStrict);
+	function __construct(private readonly \Closure $closure) {
+		$this->targetValueCompiler = new TargetValueCompiler(false);
 	}
 
 	function write(array $bindables): void {
-		$this->ref = $this->targetValueCompiler->compile($bindables);
-
-		ArgUtils::valArray($bindables, Bindable::class);
+		$c = $this->closure;
+		$c($this->targetValueCompiler->compile($bindables));
 	}
 }

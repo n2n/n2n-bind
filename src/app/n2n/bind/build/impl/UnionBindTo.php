@@ -9,6 +9,7 @@ use n2n\bind\build\impl\target\AttrsBindableTarget;
 use n2n\bind\build\impl\target\RefBindableTarget;
 use n2n\bind\plan\BindableTarget;
 use n2n\bind\build\impl\target\ObjectBindableTarget;
+use n2n\bind\build\impl\target\ClosureBindableTarget;
 
 class UnionBindTo {
 
@@ -37,6 +38,10 @@ class UnionBindTo {
 	 */
 	function toValue(&$value): UnionBindComposer {
 		return $this->to(new RefBindableTarget($value, false));
+	}
+
+	function toClosure(\Closure $closure): UnionBindComposer {
+		return $this->to(new ClosureBindableTarget($closure));
 	}
 
 	/**
