@@ -1,9 +1,15 @@
 <?php
 namespace n2n\bind\mapper\impl\date;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+
 class DateTimeMapper extends DateTimeInterfaceMapperAdapter {
-	function __construct(private bool $mandatory, private ?\DateTimeInterface $min = null,
-			private ?\DateTimeInterface $max = null) {
-		parent::__construct(true,$mandatory, $min, $max);
+	function __construct(bool $mandatory, ?DateTimeInterface $min = null, ?DateTimeInterface $max = null) {
+		parent::__construct($mandatory, $min, $max);
+	}
+
+	protected function createValueFromDateTimeInterface(DateTimeInterface $value): DateTimeImmutable {
+		return DateTimeImmutable::createFromInterface($value);
 	}
 }
