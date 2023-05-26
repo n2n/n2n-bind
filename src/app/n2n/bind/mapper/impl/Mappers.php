@@ -35,6 +35,7 @@ use n2n\bind\mapper\impl\enum\EnumMapper;
 use n2n\util\EnumUtils;
 use n2n\bind\mapper\impl\date\DateTimeMapper;
 use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
+use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
 
 class Mappers {
 
@@ -126,8 +127,12 @@ class Mappers {
 		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
 	}
 
-	public static function dateTime(bool $mandatory = false, ?\DateTime $min = null, ?\DateTime $max = null): DateTimeMapper {
+	public static function dateTime(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
+	}
+
+	public static function dateTimeImmutable(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeImmutableMapper {
+		return new DateTimeImmutableMapper($mandatory, $min, $max);
 	}
 
 	static function n2nLocale(bool $mandatory = false, array $allowedValues = null) {
