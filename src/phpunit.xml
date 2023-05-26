@@ -1,6 +1,6 @@
 <phpunit bootstrap="test/bootstrap.php">
     <testsuites>
-        <testsuite name="Holeradio">
+        <testsuite name="Global Test Suite">
             <directory>test</directory>
         </testsuite>
     </testsuites>

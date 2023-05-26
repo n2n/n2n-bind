@@ -35,6 +35,7 @@ use n2n\bind\mapper\impl\enum\EnumMapper;
 use n2n\util\EnumUtils;
 use n2n\bind\mapper\impl\date\DateTimeMapper;
 use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
+use n2n\bind\mapper\impl\numeric\FloatMapper;
 
 class Mappers {
 
@@ -56,6 +57,17 @@ class Mappers {
 	 */
 	static function int(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
+	}
+
+	/**
+	 * @param bool $mandatory
+	 * @param float|null $min
+	 * @param float|null $max
+	 * @param float|null $step
+	 * @return FloatMapper
+	 */
+	static function float(bool $mandatory = false, ?float $min = 0, ?float $max = 1000000, ?float $step = 0.01): FloatMapper {
+		return new FloatMapper($mandatory, $min, $max, $step);
 	}
 
 	/**
