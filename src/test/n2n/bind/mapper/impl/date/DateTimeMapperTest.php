@@ -13,8 +13,8 @@ class DateTimeMapperTest extends TestCase
 {
 	private DataMap $sdm;
 	private DataMap $tdm;
-	private \DateTimeInterface $min;
-	private \DateTimeInterface $max;
+	private ?\DateTimeInterface $min;
+	private ?\DateTimeInterface $max;
 
 	protected function setUp(): void {
 		$this->sdm = new DataMap(['date' => new \DateTime('2010-01-01')]);
@@ -131,6 +131,26 @@ class DateTimeMapperTest extends TestCase
 	}
 
 	public function testDateTimeImmutableMapperNull(): void {
+		$this->sdm->set('date', null);
+		$result = $this->performMappingImmutable();
+
+		$this->assertFalse($result->hasErrors());
+		$this->assertNull($this->tdm->req('date'));
+	}
+
+	public function testDateTimeMapperBoundariesNull(): void {
+		$this->min = null;
+		$this->max = null;
+		$this->sdm->set('date', null);
+		$result = $this->performMapping();
+
+		$this->assertFalse($result->hasErrors());
+		$this->assertNull($this->tdm->req('date'));
+	}
+
+	public function testDateTimeImmutableMapperBoundariesNull(): void {
+		$this->min = null;
+		$this->max = null;
 		$this->sdm->set('date', null);
 		$result = $this->performMappingImmutable();
 
