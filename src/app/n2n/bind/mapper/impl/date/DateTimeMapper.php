@@ -1,7 +1,6 @@
 <?php
 namespace n2n\bind\mapper\impl\date;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 
 class DateTimeMapper extends DateTimeInterfaceMapperAdapter {
