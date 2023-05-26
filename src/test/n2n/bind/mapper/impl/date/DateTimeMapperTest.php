@@ -13,6 +13,7 @@ class DateTimeMapperTest extends TestCase
 {
 	private $sdm;
 	private $tdm;
+	private bool $mandatory = true;
 	private $min;
 	private $max;
 
@@ -67,6 +68,16 @@ class DateTimeMapperTest extends TestCase
 		$result = $this->performMapping();
 
 		$this->assertTrue($result->hasErrors());
+		$this->assertNull($this->tdm->opt('date'));
+	}
+
+	public function testDateTimeNull(): void {
+		$this->mandatory = false;
+
+		$this->sdm->set('date', null);
+		$result = $this->performMapping();
+
+		$this->assertFalse($result->hasErrors());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 

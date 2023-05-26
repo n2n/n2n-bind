@@ -14,24 +14,25 @@ use n2n\util\DateUtils;
 use n2n\util\DateParseException;
 use n2n\l10n\Message;
 use n2n\validation\lang\ValidationMessages;
+use DateTime;
 
 class DateTimeMapper extends SingleMapperAdapter {
-	function __construct(private bool $mandatory, private ?\DateTime $min = null, private ?\DateTime $max = null) {
+	function __construct(private bool $mandatory, private ?\DateTimeInterface $min = null,
+			private ?\DateTimeInterface $max = null) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
-		if (is_string($bindable->getValue())) {
-			try {
-				$bindable->setValue($this->convertDate($bindable->getValue()));
-			} catch (\InvalidArgumentException $e) {
-				$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
-				return false;
-			}
+		$value = $this->readSafeValue($bindable, TypeConstraints::type([DateTime::class, 'string', 'null']));
+
+		if ($value === null) {
+			$bindable->setValue($value);
+			return true;
 		}
 
-		$value = $this->readSafeValue($bindable, TypeConstraints::type(\DateTime::class));
-		if ($value !== null) {
+		if ($value instanceof \DateTimeImmutable) {
 			$bindable->setValue($value);
+		} else if (!$this->applyStringToBindable($value, $bindable)) {
+			return false;
 		}
 
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
@@ -41,16 +42,18 @@ class DateTimeMapper extends SingleMapperAdapter {
 	}
 
 	/**
-	 * @param string|null $dateStr
-	 * @return \DateTime|null
-	 * @throws DateParseException
+	 * @param string $dateStr
+	 * @param Bindable $bindable
+	 * @return DateTime
 	 */
-	private function convertDate(?string $dateStr) {
-		if (StringUtils::isEmpty($dateStr)) {
-			return null;
+	private function applyStringToBindable(string $dateStr, Bindable $bindable): bool {
+		try {
+			$bindable->setValue(DateUtils::sqlToDateTime($dateStr));
+			return true;
+		} catch (\InvalidArgumentException $e) {
+			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
+			return false;
 		}
-
-		return DateUtils::sqlToDateTime($dateStr);
 	}
 
 	/**

@@ -127,7 +127,11 @@ class Mappers {
 	}
 
 	public static function dateTime(bool $mandatory = false, ?\DateTime $min = null, ?\DateTime $max = null): DateTimeMapper {
-		return new DateTimeMapper($mandatory, $min, $max);
+		return new DateTimeMapper(false, $mandatory, $min, $max);
+	}
+
+	static function dateTimeImmutable(bool $mandatory = false, ?\DateTime $min = null, ?\DateTime $max = null): DateTimeMapper {
+		return new DateTimeMapper(true, $mandatory, $min, $max);
 	}
 
 	static function n2nLocale(bool $mandatory = false, array $allowedValues = null) {
