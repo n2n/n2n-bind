@@ -9,7 +9,7 @@ class DateTimeMapper extends DateTimeInterfaceMapperAdapter {
 		parent::__construct($mandatory, $min, $max);
 	}
 
-	protected function createValueFromDateTimeInterface(DateTimeInterface $value): DateTimeImmutable {
-		return DateTimeImmutable::createFromInterface($value);
+	protected function createValueFromDateTimeInterface(DateTimeInterface $value): \DateTime {
+		return \DateTime::createFromInterface($value);
 	}
 }
