@@ -14,18 +14,19 @@ class FloatMapperTest extends TestCase {
 	 * @throws MagicTaskExecutionException
 	 */
 	function testFloatMapper() {
-		$sdm = new DataMap(['valuemin' => 0, 'value1' => 20, 'value2' => 60, 'valuemax' => 100]);
+		$sdm = new DataMap(['valuenull' => null, 'valuemin' => 0, 'value1' => 20, 'value2' => 60, 'valuemax' => 100]);
 		$tdm = new DataMap();
 
-		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuemin', 'value1', 'value2', 'valuemax'],
+		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuenull', 'valuemin', 'value1', 'value2', 'valuemax'],
 				Mappers::float(mandatory: false, min: 0, max: 100, step: 10))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertFalse($result->hasErrors());
 
-		$this->assertEquals('0', $tdm->reqString('valuemin'));
-		$this->assertEquals('20', $tdm->reqString('value1'));
-		$this->assertEquals('60', $tdm->reqString('value2'));
-		$this->assertEquals('100', $tdm->reqString('valuemax'));
+		$this->assertNull($tdm->reqNumeric('valuenull', true));
+		$this->assertEquals(0, $tdm->reqNumeric('valuemin'));
+		$this->assertEquals(20, $tdm->reqNumeric('value1'));
+		$this->assertEquals(60, $tdm->reqNumeric('value2'));
+		$this->assertEquals(100, $tdm->reqNumeric('valuemax'));
 
 	}
 
