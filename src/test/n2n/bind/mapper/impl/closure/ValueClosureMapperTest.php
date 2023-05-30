@@ -17,7 +17,7 @@ class ValueClosureMapperTest extends TestCase {
 		$obj->setString('wrong');
 
 		Bind::attrs($dm)->toObj($obj)
-				->prop('string', Mappers::valueClosure(function ($value) use ($dm) {
+				->prop('string', Mappers::valueClosure(function($value) use ($dm) {
 					$this->assertEquals('test', $value);
 					return 'asdf';
 				}))
@@ -26,10 +26,10 @@ class ValueClosureMapperTest extends TestCase {
 		$this->assertEquals('asdf', $obj->getString());
 		$this->assertEquals(null, $obj->getInt());
 		$this->assertEquals([], $obj->getArray());
-		$this->assertEquals( null, $obj->getObj());
+		$this->assertEquals(null, $obj->getObj());
 
 		Bind::attrs($dm)->toObj($obj)
-				->prop('obj', Mappers::valueClosure(function ($value) use ($dm, $obj) {
+				->prop('obj', Mappers::valueClosure(function($value) use ($dm, $obj) {
 					return $obj;
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
@@ -37,7 +37,7 @@ class ValueClosureMapperTest extends TestCase {
 		$this->assertEquals($obj, $obj->getObj());
 
 		Bind::attrs($dm)->toObj($obj)
-				->prop('int', Mappers::valueClosure(function ($value) use ($dm) {
+				->prop('int', Mappers::valueClosure(function($value) use ($dm) {
 					return $value + 1;
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
@@ -48,7 +48,7 @@ class ValueClosureMapperTest extends TestCase {
 		$dm = new DataMap(['string' => 123]);
 		$this->expectException(BindTargetException::class);
 		Bind::attrs($dm)->toObj(new BindTestClass())
-				->prop('string', Mappers::valueClosure(function ($value) use ($dm) {
+				->prop('string', Mappers::valueClosure(function($value) use ($dm) {
 					$this->assertEquals(123, $value);
 					return 123;
 				}))

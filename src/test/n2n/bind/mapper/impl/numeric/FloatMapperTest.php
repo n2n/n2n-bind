@@ -40,8 +40,8 @@ class FloatMapperTest extends TestCase {
 
 		$errorMap = $result->getErrorMap();
 
-		$this->assertCount(1, $errorMap->getChild('valuemin')->getMessages());
-		$this->assertCount(1, $errorMap->getChild('value1')->getMessages());
+		$this->assertCount(1, $errorMap->getChild('valuemin')->getMessages()); //min violation
+		$this->assertCount(1, $errorMap->getChild('value1')->getMessages()); //min violation
 		$this->assertCount(0, $errorMap->getChild('value2')->getMessages());
 		$this->assertCount(0, $errorMap->getChild('valuemax')->getMessages());
 
@@ -61,8 +61,8 @@ class FloatMapperTest extends TestCase {
 
 		$this->assertCount(0, $errorMap->getChild('valuemin')->getMessages());
 		$this->assertCount(0, $errorMap->getChild('value1')->getMessages());
-		$this->assertCount(1, $errorMap->getChild('value2')->getMessages());
-		$this->assertCount(1, $errorMap->getChild('valuemax')->getMessages());
+		$this->assertCount(1, $errorMap->getChild('value2')->getMessages()); //max violation
+		$this->assertCount(1, $errorMap->getChild('valuemax')->getMessages()); //max violation
 
 
 	}
@@ -79,9 +79,9 @@ class FloatMapperTest extends TestCase {
 		$errorMap = $result->getErrorMap();
 
 		$this->assertCount(0, $errorMap->getChild('valuemin')->getMessages());
-		$this->assertCount(1, $errorMap->getChild('value1')->getMessages());
+		$this->assertCount(1, $errorMap->getChild('value1')->getMessages()); //step violation
 		$this->assertCount(0, $errorMap->getChild('value2')->getMessages());
-		$this->assertCount(1, $errorMap->getChild('valuemax')->getMessages());
+		$this->assertCount(1, $errorMap->getChild('valuemax')->getMessages()); //step violation
 
 
 	}
@@ -96,13 +96,18 @@ class FloatMapperTest extends TestCase {
 		$this->assertTrue($result->hasErrors());
 
 		$errorMap = $result->getErrorMap();
-
-		//if multiple violations exist only fist is used order: (mandatory > min > max > step)
+		// if multiple violations exist only fist is used order: (mandatory > min > max > step)
+		// therefore 1 expectedCount regardless of how many rules that are violated
 		$this->assertCount(1, $errorMap->getChild('valuenull')->getMessages()); //mandatory violation
+		$this->assertEquals('Mandatory', $errorMap->getChild('valuenull')->jsonSerialize()['messages'][0]); //mandatory violation
 		$this->assertCount(1, $errorMap->getChild('valuemin')->getMessages()); //min violation
+		$this->assertEquals('Min [min = 20]', $errorMap->getChild('valuemin')->jsonSerialize()['messages'][0]); //min violation
 		$this->assertCount(1, $errorMap->getChild('value1')->getMessages()); //step violation
+		$this->assertEquals('Step [step = 30]', $errorMap->getChild('value1')->jsonSerialize()['messages'][0]); //step violation
 		$this->assertCount(0, $errorMap->getChild('value2')->getMessages()); //only good value
+		$this->assertEquals([], $errorMap->getChild('value2')->jsonSerialize()); //empty Error Map because of good value
 		$this->assertCount(1, $errorMap->getChild('valuemax')->getMessages()); //max violation
+		$this->assertEquals('Max [max = 80]', $errorMap->getChild('valuemax')->jsonSerialize()['messages'][0]); //max violation
 
 
 	}

@@ -9,8 +9,7 @@ use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindResult;
 
-class DateTimeMapperTest extends TestCase
-{
+class DateTimeMapperTest extends TestCase {
 	private $sdm;
 	private $tdm;
 	private $min;

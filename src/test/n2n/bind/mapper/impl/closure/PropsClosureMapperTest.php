@@ -20,7 +20,7 @@ class PropsClosureMapperTest extends TestCase {
 		$obj->setObj($objToWrite);
 
 		Bind::attrs($dm)->toObj($obj)
-				->props(['string', 'int', 'array', 'obj'], Mappers::propsClosure(function ($values) use ($dm) {
+				->props(['string', 'int', 'array', 'obj'], Mappers::propsClosure(function($values) use ($dm) {
 					$this->assertEquals($values['string'], $dm->getString('string'));
 					$this->assertEquals($values['int'], $dm->reqInt('int'));
 					$this->assertEquals($values['array'], $dm->reqArray('array'));
@@ -33,13 +33,13 @@ class PropsClosureMapperTest extends TestCase {
 		$this->assertEquals('str', $obj->getString());
 		$this->assertEquals(null, $obj->getInt());
 		$this->assertEquals([], $obj->getArray());
-		$this->assertEquals( null, $obj->getObj());
+		$this->assertEquals(null, $obj->getObj());
 	}
 
 	function testOptProps() {
 		$arr = [];
 		Bind::attrs([])->toArray($arr)
-				->optProps(['password'], Mappers::propsClosure(function ($values) {
+				->optProps(['password'], Mappers::propsClosure(function($values) {
 					$this->assertEquals([], $values);
 
 					return ['passwordHash' => 'very good hash'];
@@ -50,7 +50,7 @@ class PropsClosureMapperTest extends TestCase {
 
 		$arr = [];
 		Bind::attrs(['password' => 'huii'])->toArray($arr)
-				->optProps(['password'], Mappers::propsClosure(function ($values) {
+				->optProps(['password'], Mappers::propsClosure(function($values) {
 					$this->assertEquals(['password' => 'huii'], $values);
 
 					return ['passwordHash' => 'very good hash ' . $values['password']];
@@ -62,7 +62,7 @@ class PropsClosureMapperTest extends TestCase {
 	function testOptPropsAny() {
 		$resultArr = [];
 		Bind::attrs([])->toArray($resultArr)
-				->optProps(['password'], Mappers::propsClosureAny(function ($values) {
+				->optProps(['password'], Mappers::propsClosureAny(function($values) {
 					$this->assertEquals([], $values);
 
 					return ['passwordHash' => 'very good hash 82o4jklj'];
@@ -73,7 +73,7 @@ class PropsClosureMapperTest extends TestCase {
 
 		$resultArr = [];
 		Bind::attrs(['huii' => 'hoi'])->toArray($resultArr)
-				->optProps(['huii'], Mappers::propsClosureAny(function ($values) {
+				->optProps(['huii'], Mappers::propsClosureAny(function($values) {
 					$this->assertEquals(['huii' => 'hoi'], $values);
 
 					return ['huii' => 'very good hash'];
@@ -83,11 +83,10 @@ class PropsClosureMapperTest extends TestCase {
 	}
 
 
-
 	function testOptPropsEvery() {
 		$resultArr = [];
 		Bind::attrs(['huii' => 'hoi'])->toArray($resultArr)
-				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function ($values) {
+				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function($values) {
 					$this->fail('Must not be executed.');
 				}))->exec($this->createMock(MagicContext::class));
 
@@ -96,7 +95,7 @@ class PropsClosureMapperTest extends TestCase {
 
 		$resultArr = [];
 		Bind::attrs(['huii' => 'hoi', 'huii2' => 'hoi2'])->toArray($resultArr)
-				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function ($values) {
+				->optProps(['huii', 'huii2'], Mappers::propsClosureEvery(function($values) {
 					$this->assertEquals(['huii' => 'hoi', 'huii2' => 'hoi2'], $values);
 
 					return ['huii' => 'changed'];

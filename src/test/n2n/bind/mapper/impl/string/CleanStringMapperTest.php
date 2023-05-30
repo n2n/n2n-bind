@@ -19,16 +19,12 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\mapper\impl;
+namespace n2n\bind\mapper\impl\string;
 
 use PHPUnit\Framework\TestCase;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\mapper\impl\Mappers;
-use n2n\validation\build\impl\EmptyMagicContext;
 use n2n\util\magic\MagicContext;
-use n2n\validation\validator\Validator;
-use n2n\validation\validator\impl\Validators;
-use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\build\impl\Bind;
 
 class CleanStringMapperTest extends TestCase {

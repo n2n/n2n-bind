@@ -18,11 +18,11 @@ class BindableClosureMapperTest extends TestCase {
 		$obj->setString('wrong');
 
 		Bind::attrs($dm)->toObj($obj)
-				->prop('string', Mappers::bindableClosure(function (Bindable $bindable) use ($dm) {
+				->prop('string', Mappers::bindableClosure(function(Bindable $bindable) use ($dm) {
 					$this->assertEquals('test', $bindable->getValue());
 					$bindable->setValue('asdf');
 				}))
-				->prop('int', Mappers::bindableClosure(function (Bindable $bindable) {
+				->prop('int', Mappers::bindableClosure(function(Bindable $bindable) {
 					$bindable->setExist(false);
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
@@ -34,11 +34,11 @@ class BindableClosureMapperTest extends TestCase {
 
 		Bind::attrs($dm)->toObj($obj)
 				->prop('int',
-						Mappers::bindableClosure(function ($bindable) use ($dm) {
+						Mappers::bindableClosure(function($bindable) use ($dm) {
 							$bindable->setValue($bindable->getValue() + 1);
 							return true;
 						}),
-						Mappers::bindableClosure(function ($bindable) use ($dm) {
+						Mappers::bindableClosure(function($bindable) use ($dm) {
 							$bindable->setValue($bindable->getValue() + 1);
 						}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
@@ -51,11 +51,11 @@ class BindableClosureMapperTest extends TestCase {
 
 		$result = Bind::attrs($dm)->toObj($obj)
 				->prop('int',
-						Mappers::bindableClosure(function ($bindable) use ($dm) {
+						Mappers::bindableClosure(function($bindable) use ($dm) {
 							$bindable->setValue($bindable->getValue() + 1);
 							return true;
 						}),
-						Mappers::bindableClosure(function ($bindable) use ($dm) {
+						Mappers::bindableClosure(function($bindable) use ($dm) {
 							$bindable->setValue($bindable->getValue() + 1);
 							return false;
 						}))
@@ -68,7 +68,7 @@ class BindableClosureMapperTest extends TestCase {
 		$dm = new DataMap(['string' => 123]);
 		$this->expectException(BindTargetException::class);
 		Bind::attrs($dm)->toObj(new BindTestClass())
-				->prop('string', Mappers::bindableClosure(function (Bindable $bindable) use ($dm) {
+				->prop('string', Mappers::bindableClosure(function(Bindable $bindable) use ($dm) {
 					$this->assertEquals(123, $bindable->getValue());
 					$bindable->setValue(123);
 					return true;

@@ -19,7 +19,7 @@ class BindablesClosureMapperTest extends TestCase {
 
 		Bind::attrs($dm)->toAttrs($targetDm)
 				->props(['string', 'int'],
-						Mappers::bindablesClosure(function (array $bindables, BindableBoundary $bindableBoundary) use ($dm) {
+						Mappers::bindablesClosure(function(array $bindables, BindableBoundary $bindableBoundary) use ($dm) {
 							$bindables['string']->setValue('huii');
 							$bindables['int']->setExist(false);
 							$bindableBoundary->acquireBindable('superInt')->setExist(true)->setValue(123);
