@@ -37,7 +37,7 @@ class FloatMapper extends SingleMapperAdapter {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
-		$value = $this->readSafeValue($bindable, TypeConstraints::float(true, false));
+		$value = $this->readSafeValue($bindable, TypeConstraints::float(true, true));
 		if ($value !== null) {
 			$bindable->setValue($value);
 		}
@@ -65,6 +65,7 @@ class FloatMapper extends SingleMapperAdapter {
 		if ($this->max !== null) {
 			$validators[] = Validators::max($this->max);
 		}
+
 		if ($this->step !== null) {
 			$validators[] = Validators::step($this->step);
 		}
