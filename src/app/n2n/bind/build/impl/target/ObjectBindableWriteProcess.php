@@ -58,10 +58,10 @@ class ObjectBindableWriteProcess {
 		}
 
 		$newBindableObjectClassName = $this->getPropertyTypeClass($propertyProxy);
-		$pathParts = [...$previousPathParts, $firstBindableObjectPathPart];
-		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $pathParts), $newBindableObjectClassName);
+		$previousPathParts = [...$previousPathParts, $firstBindableObjectPathPart];
+		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $previousPathParts), $newBindableObjectClassName);
 		$this->writeValueToProperty($propertyProxy, $newBindableObject, $obj);
-		$this->writeBindableToObject($value, $newBindableObject, $bindableObjectPathParts, $pathParts);
+		$this->writeBindableToObject($value, $newBindableObject, $bindableObjectPathParts, $previousPathParts);
 	}
 
 	/**
