@@ -20,10 +20,9 @@ class ObjectBindableWriteProcess {
 	/**
 	 * @var PropertiesAnalyzer[]
 	 */
-	private array $objsPropertiesAnalyzers = [];
+	private array $propertiesAnalyzers = [];
 
 	/**
-	 * @param PropertiesAnalyzer $objPropertyAnalyzer
 	 * @param Bindable[] $bindables
 	 */
 	public function __construct(private array $bindables) {
@@ -32,8 +31,8 @@ class ObjectBindableWriteProcess {
 
 	public function process(object $obj): void {
 		foreach ($this->bindables as $bindable) {
-			if (!$bindable->doesExist()) {
-				continue;
+			if ($bindable->doesExist()) {
+				$this->writeBindableToObject($bindable->getValue(), $obj, $bindable->getName()->toArray());
 			}
 			$this->writeBindableToObject($bindable->getValue(), $obj, $bindable->getName()->toArray());
 		}
@@ -47,23 +46,22 @@ class ObjectBindableWriteProcess {
 	 */
 	private function writeBindableToObject(mixed $value, object $obj, array $bindableObjectPathParts, array $previousPathParts = []): void {
 		$firstBindableObjectPathPart = array_shift($bindableObjectPathParts);
-		$propertyProxy = $this->analyzeProperty($obj, $firstBindableObjectPathPart);
+		$propertyProxy = $this->analyzeProperty($obj, $firstBindableObjectPathPart, $previousPathParts);
 		if ($propertyProxy->getProperty() === null) {
 			throw new BindTargetException('Property doesn\'t exist: ' . get_class($obj) . '::$' . $firstBindableObjectPathPart);
 		}
 
 		$propertyProxy->getProperty()->setAccessible(true);
-
 		if (empty($bindableObjectPathParts)) {
 			$this->writeValueToProperty($propertyProxy, $value, $obj);
 			return;
 		}
 
 		$newBindableObjectClassName = $this->getPropertyTypeClass($propertyProxy);
-		$previousPathParts = [...$previousPathParts, $firstBindableObjectPathPart];
-		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $previousPathParts), $newBindableObjectClassName);
+		$pathParts = [...$previousPathParts, $firstBindableObjectPathPart];
+		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $pathParts), $newBindableObjectClassName);
 		$this->writeValueToProperty($propertyProxy, $newBindableObject, $obj);
-		$this->writeBindableToObject($value, $newBindableObject, $bindableObjectPathParts, $previousPathParts);
+		$this->writeBindableToObject($value, $newBindableObject, $bindableObjectPathParts, $pathParts);
 	}
 
 	/**
@@ -83,10 +81,15 @@ class ObjectBindableWriteProcess {
 		}
 	}
 
-	private function analyzeProperty(object $obj, string $propertyName): PropertyAccessProxy {
+	private function analyzeProperty(object $obj, string $propertyName, array $previousPathParts = []): PropertyAccessProxy {
 		try {
-			$propertiesAnalyzer = new PropertiesAnalyzer(new \ReflectionClass($obj));
-			return $propertiesAnalyzer->analyzeProperty($propertyName);
+			$arrayKey = implode('/', [...$previousPathParts, $propertyName]);
+
+			if (!isset($this->propertiesAnalyzers[$arrayKey])) {
+				$this->propertiesAnalyzers[$arrayKey] = new PropertiesAnalyzer(new \ReflectionClass($obj));
+			}
+
+			return $this->propertiesAnalyzers[$arrayKey]->analyzeProperty($propertyName);
 		} catch (\ReflectionException|ReflectionException $e) {
 			throw new BindTargetException('Property \'' . $propertyName . '\' is not accessible.', 0, $e);
 		}
