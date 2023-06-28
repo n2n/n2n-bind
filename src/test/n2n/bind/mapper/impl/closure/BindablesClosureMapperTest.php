@@ -3,13 +3,10 @@
 namespace n2n\bind\mapper\impl\closure;
 
 use PHPUnit\Framework\TestCase;
-use n2n\bind\build\impl\target\BindTestClass;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
-use n2n\bind\err\BindTargetException;
-use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindableBoundary;
 
 class BindablesClosureMapperTest extends TestCase {

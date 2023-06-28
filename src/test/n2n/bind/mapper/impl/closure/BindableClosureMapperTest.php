@@ -3,7 +3,7 @@
 namespace n2n\bind\mapper\impl\closure;
 
 use PHPUnit\Framework\TestCase;
-use n2n\bind\build\impl\target\BindTestClass;
+use n2n\bind\build\impl\target\mock\BindTestClassA;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
@@ -14,7 +14,7 @@ use n2n\bind\plan\Bindable;
 class BindableClosureMapperTest extends TestCase {
 	function testBindableClosure() {
 		$dm = new DataMap(['string' => 'test', 'obj' => null, 'int' => 321]);
-		$obj = new BindTestClass();
+		$obj = new BindTestClassA();
 		$obj->setString('wrong');
 
 		Bind::attrs($dm)->toObj($obj)
@@ -47,7 +47,7 @@ class BindableClosureMapperTest extends TestCase {
 
 	function testBindableClosureAbort() {
 		$dm = new DataMap(['string' => 'test', 'obj' => null, 'int' => 321]);
-		$obj = new BindTestClass();
+		$obj = new BindTestClassA();
 
 		$result = Bind::attrs($dm)->toObj($obj)
 				->prop('int',
@@ -67,7 +67,7 @@ class BindableClosureMapperTest extends TestCase {
 	function testBindableClosureWrongType() {
 		$dm = new DataMap(['string' => 123]);
 		$this->expectException(BindTargetException::class);
-		Bind::attrs($dm)->toObj(new BindTestClass())
+		Bind::attrs($dm)->toObj(new BindTestClassA())
 				->prop('string', Mappers::bindableClosure(function(Bindable $bindable) use ($dm) {
 					$this->assertEquals(123, $bindable->getValue());
 					$bindable->setValue(123);

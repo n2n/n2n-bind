@@ -5,26 +5,49 @@ use PHPUnit\Framework\TestCase;
 use n2n\bind\build\impl\Bind;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
+use n2n\bind\build\impl\target\mock\BindTestClassA;
+use n2n\util\type\attrs\DataMap;
 
 class ObjectBindableTargetTest extends TestCase {
 	public function testWrite() {
-		$obj = new BindTestClass();
-		$objToWrite = new BindTestClass();
-		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => [], 'obj' => $objToWrite];
+		$obj = new BindTestClassA();
+		$objToWrite = new BindTestClassA();
+		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => [], 'a' => $objToWrite];
 
-		Bind::attrs(['string' => 'test', 'int' => 123, 'array' => $arrToWrite, 'obj' => $objToWrite])
+		Bind::attrs(['string' => 'test', 'int' => 123, 'array' => $arrToWrite, 'a' => $objToWrite])
 				->toObj($obj)
-				->props(['string', 'int', 'array', 'obj'])
+				->props(['string', 'int', 'array', 'a'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertEquals('test', $obj->getString());
 		$this->assertEquals( 123, $obj->getInt());
 		$this->assertEquals($arrToWrite, $obj->getArray());
-		$this->assertEquals($objToWrite, $obj->getObj());
+		$this->assertEquals($objToWrite, $obj->getA());
+	}
+
+	public function testWriteWithRepeatingPathParts() {
+		$obj = new BindTestClassA();
+		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => []];
+
+		Bind::attrs(new DataMap(['string' => 'test', 'int' => 123, 'array' => $arrToWrite,
+				'a' => [
+					'int' => 234
+				], 'b' => [
+					'value' => 'asdf'
+				]
+		]))->toObj($obj)
+				->optProps(['string', 'int', 'array', 'a/int', 'b/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals('test', $obj->getString());
+		$this->assertEquals( 123, $obj->getInt());
+		$this->assertEquals($arrToWrite, $obj->getArray());
+		$this->assertEquals(234, $obj->getA()->getInt());
+		$this->assertEquals('asdf', $obj->b->value);
 	}
 
 	public function testWriteSomeProps() {
-		$obj = new BindTestClass();
+		$obj = new BindTestClassA();
 
 		Bind::values(...['string' => 'test'])
 				->to(new ObjectBindableTarget($obj))
@@ -36,21 +59,62 @@ class ObjectBindableTargetTest extends TestCase {
 	public function testExceptionUnknownProperty() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(doesntExist: '')
-				->to(new ObjectBindableTarget(new BindTestClass()))
+				->to(new ObjectBindableTarget(new BindTestClassA()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
 	public function testExceptionPropertyNotAccessible() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(unaccessible: '')
-				->to(new ObjectBindableTarget(new BindTestClass()))
+				->to(new ObjectBindableTarget(new BindTestClassA()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
 	public function testExceptionIncompatibleTypes() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(obj: '123')
-				->to(new ObjectBindableTarget(new BindTestClass()))
+				->to(new ObjectBindableTarget(new BindTestClassA()))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	public function testEmptyObject() {
+		$a = new BindTestClassA();
+		Bind::values(...['string' => 'test'])
+				->to(new ObjectBindableTarget($a))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals('test', $a->getString());
+	}
+
+	public function testNestedProperties() {
+		$obj = new BindTestClassA();
+		$nestedObj = new BindTestClassA();
+
+		Bind::attrs(['a' => ['a' => $nestedObj]])
+				->toObj($obj)
+				->props(['a/a'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals($nestedObj, $obj->getA()->getA());
+	}
+
+	public function testNestedPropertyDoesNotExist() {
+		$this->expectException(BindTargetException::class);
+		$obj = new BindTestClassA();
+
+		Bind::attrs(['a' => ['doesntExist' => 'test']])
+				->toObj($obj)
+				->props(['a/doesntExist'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	public function testNonArrayProvidedWhenArrayExpected() {
+		$this->expectException(BindTargetException::class);
+		$obj = new BindTestClassA();
+
+		Bind::attrs(['array' => 'notAnArray'])
+				->toObj($obj)
+				->props(['array'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 }

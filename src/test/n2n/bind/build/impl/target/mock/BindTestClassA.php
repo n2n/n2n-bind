@@ -1,11 +1,12 @@
 <?php
-namespace n2n\bind\build\impl\target;
+namespace n2n\bind\build\impl\target\mock;
 
-class BindTestClass {
+class BindTestClassA {
 	private string $string = '';
 	private int $int = 0;
 	private array $array = [];
-	private ?BindTestClass $obj = null;
+	private BindTestClassA $a;
+	public BindTestClassB $b;
 	private $unaccessible;
 
 	/**
@@ -51,16 +52,16 @@ class BindTestClass {
 	}
 
 	/**
-	 * @return BindTestClass|null
+	 * @return BindTestClassA
 	 */
-	public function getObj(): ?BindTestClass {
-		return $this->obj;
+	public function getA(): BindTestClassA {
+		return $this->a;
 	}
 
 	/**
-	 * @param BindTestClass|null $obj
+	 * @param BindTestClassA $obj
 	 */
-	public function setObj(?BindTestClass $obj): void {
-		$this->obj = $obj;
+	public function setA(BindTestClassA $a): void {
+		$this->a = $a;
 	}
 }
