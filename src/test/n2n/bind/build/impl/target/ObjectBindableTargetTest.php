@@ -7,6 +7,8 @@ use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\build\impl\target\mock\BindTestClassA;
 use n2n\util\type\attrs\DataMap;
+use n2n\util\magic\MagicTaskExecutionException;
+use n2n\bind\build\impl\target\mock\BindTestClassB;
 
 class ObjectBindableTargetTest extends TestCase {
 	public function testWrite() {
@@ -116,5 +118,59 @@ class ObjectBindableTargetTest extends TestCase {
 				->toObj($obj)
 				->props(['array'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	/**
+	 * @throws MagicTaskExecutionException
+	 */
+	function testObjectChildWrite(): void {
+		$obj = new BindTestClassA();
+
+		Bind::attrs(['bb' => ['value' => 'huii!']])
+				->toObj($obj)
+				->props(['bb/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals('huii!', $obj->getBb()->value);
+	}
+
+	/**
+	 * @throws MagicTaskExecutionException
+	 */
+	function testObjectNullChildWrite(): void {
+		$this->expectException(BindTargetException::class);
+		$obj = new BindTestClassA();
+
+		Bind::attrs(['bbb' => ['value' => 'huii!']])
+				->toObj($obj)
+				->props(['bbb/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	function testObjectNullCreateChildWrite(): void {
+		$obj = new BindTestClassA();
+
+		Bind::attrs(['bbbb' => ['value' => 'huii!']])
+				->toObj($obj)
+				->props(['bbbb/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals('huii!', $obj->getBbbb()->value);
+	}
+
+	function testObjectChildGet(): void {
+		$bb = new BindTestClassB();
+
+		$objMock = $this->createMock(BindTestClassA::class)
+				->expects($this->once())->method('getBb')
+				->willReturn($bb);
+
+		Bind::attrs(['bb' => ['value' => 'huii!', 'value2' => 'holeradio']])
+				->toObj($objMock)
+				->props(['bb/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals('huii!', $bb->value);
+		$this->assertEquals('holeradio', $bb->getValue2());
 	}
 }

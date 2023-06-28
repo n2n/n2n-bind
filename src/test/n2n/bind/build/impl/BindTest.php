@@ -29,8 +29,10 @@ use n2n\util\magic\MagicContext;
 use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\magic\MagicTaskExecutionException;
 
 class BindTest extends TestCase {
+
 
 
 	function testAttrs() {

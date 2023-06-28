@@ -11,6 +11,7 @@ use n2n\reflection\ObjectCreationFailedException;
 use n2n\reflection\property\PropertyAccessProxy;
 use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\reflection\ReflectionException;
+use n2n\util\type\TypeUtils;
 
 class ObjectBindableWriteProcess {
 	/**
@@ -31,8 +32,8 @@ class ObjectBindableWriteProcess {
 
 	public function process(object $obj): void {
 		foreach ($this->bindables as $bindable) {
-			if ($bindable->doesExist()) {
-				$this->writeBindableToObject($bindable->getValue(), $obj, $bindable->getName()->toArray());
+			if (!$bindable->doesExist()) {
+				continue;
 			}
 			$this->writeBindableToObject($bindable->getValue(), $obj, $bindable->getName()->toArray());
 		}
@@ -41,33 +42,38 @@ class ObjectBindableWriteProcess {
 	/**
 	 * @param mixed $value
 	 * @param object $obj
-	 * @param array $bindableObjectPathParts
+	 * @param array $bindableNameParts
+	 * @param array $previousNameParts
 	 * @return void
+	 * @throws BindTargetException
+	 * @throws \ReflectionException
 	 */
-	private function writeBindableToObject(mixed $value, object $obj, array $bindableObjectPathParts, array $previousPathParts = []): void {
-		$firstBindableObjectPathPart = array_shift($bindableObjectPathParts);
-		$propertyProxy = $this->analyzeProperty($obj, $firstBindableObjectPathPart, $previousPathParts);
+	private function writeBindableToObject(mixed $value, object $obj, array $bindableNameParts, array $previousNameParts = []): void {
+		$firstBindableNamePart = array_shift($bindableNameParts);
+		$propertyProxy = $this->analyzeProperty($obj, $firstBindableNamePart);
 		if ($propertyProxy->getProperty() === null) {
-			throw new BindTargetException('Property doesn\'t exist: ' . get_class($obj) . '::$' . $firstBindableObjectPathPart);
+			throw new BindTargetException('Property doesn\'t exist: ' . TypeUtils::prettyMethName(get_class($obj), $firstBindableNamePart));
 		}
 
 		$propertyProxy->getProperty()->setAccessible(true);
-		if (empty($bindableObjectPathParts)) {
+		if (empty($bindableNameParts)) {
 			$this->writeValueToProperty($propertyProxy, $value, $obj);
 			return;
 		}
 
 		$newBindableObjectClassName = $this->getPropertyTypeClass($propertyProxy);
-		$previousPathParts = [...$previousPathParts, $firstBindableObjectPathPart];
-		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $previousPathParts), $newBindableObjectClassName);
+		$previousNameParts = [...$previousNameParts, $firstBindableNamePart];
+		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $previousNameParts), $newBindableObjectClassName);
 		$this->writeValueToProperty($propertyProxy, $newBindableObject, $obj);
-		$this->writeBindableToObject($value, $newBindableObject, $bindableObjectPathParts, $previousPathParts);
+		$this->writeBindableToObject($value, $newBindableObject, $bindableNameParts, $previousNameParts);
 	}
 
 	/**
-	 * @param string $objName
-	 * @param string|null $propertyName
+	 * @param string $path
+	 * @param string $className
 	 * @return mixed
+	 * @throws BindTargetException
+	 * @throws \ReflectionException
 	 */
 	private function getOrCreateBindableObject(string $path, string $className): mixed {
 		if (isset($this->bindableObjects[$path] )) {
@@ -81,6 +87,9 @@ class ObjectBindableWriteProcess {
 		}
 	}
 
+	/**
+	 * @throws BindTargetException
+	 */
 	private function analyzeProperty(object $obj, string $propertyName, array $previousPathParts = []): PropertyAccessProxy {
 		try {
 			$arrayKey = implode('/', [...$previousPathParts, $propertyName]);
@@ -95,6 +104,9 @@ class ObjectBindableWriteProcess {
 		}
 	}
 
+	/**
+	 * @throws BindTargetException
+	 */
 	private function writeValueToProperty(PropertyAccessProxy $propertyProxy, mixed $value, object $obj): void {
 		try {
 			$propertyProxy->setValue($obj, $value);

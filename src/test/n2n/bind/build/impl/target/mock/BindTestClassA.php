@@ -7,7 +7,14 @@ class BindTestClassA {
 	private array $array = [];
 	private BindTestClassA $a;
 	public BindTestClassB $b;
+	private BindTestClassB $pBb;
+	private ?BindTestClassB $pBbb = null;
+	private ?BindTestClassB $pBbbb = null;
 	private $unaccessible;
+
+	function __construct() {
+		$this->pBb = new BindTestClassB();
+	}
 
 	/**
 	 * @return string
@@ -64,4 +71,21 @@ class BindTestClassA {
 	public function setA(BindTestClassA $a): void {
 		$this->a = $a;
 	}
+
+	function getBb(): BindTestClassB {
+		return $this->pBb;
+	}
+
+	function getBbb(): ?BindTestClassB {
+		return null;
+	}
+
+	function getBbbb(): ?BindTestClassB {
+		return $this->pBbbb;
+	}
+
+	function setBbbb(?BindTestClassB $bbbb): void {
+		$this->pBbbb = $bbbb;
+	}
+
 }
