@@ -12,6 +12,8 @@ use n2n\reflection\property\PropertyAccessProxy;
 use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\reflection\ReflectionException;
 use n2n\util\type\TypeUtils;
+use n2n\reflection\property\AccessProxy;
+use n2n\util\type\TypeName;
 
 class ObjectBindableWriteProcess {
 	/**
@@ -118,10 +120,21 @@ class ObjectBindableWriteProcess {
 
 	/**
 	 * @todo: what to do with multi type constraints? for now just use first option.
-	 * @param PropertyAccessProxy $propertyProxy
+	 * @param AccessProxy $propertyProxy
 	 * @return string|void
 	 */
-	private function getPropertyTypeClass(PropertyAccessProxy $propertyProxy) {
+	private function getPropertyTypeClass(AccessProxy $propertyProxy) {
+		foreach ($propertyProxy->getSetterConstraint()->getNamedTypeConstraints() as $namedTypeConstraint) {
+			class_exists($namedTypeConstraint->getTypeName())
+
+			$namedTypeConstraint->isTypeSafe();
+
+			ReflectionUtils::createObject(new \ReflectionClass($typeName));
+
+
+			TypeName::isA($namedTypeConstraint->getTypeName(), 'object');
+		}
+
 		$propertyTypeName = $propertyProxy->getProperty()->getType()->getName();
 		if ($propertyTypeName !== null) {
 			return $propertyTypeName;
