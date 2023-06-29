@@ -5,6 +5,7 @@ use n2n\bind\plan\BindableTarget;
 use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 use n2n\reflection\property\PropertiesAnalyzer;
+use n2n\bind\err\BindTargetException;
 
 class ObjectBindableTarget implements BindableTarget {
 	private object $obj;
@@ -13,8 +14,11 @@ class ObjectBindableTarget implements BindableTarget {
 		$this->obj = $obj;
 	}
 
+	/**
+	 * @throws BindTargetException
+	 */
 	function write(array $bindables): void {
-		$objectBindableWriteProces = new ObjectBindableWriteProcess($bindables);
-		$objectBindableWriteProces->process($this->obj);
+		$objectBindableWriteProcess = new ObjectBindableWriteProcess($bindables);
+		$objectBindableWriteProcess->process($this->obj);
 	}
 }

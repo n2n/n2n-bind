@@ -9,11 +9,12 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
+use n2n\bind\build\impl\target\mock\BindTestClass;
 
 class ValueClosureMapperTest extends TestCase {
 	function testValueClosure() {
 		$dm = new DataMap(['string' => 'test', 'obj' => null, 'int' => 321]);
-		$obj = new BindTestClassA();
+		$obj = new BindTestClass();
 		$obj->setString('wrong');
 
 		Bind::attrs($dm)->toObj($obj)
@@ -26,7 +27,7 @@ class ValueClosureMapperTest extends TestCase {
 		$this->assertEquals('asdf', $obj->getString());
 		$this->assertEquals(null, $obj->getInt());
 		$this->assertEquals([], $obj->getArray());
-		$this->assertEquals(null, $obj->getA());
+		$this->assertEquals(null, $obj->getObj());
 
 		Bind::attrs($dm)->toObj($obj)
 				->prop('obj', Mappers::valueClosure(function($value) use ($dm, $obj) {
@@ -34,7 +35,7 @@ class ValueClosureMapperTest extends TestCase {
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertEquals($obj, $obj->getA());
+		$this->assertEquals($obj, $obj->getObj());
 
 		Bind::attrs($dm)->toObj($obj)
 				->prop('int', Mappers::valueClosure(function($value) use ($dm) {

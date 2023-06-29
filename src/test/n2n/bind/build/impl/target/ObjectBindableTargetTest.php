@@ -27,14 +27,15 @@ class ObjectBindableTargetTest extends TestCase {
 		$this->assertEquals($objToWrite, $obj->getA());
 	}
 
-	public function testWriteWithRepeatingPathParts() {
+	public function testWriteWithRepeatingNameParts() {
 		$obj = new BindTestClassA();
 		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => []];
 
 		Bind::attrs(new DataMap(['string' => 'test', 'int' => 123, 'array' => $arrToWrite,
 				'a' => [
 					'int' => 234
-				], 'b' => [
+				],
+				'b' => [
 					'value' => 'asdf'
 				]
 		]))->toObj($obj)
@@ -166,8 +167,30 @@ class ObjectBindableTargetTest extends TestCase {
 				->props(['bb/value', 'bb/value2'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertEquals(1, $a->getBbCount);
+		$this->assertEquals(1, $a->getBbCallsCount);
 		$this->assertEquals('huii!', $a->getBb()->value);
 		$this->assertEquals('holeradio', $a->getBb()->getValue2());
+	}
+
+	function testInaccessibleObjProp(): void {
+		$this->expectException(BindTargetException::class);
+
+		$a = new BindTestClassA();
+
+		Bind::attrs(['inaccessibleB' => ['value' => 'huii!']])
+				->toObj($a)
+				->props(['inaccessibleB/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	function testNonObjProp(): void {
+		$this->expectException(BindTargetException::class);
+
+		$a = new BindTestClassA();
+
+		Bind::attrs(['string' => ['value' => 'huii!']])
+				->toObj($a)
+				->props(['string/value'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 }

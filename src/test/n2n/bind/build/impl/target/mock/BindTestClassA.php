@@ -1,6 +1,8 @@
 <?php
 namespace n2n\bind\build\impl\target\mock;
 
+use n2n\bind\build\impl\BindTest;
+
 class BindTestClassA {
 	private string $string = '';
 	private int $int = 0;
@@ -11,10 +13,13 @@ class BindTestClassA {
 	private ?BindTestClassB $pBbb = null;
 	private ?BindTestClassB $pBbbb = null;
 	private $unaccessible;
-	public int $getBbCount = 0;
+	public int $getBbCallsCount = 0;
+
+	private BindTestClassB $inaccessibleB;
 
 	function __construct() {
 		$this->pBb = new BindTestClassB();
+		$this->inaccessibleB = new BindTestClassB();
 	}
 
 	/**
@@ -62,8 +67,8 @@ class BindTestClassA {
 	/**
 	 * @return BindTestClassA
 	 */
-	public function getA(): BindTestClassA {
-		return $this->a;
+	public function getA(): ?BindTestClassA {
+		return $this->a ?? null;
 	}
 
 	/**
@@ -74,7 +79,7 @@ class BindTestClassA {
 	}
 
 	function getBb(): BindTestClassB {
-		$this->getBbCount++;
+		$this->getBbCallsCount++;
 		return $this->pBb;
 	}
 

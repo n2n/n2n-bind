@@ -3,21 +3,21 @@
 namespace n2n\bind\mapper\impl\closure;
 
 use PHPUnit\Framework\TestCase;
-use n2n\bind\build\impl\target\mock\BindTestClassA;
 use n2n\bind\build\impl\Bind;
 use n2n\util\magic\MagicContext;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\mapper\impl\Mappers;
+use n2n\bind\build\impl\target\mock\BindTestClass;
 
 class PropsClosureMapperTest extends TestCase {
 	function testPropsClosure() {
-		$objToWrite = new BindTestClassA();
+		$objToWrite = new BindTestClass();
 		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => [], 'obj' => $objToWrite];
 
 		$dm = new DataMap(['string' => 'test', 'int' => 123, 'array' => $arrToWrite, 'obj' => $objToWrite]);
-		$obj = new BindTestClassA();
+		$obj = new BindTestClass();
 		$obj->setString('wrong');
-		$obj->setA($objToWrite);
+		$obj->setObj($objToWrite);
 
 		Bind::attrs($dm)->toObj($obj)
 				->props(['string', 'int', 'array', 'obj'], Mappers::propsClosure(function($values) use ($dm) {
@@ -33,7 +33,7 @@ class PropsClosureMapperTest extends TestCase {
 		$this->assertEquals('str', $obj->getString());
 		$this->assertEquals(null, $obj->getInt());
 		$this->assertEquals([], $obj->getArray());
-		$this->assertEquals(null, $obj->getA());
+		$this->assertEquals(null, $obj->getObj());
 	}
 
 	function testOptProps() {
