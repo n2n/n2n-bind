@@ -8,14 +8,15 @@ use n2n\reflection\property\PropertiesAnalyzer;
 use n2n\reflection\ReflectionUtils;
 use n2n\bind\err\BindTargetException;
 use n2n\reflection\ObjectCreationFailedException;
-use n2n\reflection\property\PropertyAccessProxy;
 use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\reflection\ReflectionException;
-use n2n\util\type\TypeUtils;
 use n2n\reflection\property\AccessProxy;
 use n2n\util\type\TypeName;
+use n2n\reflection\property\PropertyValueTypeMissmatchException;
 
 class ObjectBindableWriteProcess {
+	private const BINDABLE_KEY_SEPARATOR = '/';
+
 	/**
 	 * @var object[]
 	 */
@@ -32,6 +33,10 @@ class ObjectBindableWriteProcess {
 		ArgUtils::valArray($this->bindables, Bindable::class);
 	}
 
+	/**
+	 * @throws \ReflectionException
+	 * @throws BindTargetException
+	 */
 	public function process(object $obj): void {
 		foreach ($this->bindables as $bindable) {
 			if (!$bindable->doesExist()) {
@@ -52,94 +57,146 @@ class ObjectBindableWriteProcess {
 	 */
 	private function writeBindableToObject(mixed $value, object $obj, array $bindableNameParts, array $previousNameParts = []): void {
 		$firstBindableNamePart = array_shift($bindableNameParts);
-		$propertyProxy = $this->analyzeProperty($obj, $firstBindableNamePart);
-		if ($propertyProxy->getProperty() === null) {
-			throw new BindTargetException('Property doesn\'t exist: ' . TypeUtils::prettyMethName(get_class($obj), $firstBindableNamePart));
-		}
+		$bindableKey = $this->bindableKey($firstBindableNamePart, $previousNameParts);
 
-		$propertyProxy->getProperty()->setAccessible(true);
 		if (empty($bindableNameParts)) {
-			$this->writeValueToProperty($propertyProxy, $value, $obj);
+			$this->writeValueToProperty($value, $obj, $bindableKey);
 			return;
 		}
 
-		$newBindableObjectClassName = $this->getPropertyTypeClass($propertyProxy);
-		$previousNameParts = [...$previousNameParts, $firstBindableNamePart];
-		$newBindableObject = $this->getOrCreateBindableObject(implode('/', $previousNameParts), $newBindableObjectClassName);
-		$this->writeValueToProperty($propertyProxy, $newBindableObject, $obj);
-		$this->writeBindableToObject($value, $newBindableObject, $bindableNameParts, $previousNameParts);
+		$newBindableObject = $this->getBindableObjectByKey($obj, $bindableKey);
+		$this->writeBindableToObject($value, $newBindableObject, $bindableNameParts, [...$previousNameParts, $firstBindableNamePart]);
 	}
 
 	/**
-	 * @param string $path
+	 * @param string $bindableKey
 	 * @param string $className
 	 * @return mixed
 	 * @throws BindTargetException
 	 * @throws \ReflectionException
 	 */
-	private function getOrCreateBindableObject(string $path, string $className): mixed {
-		if (isset($this->bindableObjects[$path] )) {
-			return $this->bindableObjects[$path];
+	private function getOrCreateBindableObject(string $bindableKey, AccessProxy $accessProxy): object {
+		if (isset($this->bindableObjects[$bindableKey] )) {
+			return $this->bindableObjects[$bindableKey];
+		}
+
+		$typeName = $this->getTypeName($accessProxy);
+		if ($typeName === null) {
+			throw new BindTargetException('No Type found to create  \'' . $bindableKey . ' \'');
 		}
 
 		try {
-			return $this->bindableObjects[$path] = ReflectionUtils::createObject(new \ReflectionClass($className));
+			return $this->bindableObjects[$bindableKey] = ReflectionUtils::createObject(new \ReflectionClass($typeName));
 		} catch (ObjectCreationFailedException $e) {
-			throw new BindTargetException('Could not create ' . $className . ' to fill ' . $path, 0, $e);
+			throw new BindTargetException('Could not create \'' . $typeName . '\' for ' . $bindableKey, 0, $e);
 		}
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
-	private function analyzeProperty(object $obj, string $propertyName, array $previousPathParts = []): PropertyAccessProxy {
+	private function analyzeProperty(object $obj, string $bindableKey): AccessProxy {
 		try {
-			$arrayKey = implode('/', [...$previousPathParts, $propertyName]);
-
-			if (!isset($this->propertiesAnalyzers[$arrayKey])) {
-				$this->propertiesAnalyzers[$arrayKey] = new PropertiesAnalyzer(new \ReflectionClass($obj));
+			if (!isset($this->propertiesAnalyzers[$bindableKey])) {
+				$this->propertiesAnalyzers[$bindableKey] = new PropertiesAnalyzer(new \ReflectionClass($obj));
 			}
 
-			return $this->propertiesAnalyzers[$arrayKey]->analyzeProperty($propertyName);
+			return $this->propertiesAnalyzers[$bindableKey]->analyzeProperty($this->getNameFromBindableKey($bindableKey), false, false);
 		} catch (\ReflectionException|ReflectionException $e) {
-			throw new BindTargetException('Property \'' . $propertyName . '\' is not accessible.', 0, $e);
+			throw new BindTargetException('Cant find:  \'' . $bindableKey . '\' on ' . get_class($obj), 0, $e);
 		}
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
-	private function writeValueToProperty(PropertyAccessProxy $propertyProxy, mixed $value, object $obj): void {
+	private function writeValueToProperty(mixed $value, object $obj, string $bindableKey): void {
+		$accessProxy = $this->analyzeProperty($obj, $bindableKey);
+		$this->checkWritable($accessProxy, $bindableKey);
+
 		try {
-			$propertyProxy->setValue($obj, $value);
-		} catch (ValueIncompatibleWithConstraintsException|ReflectionException $e) {
-			throw new BindTargetException('Could not write: \'' . print_r($value, true) . '\' to ' . $propertyProxy->getProperty()->class
-					. '::$' . $propertyProxy->getPropertyName(), 0, $e);
+			$accessProxy->setValue($obj, $value);
+		} catch (ValueIncompatibleWithConstraintsException|PropertyValueTypeMissmatchException $e) {
+			throw new BindTargetException('Could not write ' . gettype($value) . ' to bindable \''
+					. $bindableKey . '\'', 0, $e);
 		}
 	}
 
 	/**
-	 * @todo: what to do with multi type constraints? for now just use first option.
-	 * @param AccessProxy $propertyProxy
-	 * @return string|void
+	 * @param object $obj
+	 * @param string $bindableKey
+	 * @return object
+	 * @throws BindTargetException
+	 * @throws \ReflectionException
 	 */
-	private function getPropertyTypeClass(AccessProxy $propertyProxy) {
-		foreach ($propertyProxy->getSetterConstraint()->getNamedTypeConstraints() as $namedTypeConstraint) {
-			class_exists($namedTypeConstraint->getTypeName())
-
-			$namedTypeConstraint->isTypeSafe();
-
-			ReflectionUtils::createObject(new \ReflectionClass($typeName));
-
-
-			TypeName::isA($namedTypeConstraint->getTypeName(), 'object');
+	private function getBindableObjectByKey(object $obj, string $bindableKey): object {
+		if (isset($this->bindableObjects[$bindableKey])) {
+			return $this->bindableObjects[$bindableKey];
 		}
 
-		$propertyTypeName = $propertyProxy->getProperty()->getType()->getName();
-		if ($propertyTypeName !== null) {
-			return $propertyTypeName;
+		$accessProxy = $this->analyzeProperty($obj, $bindableKey);
+
+		$existingValue = $this->getExistingValueForBindableKey($obj,$accessProxy, $bindableKey);
+		if ($existingValue !== null) {
+			return $existingValue;
 		}
 
-		return $propertyProxy->getSetterConstraint()->getNamedTypeConstraints()[0]->getTypeName();
+		$this->checkWritable($accessProxy, $bindableKey);
+
+		$propertyTypeReflectionClass = $this->getOrCreateBindableObject($bindableKey, $accessProxy);
+		$this->writeValueToProperty($propertyTypeReflectionClass, $obj, $bindableKey);
+		return $propertyTypeReflectionClass;
+	}
+
+	private function getTypeName(AccessProxy $accessProxy): ?string {
+		$typeName = null;
+		foreach ($accessProxy->getSetterConstraint()->getNamedTypeConstraints() as $namedTypeConstraint) {
+			if (!class_exists($namedTypeConstraint->getTypeName())
+					|| !$namedTypeConstraint->isTypeSafe()
+					|| TypeName::isA($namedTypeConstraint->getTypeName(), 'object')) {
+				continue;
+			}
+			$typeName = $namedTypeConstraint->getTypeName();
+		}
+		return $typeName ?? $accessProxy->getProperty()?->getType()?->getName();
+	}
+
+	/**
+	 * Creates the key used to cache bindable objects
+	 * @return string
+	 */
+	private function bindableKey(string $name, array $previousNameParts): string {
+		return implode(self::BINDABLE_KEY_SEPARATOR, [...$previousNameParts, $name]);
+	}
+
+	/**
+	 * @param string $bindableKey
+	 * @return string
+	 */
+	private function getNameFromBindableKey(string $bindableKey): string {
+		$parts = explode(self::BINDABLE_KEY_SEPARATOR, $bindableKey);
+		return end($parts);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 */
+	private function checkWritable(AccessProxy $accessProxy, string $bindableKey) {
+		if (!$accessProxy->isWritable()) {
+			throw new BindTargetException('Property \'' . $bindableKey . '\' is not writable.', 0);
+		}
+	}
+
+	private function getExistingValueForBindableKey(object $obj, AccessProxy $accessProxy, string $bindableKey): ?object {
+		try {
+			$this->bindableObjects[$bindableKey] = $accessProxy->getValue($obj);
+			if ($this->bindableObjects[$bindableKey] !== null) {
+				return $this->bindableObjects[$bindableKey];
+			}
+		} catch (ReflectionException) {
+
+		}
+
+		return null;
 	}
 }

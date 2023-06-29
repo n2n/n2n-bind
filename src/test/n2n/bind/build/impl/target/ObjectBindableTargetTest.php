@@ -129,7 +129,7 @@ class ObjectBindableTargetTest extends TestCase {
 		Bind::attrs(['bb' => ['value' => 'huii!']])
 				->toObj($obj)
 				->props(['bb/value'])
-				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+ 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertEquals('huii!', $obj->getBb()->value);
 	}
@@ -159,18 +159,15 @@ class ObjectBindableTargetTest extends TestCase {
 	}
 
 	function testObjectChildGet(): void {
-		$bb = new BindTestClassB();
-
-		$objMock = $this->createMock(BindTestClassA::class)
-				->expects($this->once())->method('getBb')
-				->willReturn($bb);
+		$a = new BindTestClassA();
 
 		Bind::attrs(['bb' => ['value' => 'huii!', 'value2' => 'holeradio']])
-				->toObj($objMock)
-				->props(['bb/value'])
+				->toObj($a)
+				->props(['bb/value', 'bb/value2'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertEquals('huii!', $bb->value);
-		$this->assertEquals('holeradio', $bb->getValue2());
+		$this->assertEquals(1, $a->getBbCount);
+		$this->assertEquals('huii!', $a->getBb()->value);
+		$this->assertEquals('holeradio', $a->getBb()->getValue2());
 	}
 }

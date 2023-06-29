@@ -11,6 +11,7 @@ class BindTestClassA {
 	private ?BindTestClassB $pBbb = null;
 	private ?BindTestClassB $pBbbb = null;
 	private $unaccessible;
+	public int $getBbCount = 0;
 
 	function __construct() {
 		$this->pBb = new BindTestClassB();
@@ -73,6 +74,7 @@ class BindTestClassA {
 	}
 
 	function getBb(): BindTestClassB {
+		$this->getBbCount++;
 		return $this->pBb;
 	}
 
