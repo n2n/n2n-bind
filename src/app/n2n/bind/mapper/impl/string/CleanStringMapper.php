@@ -14,14 +14,15 @@ use n2n\bind\mapper\impl\SingleMapperAdapter;
 
 class CleanStringMapper extends SingleMapperAdapter {
 
-	function __construct(private bool $mandatory, private ?int $minlength, private ?int $maxlength) {
+	function __construct(private bool $mandatory, private ?int $minlength, private ?int $maxlength,
+			private bool $simpleWhitespacesOnly = true) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		if ($value !== null) {
-			$bindable->setValue(StringUtils::clean($value));
+			$bindable->setValue(StringUtils::clean($value, $this->simpleWhitespacesOnly));
 		}
 
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);

@@ -46,8 +46,13 @@ class Mappers {
 	 * @param int|null $maxlength
 	 * @return CleanStringMapper
 	 */
-	static function cleanString(bool $mandatory = false, ?int $minlength = 0, ?int $maxlength = 255): CleanStringMapper {
-		return new CleanStringMapper($mandatory, $minlength, $maxlength);
+	static function cleanString(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255,
+			bool $simpleWhitespacesOnly = true): CleanStringMapper {
+		return new CleanStringMapper($mandatory, $minlength, $maxlength, $simpleWhitespacesOnly);
+	}
+
+	static function cleanMultilineString(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255): CleanStringMapper {
+		return self::cleanString($mandatory, $minlength, $maxlength, false);
 	}
 
 	/**
