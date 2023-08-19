@@ -9,13 +9,13 @@ use n2n\reflection\ReflectionUtils;
 use n2n\bind\err\BindTargetException;
 use n2n\reflection\ObjectCreationFailedException;
 use n2n\util\type\ValueIncompatibleWithConstraintsException;
-use n2n\reflection\ReflectionException;
 use n2n\reflection\property\AccessProxy;
 use n2n\util\type\TypeName;
-use n2n\reflection\property\PropertyValueTypeMissmatchException;
+use n2n\reflection\property\PropertyValueTypeMismatchException;
 use n2n\validation\plan\DetailedName;
 use n2n\util\type\TypeConstraints;
 use n2n\util\ex\IllegalStateException;
+use n2n\reflection\property\PropertyAccessException;
 
 class ObjectBindableWriteProcess {
 
@@ -91,7 +91,7 @@ class ObjectBindableWriteProcess {
 
 			return $this->propertiesAnalyzers[$detailedNameStr]->analyzeProperty($detailedName->getSymbolicName(),
 					$settingRequired, $gettingRequired);
-		} catch (\ReflectionException|ReflectionException $e) {
+		} catch (\ReflectionException $e) {
 			throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName, $e);
 		}
 	}
@@ -112,7 +112,7 @@ class ObjectBindableWriteProcess {
 
 		try {
 			$accessProxy->setValue($obj, $value);
-		} catch (ValueIncompatibleWithConstraintsException|PropertyValueTypeMissmatchException $e) {
+		} catch (PropertyAccessException $e) {
 			throw new BindTargetException('Could not write bindable: ' .  $detailedName . '\'', 0, $e);
 		}
 	}
@@ -137,7 +137,7 @@ class ObjectBindableWriteProcess {
 
 		try {
 			$childObj = $accessProxy->getValue($obj);
-		} catch (ReflectionException $e) {
+		} catch (PropertyAccessException $e) {
 			throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName, $e);
 		}
 
