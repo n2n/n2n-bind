@@ -37,6 +37,7 @@ use n2n\bind\mapper\impl\date\DateTimeMapper;
 use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
 use n2n\bind\mapper\impl\numeric\FloatMapper;
 use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
+use n2n\bind\mapper\impl\string\PathPartMapper;
 
 class Mappers {
 
@@ -120,8 +121,16 @@ class Mappers {
 	 * @param Closure $closure
 	 * @return ValueClosureMapper
 	 */
-	public static function valueClosure(Closure $closure) {
-		return new ValueClosureMapper($closure);
+	public static function valueClosure(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, false);
+	}
+
+	/**
+	 * @param Closure $closure
+	 * @return ValueClosureMapper
+	 */
+	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, true);
 	}
 
 	/**
@@ -152,7 +161,12 @@ class Mappers {
 		return new DateTimeImmutableMapper($mandatory, $min, $max);
 	}
 
-	static function n2nLocale(bool $mandatory = false, array $allowedValues = null) {
+	static function n2nLocale(bool $mandatory = false, array $allowedValues = null): N2nLocaleMapper {
 		return new N2nLocaleMapper($mandatory, $allowedValues);
+	}
+
+	static function pathPart(?Closure $uniqueTester, ?string $generationIfNullBaseName, bool $mandatory = false,
+			?int $min = 3, ?int $max = 150): PathPartMapper {
+		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $min, $max, $mandatory);
 	}
 }

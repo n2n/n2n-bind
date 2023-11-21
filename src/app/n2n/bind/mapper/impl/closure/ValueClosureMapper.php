@@ -13,18 +13,20 @@ class ValueClosureMapper extends SingleMapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure) {
+	public function __construct(\Closure $closure, private bool $nullSkipped) {
 		$this->closure = $closure;
 	}
 
 	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
 		$value = $bindable->getValue();
+		if ($this->nullSkipped && $value === null) {
+			return true;
+		}
 
 		$invoker = new MagicMethodInvoker($magicContext);
-		$invoker->setMethod(new \ReflectionFunction($this->closure));
 		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
 
-		$returnValue = $invoker->invoke(null, null,[$value]);
+		$returnValue = $invoker->invoke(null, $this->closure, [$value]);
 
 		$bindable->setValue($returnValue);
 
