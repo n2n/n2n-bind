@@ -16,11 +16,17 @@ use Closure;
 use n2n\util\type\ArgUtils;
 use n2n\validation\validator\impl\ValidationUtils;
 use InvalidArgumentException;
+use n2n\l10n\Message;
 
 
 class PathPartMapper extends SingleMapperAdapter {
 	private ?Closure $uniqueTester;
 	private string $fillStr = 'path';
+	private ?Message $mandatoryErrorMessage = null;
+	private ?Message $minlengthErrorMessage = null;
+	private ?Message $maxlengthErrorMessage = null;
+	private ?Message $uniqueErrorMessage = null;
+	private ?Message $noSpecialCharsErrorMessage = null;
 
 	/**
 	 *
@@ -159,20 +165,65 @@ class PathPartMapper extends SingleMapperAdapter {
 		$validators = [];
 
 		if ($this->mandatory) {
-			$validators[] = Validators::mandatory();
+			$validators[] = Validators::mandatory($this->mandatoryErrorMessage);
 		}
 		if ($this->minlength !== null) {
-			$validators[] = Validators::minlength($this->minlength);
+			$validators[] = Validators::minlength($this->minlength, $this->minlengthErrorMessage);
 		}
 		if ($this->maxlength !== null) {
-			$validators[] = Validators::maxlength($this->maxlength);
+			$validators[] = Validators::maxlength($this->maxlength, $this->maxlengthErrorMessage);
 		}
 		if ($this->uniqueTester !== null) {
-			$validators[] = Validators::uniqueClosure($this->uniqueTester);
+			$validators[] = Validators::uniqueClosure($this->uniqueTester, $this->uniqueErrorMessage);
 		}
-		$validators[] = Validators::noSpecialChars();
+		$validators[] = Validators::noSpecialChars($this->noSpecialCharsErrorMessage);
 
 
 		return $validators;
+	}
+
+	public function setMandatoryErrorMessage(mixed $mandatoryErrorMessage): static {
+		$this->mandatoryErrorMessage = Message::build($mandatoryErrorMessage);
+		return $this;
+	}
+
+	public function getMandatoryErrorMessage(): ?Message {
+		return $this->mandatoryErrorMessage;
+	}
+
+	public function setMinlengthErrorMessage(mixed $minlengthErrorMessage): static {
+		$this->minlengthErrorMessage = Message::build($minlengthErrorMessage);
+		return $this;
+	}
+
+	public function getMinlengthErrorMessage(): ?Message {
+		return $this->minlengthErrorMessage;
+	}
+
+	public function setMaxlengthErrorMessage(mixed $maxlengthErrorMessage): static {
+		$this->maxlengthErrorMessage = Message::build($maxlengthErrorMessage);
+		return $this;
+	}
+
+	public function getMaxlengthErrorMessage(): ?Message {
+		return $this->maxlengthErrorMessage;
+	}
+
+	public function setUniqueErrorMessage(mixed $uniqueErrorMessage): static {
+		$this->uniqueErrorMessage = Message::build($uniqueErrorMessage);
+		return $this;
+	}
+
+	public function getUniqueErrorMessage(): ?Message {
+		return $this->uniqueErrorMessage;
+	}
+
+	public function setNoSpecialCharsErrorMessage(mixed $noSpecialCharsErrorMessage): static {
+		$this->noSpecialCharsErrorMessage = Message::build($noSpecialCharsErrorMessage);
+		return $this;
+	}
+
+	public function getNoSpecialCharsErrorMessage(): ?Message {
+		return $this->noSpecialCharsErrorMessage;
 	}
 }

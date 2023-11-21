@@ -320,5 +320,38 @@ class PathPartMapperTest extends TestCase {
 		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 0, max: 5);
 	}
 
+	function testAttrsValFailCustomErrorMessages() {
+		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'min', 'pathPart3' => 'holeradio', 'pathPart4' => '§§§§', 'pathPart5' => 'blubb']);
+		$tdm = new DataMap();
+		$result = Bind::attrs($dm)->toAttrs($tdm)
+				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart4', 'pathPart5'],
+						Mappers::pathPart((function($value) use ($dm) {
+							return !in_array($value, ['blubb', 'somepath']);
+						}), null, true, 4, 8)
+								->setMaxlengthErrorMessage('CustomErrorMessage max')
+								->setMinlengthErrorMessage('CustomErrorMessage min')
+								->setUniqueErrorMessage('CustomErrorMessage unique')
+								->setMandatoryErrorMessage('CustomErrorMessage req')
+								->setNoSpecialCharsErrorMessage('CustomErrorMessage noSpecial'))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$this->assertTrue($result->hasErrors());
+		$this->assertTrue($tdm->isEmpty());
+		$errorMap = $result->getErrorMap();
+
+		$this->assertCount(1, $errorMap->getChild('pathPart1')->getMessages()); //is empty
+		$this->assertEquals('CustomErrorMessage req', $errorMap->getChild('pathPart1')->jsonSerialize()['messages'][0]); //mandatory violation
+
+		$this->assertCount(1, $errorMap->getChild('pathPart2')->getMessages()); //min chars not reached
+		$this->assertEquals('CustomErrorMessage min', $errorMap->getChild('pathPart2')->jsonSerialize()['messages'][0]); //min violation
+
+		$this->assertCount(1, $errorMap->getChild('pathPart3')->getMessages()); //more chars than max allows
+		$this->assertEquals('CustomErrorMessage max', $errorMap->getChild('pathPart3')->jsonSerialize()['messages'][0]); //max violation
+
+		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains special chars
+		$this->assertEquals('CustomErrorMessage noSpecial', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
+
+		$this->assertCount(1, $errorMap->getChild('pathPart5')->getMessages()); //path already used, unique fails
+		$this->assertEquals('CustomErrorMessage unique', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
+	}
 
 }
