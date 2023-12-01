@@ -38,6 +38,7 @@ use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
 use n2n\bind\mapper\impl\numeric\FloatMapper;
 use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
 use n2n\bind\mapper\impl\string\PathPartMapper;
+use n2n\bind\mapper\Mapper;
 
 class Mappers {
 
@@ -168,5 +169,9 @@ class Mappers {
 	static function pathPart(?Closure $uniqueTester, ?string $generationIfNullBaseName, bool $mandatory = false,
 			?int $min = 3, ?int $max = 150): PathPartMapper {
 		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $min, $max, $mandatory);
+	}
+
+	static function pipe(Mapper ...$mappers): PipeMapper {
+		return new PipeMapper($mappers);
 	}
 }
