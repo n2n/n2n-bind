@@ -9,6 +9,7 @@ use n2n\bind\build\impl\Bind;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\StringUtils;
+use n2n\bind\mapper\Mapper;
 
 class PipeMapperTest extends TestCase {
 	/**
@@ -87,6 +88,9 @@ class PipeMapperTest extends TestCase {
 		$dataMap = new DataMap(['clo1' => 'aaaa', 'clo2' => 'blibla', 'clo3' => 'blubb']);
 		$tdm = new DataMap();
 
+		$mapperMock = $this->createMock(Mapper::class);
+		$mapperMock->expects($this->never())->method('map');
+
 		$result = Bind::attrs($dataMap)->toAttrs($tdm)
 				->optProps(['clo1', 'clo2', 'clo3'],
 						Mappers::pipe(Mappers::cleanString(false, 8, 12),
@@ -94,7 +98,7 @@ class PipeMapperTest extends TestCase {
 									$bindable->setValue($bindable->getValue());
 									return false;
 								}),
-								Mappers::int(false, 4, 5)))
+								$mapperMock))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 
@@ -120,7 +124,10 @@ class PipeMapperTest extends TestCase {
 		//same test like testThatFailingMapperPreventLaterMappersToBeReached, but second mapper is true
 		$dataMap = new DataMap(['clo1' => 'aaaa', 'clo2' => 'blibla', 'clo3' => 'blubb']);
 		$tdm = new DataMap();
-		$this->expectException(BindMismatchException::class);
+
+		$mapperMock = $this->createMock(Mapper::class);
+		$mapperMock->expects($this->once())->method('map')->willReturn(true);
+
 		Bind::attrs($dataMap)->toAttrs($tdm)
 				->optProps(['clo1', 'clo2', 'clo3'],
 						Mappers::pipe(Mappers::cleanString(false, 8, 12),
@@ -128,7 +135,7 @@ class PipeMapperTest extends TestCase {
 									$bindable->setValue($bindable->getValue());
 									return true;
 								}),
-								Mappers::int(false, 4, 5)))
+								$mapperMock))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
