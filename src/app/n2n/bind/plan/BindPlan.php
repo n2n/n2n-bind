@@ -23,6 +23,7 @@ namespace n2n\bind\plan;
 
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\impl\SimpleBindResult;
+use n2n\bind\err\BindMismatchException;
 
 class BindPlan {
 
@@ -31,8 +32,7 @@ class BindPlan {
 	 */
 	private array $bindGroups = [];
 
-	function __construct(private BindableSource $bindableSource, private BindableTarget $bindableTarget) {
-
+	function __construct() {
 	}
 
 	/**
@@ -45,24 +45,16 @@ class BindPlan {
 
 	/**
 	 * @param MagicContext $magicContext
-	 * @return BindResult
+	 * @return bool
+	 * @throws BindMismatchException
 	 */
-	function exec(MagicContext $magicContext): BindResult {
-		$this->bindableSource->reset();
-
+	function exec(MagicContext $magicContext): bool {
 		foreach ($this->bindGroups as $bindGroup) {
 			if (!$bindGroup->exec($magicContext)) {
-				return new SimpleBindResult($this->bindableSource->createErrorMap());
+				return false;
 			}
 		}
 
-		$errorMap = $this->bindableSource->createErrorMap();
-		if (!$errorMap->isEmpty()) {
-			return new SimpleBindResult($errorMap);
-		}
-
-		$this->bindableTarget->write($this->bindableSource->getBindables());
-
-		return new SimpleBindResult(null);
+		return true;
 	}
 }

@@ -41,4 +41,8 @@ class StaticUnionBindComposerSource extends ComposerSourceAdapter implements Uni
 
 		return $bindable;
 	}
+
+	function acquireBindables(string $expression): Bindable {
+		return $this->acquireBindable(äname)
+	}
 }

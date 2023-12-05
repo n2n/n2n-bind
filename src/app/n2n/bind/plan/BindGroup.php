@@ -25,27 +25,29 @@ use n2n\util\type\ArgUtils;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
+use n2n\bind\build\impl\compose\prop\PropBindSource;
+use n2n\bind\build\impl\compose\prop\PropBindableResolver;
 
 class BindGroup {
 
 	/**
 	 * @param Mapper[] $mappers
-	 * @param BindableGroupSource $bindableGroupSource
+	 * @param BindableResolver $bindableGroupSource
+	 * @param BindContext $bindContext
 	 */
-	function __construct(private array $mappers, private BindableGroupSource $bindableGroupSource,
+	function __construct(private array $mappers, private BindableResolver $bindableGroupSource,
 			private BindContext $bindContext) {
 		ArgUtils::valArray($mappers, Mapper::class);
 	}
 
 	/**
-	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool false if a Mapper could not perform a modification of value due to errors. The bind process should be
 	 * aborted in this case.
 	 * @throws BindMismatchException
 	 */
-	function exec(MagicContext $magicContext): bool {
-		$bindableBoundary = new BindableBoundary($this->bindableGroupSource);
+	function exec(PropBindSource $probBindSource, MagicContext $magicContext): bool {
+		$bindableBoundary = new BindableBoundary(new PropBindableResolver($bindableGroupSource));
 
 		foreach ($this->mappers as $mapper) {
 			$bindables = $bindableBoundary->getBindables();

@@ -19,26 +19,22 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\compose\union;
 
-use n2n\validation\plan\ErrorMap;
+use n2n\bind\plan\BindableResolver;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\Bindable;
 
-interface BindableSource {
+class UnionBindableResolver implements BindableResolver {
 
-	/**
-	 * A new bind cycle begins. All errors of defined bindables should be removed
-	 *
-	 * @return void
-	 */
-	function reset(): void;
+	function __construct(private UnionBindComposerSource $unionBindComposerSource) {
+	}
 
-	/**
-	 * @return Bindable[]
-	 */
-	function getBindables(): array;
+	function acquireDefaultBindables(): array {
+		return $this->unionBindComposerSource->getBindables();
+	}
 
-	/**
-	 * @return ErrorMap
-	 */
-	function createErrorMap(): ErrorMap;
+	function acquireBindable(string $name): Bindable {
+		return $this->unionBindComposerSource->acquireBindable($name);
+	}
 }

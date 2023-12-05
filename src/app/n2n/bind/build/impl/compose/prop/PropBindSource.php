@@ -19,22 +19,29 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\union;
+namespace n2n\bind\build\impl\compose\prop;
 
-use n2n\bind\plan\BindableGroupSource;
-use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindSource;
 use n2n\bind\plan\Bindable;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindContext;
 
-class UnionBindableGroupSource implements BindableGroupSource {
+interface PropBindSource extends BindSource, BindContext {
 
-	function __construct(private UnionBindComposerSource $unionBindComposerSource) {
-	}
+	function acquireRootAsBindable(): Bindable;
 
-	function acquireDefaultBindables(): array {
-		return $this->unionBindComposerSource->getBindables();
-	}
+	/**
+	 * @param string $expression
+	 * @param bool $mustExist
+	 * @return Bindable[]
+	 * @throws UnresolvableBindableException only if $mustExist is true
+	 */
+	function acquireBindables(string $expression, bool $mustExist): array;
 
-	function acquireBindable(string $name): Bindable {
-		return $this->unionBindComposerSource->acquireBindable($name);
-	}
+	/**
+	 * @param string $name
+	 * @param bool $mustExist
+	 * @return Bindable
+	 */
+	function acquireBindable(string $name, bool $mustExist): Bindable;
 }

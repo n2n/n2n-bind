@@ -33,16 +33,17 @@ use n2n\bind\plan\BindableTarget;
 use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\BindGroup;
 use n2n\bind\mapper\Mapper;
+use n2n\bind\plan\BindTask;
 
 class UnionBindComposer implements ValidationTask {
 
 	/**
 	 * @var BindPlan
 	 */
-	private BindPlan $bindPlan;
+	private BindPlan $bindTask;
 
 	function __construct(private UnionBindComposerSource $source, private BindableTarget $bindableTarget) {
-		$this->bindPlan = new BindPlan($source, $this->bindableTarget);
+		$this->bindTask = new BindTask($source, $this->bindableTarget);
 	}
 
 	/**
@@ -52,8 +53,8 @@ class UnionBindComposer implements ValidationTask {
 	function map(Mapper|Validator ...$mappers): static {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
-		$this->bindPlan->addBindGroup(
-				new BindGroup($mappers, new UnionBindableGroupSource($this->source), $this->source));
+		$this->bindTask->getBindPlan()->addBindGroup(
+				new BindGroup($mappers, new UnionBindableResolver($this->source), $this->source));
 
 		$this->bindableTarget->write($this->source->getBindables());
 
@@ -65,6 +66,6 @@ class UnionBindComposer implements ValidationTask {
 	 * @see \n2n\validation\plan\ValidationTask::exec()
 	 */
 	function exec(MagicContext $magicContext): ValidationResult {
-		return $this->bindPlan->exec($magicContext);
+		return $this->bindTask->exec($magicContext);
 	}	
 }

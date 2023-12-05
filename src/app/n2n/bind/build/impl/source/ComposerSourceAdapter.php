@@ -23,7 +23,7 @@ namespace n2n\bind\build\impl\source;
 
 use n2n\l10n\Message;
 use n2n\bind\plan\BindContext;
-use n2n\bind\plan\BindableSource;
+use n2n\bind\plan\BindSource;
 use n2n\bind\plan\Bindable;
 use n2n\validation\plan\ErrorMap;
 use n2n\util\ex\IllegalStateException;
@@ -31,7 +31,7 @@ use n2n\validation\plan\DetailedName;
 use n2n\util\type\ArgUtils;
 use n2n\bind\build\impl\Bind;
 
-abstract class ComposerSourceAdapter implements BindableSource, BindContext {
+abstract class ComposerSourceAdapter implements BindSource, BindContext {
 	/**
 	 * @var Bindable[]
 	 */

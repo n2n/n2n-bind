@@ -3,6 +3,7 @@
 namespace n2n\bind\plan;
 
 use n2n\util\type\ArgUtils;
+use n2n\validation\plan\DetailedName;
 
 class BindableBoundary {
 	/**
@@ -11,9 +12,9 @@ class BindableBoundary {
 	private array $bindables = [];
 
 	/**
-	 * @param BindableGroupSource $bindableGroupSource
+	 * @param BindableResolver $bindableGroupSource
 	 */
-	function __construct(private BindableGroupSource $bindableGroupSource) {
+	function __construct(private BindBindableResolver $bindableGroupSource) {
 		foreach ($this->bindableGroupSource->acquireDefaultBindables() as $bindable) {
 			$this->addBindable($bindable);
 		}
@@ -23,11 +24,17 @@ class BindableBoundary {
 		$this->bindables[(string) $bindable->getName()] = $bindable;
 	}
 
+	private function addSu
+
 	/**
 	 * @return Bindable[]
 	 */
 	function getBindables(): array {
 		return $this->bindables;
+	}
+
+	function getSubBindableBoudaries(): array {
+		return $this->bindableBoundaries;
 	}
 
 	/**
@@ -44,4 +51,6 @@ class BindableBoundary {
 
 		return $bindable;
 	}
+
+
 }

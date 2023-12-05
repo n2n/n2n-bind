@@ -31,13 +31,13 @@ use n2n\validation\validator\Validator;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\BindResult;
+use n2n\bind\build\impl\source\StaticUnionBindComposerSource;
+use n2n\bind\build\impl\compose\union\UnionBindableResolver;
 
-class PropBindComposer implements MagicTask {
+class PropBindComposer {
 
-	private BindPlan $bindPlan;
 
-	function __construct(private PropBindComposerSource $proBindComposerSource, BindableTarget $bindableTarget) {
-		$this->bindPlan = new BindPlan($proBindComposerSource, $bindableTarget);
+	function __construct(private BindPlan $bindPlan) {
 	}
 
 	/**
@@ -57,6 +57,15 @@ class PropBindComposer implements MagicTask {
 	 */
 	function props(array $expressions, Mapper|Validator ...$mappers): static {
 		$this->assembleBindGroup($expressions, $mappers, true);
+		return $this;
+	}
+
+	/**
+	 * @param Mapper|Validator ...$mappers
+	 * @return static
+	 */
+	function root(Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup([null], $mappers, true);
 		return $this;
 	}
 
@@ -102,7 +111,6 @@ class PropBindComposer implements MagicTask {
 		return $this;
 	}
 
-
 	/**
 	 * @param array $expressions
 	 * @param array $mappers
@@ -113,11 +121,8 @@ class PropBindComposer implements MagicTask {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
 		$this->bindPlan->addBindGroup(new BindGroup($mappers,
-				new PropBindableGroupSource($this->proBindComposerSource, $expressions, $mustExist),
+				new PropBindableResolver($this->proBindComposerSource, $expressions, $mustExist),
 				$this->proBindComposerSource));
 	}
 
-	function exec(MagicContext $magicContext): BindResult {
-		return $this->bindPlan->exec($magicContext);
-	}
 }

@@ -27,32 +27,50 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\type\attrs\AttributesException;
 use n2n\bind\plan\Bindable;
-use n2n\bind\build\impl\compose\prop\PropBindComposerSource;
+use n2n\bind\build\impl\compose\prop\PropBindSource;
 use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\plan\BindSource;
 
-class AttrsPropBindComposerSource extends ComposerSourceAdapter implements PropBindComposerSource {
+class AttrsPropBindSource extends ComposerSourceAdapter implements PropBindSource {
 
 	function __construct(private AttributeReader $attributeReader) {
 		parent::__construct([]);
 	}
 
+	function acquireRootAsBindable(): Bindable {
+
+	}
+
 	function acquireBindable(string $name): Bindable {
-		return $this->getOrCreateBindable($name, false);
+		return $this->getOrCreateBindableByName($name, false);
 	}
 
 	public function acquireBindables(string $expression, bool $mustExist): array {
-		return [$this->getOrCreateBindable($expression, $mustExist)];
+		return [$this->getOrCreateBindableByName($expression, $mustExist)];
+	}
+
+	function acquireBindableSource(DetailedName $detailedName, bool $mustExist): ?PropBindSource {
+		if ($detailedName->isEmpty()) {
+			return $this;
+		}
+
+		return new SubPropBindSource();
 	}
 
 	/**
 	 * @param string $name
 	 * @param bool $mustExist
 	 * @return Bindable
+	 * @throws UnresolvableBindableException
 	 */
-	private function getOrCreateBindable(string $name, bool $mustExist) {
+	private function getOrCreateBindableByName(string $name, bool $mustExist): Bindable {
 		$attributePath = AttributePath::create($name);
 		$detailedName = new DetailedName($attributePath->toArray());
 
+		return $this->getOrCreateBindable($detailedName, $mustExist);
+	}
+
+	function getOrCreateBindable(DetailedName $detailedName, bool $mustExist): Bindable {
 		$bindable = $this->getBindable($detailedName);
 		if ($bindable !== null && (!$mustExist || $bindable->doesExist())) {
 			return $bindable;

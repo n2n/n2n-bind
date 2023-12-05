@@ -19,26 +19,46 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\prop;
+namespace n2n\bind\plan;
 
-use n2n\bind\plan\BindableSource;
-use n2n\bind\plan\Bindable;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\plan\BindContext;
+use n2n\util\magic\MagicContext;
+use n2n\bind\plan\impl\SimpleBindResult;
+use n2n\bind\err\BindTargetException;
 
-interface PropBindComposerSource extends BindableSource, BindContext {
-
-	/**
-	 * @param string $expression
-	 * @param bool $mustExist
-	 * @return Bindable[]
-	 * @throws UnresolvableBindableException only if $mustExist is true
-	 */
-	function acquireBindables(string $expression, bool $mustExist): array;
+class BindTask {
 
 	/**
-	 * @param string $name
-	 * @return Bindable
+	 * @var BindGroup[]
 	 */
-	function acquireBindable(string $name): Bindable;
+	private array $bindGroups = [];
+
+	function __construct(private BindSource $bindableSource, private BindableTarget $bindableTarget,
+			private BindPlan $bindPlan) {
+	}
+
+	function getBindPlan(): BindPlan {
+		return $this->bindPlan;
+	}
+
+	/**
+	 * @param MagicContext $magicContext
+	 * @return BindResult
+	 * @throws BindTargetException
+	 */
+	function exec(MagicContext $magicContext): BindResult {
+		$this->bindableSource->reset();
+
+		if (!$this->bindPlan->exec($magicContext)) {
+			return new SimpleBindResult($this->bindableSource->createErrorMap());
+		}
+
+		$errorMap = $this->bindableSource->createErrorMap();
+		if (!$errorMap->isEmpty()) {
+			return new SimpleBindResult($errorMap);
+		}
+
+		$this->bindableTarget->write($this->bindableSource->getBindables());
+
+		return new SimpleBindResult(null);
+	}
 }

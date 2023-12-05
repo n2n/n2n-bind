@@ -24,11 +24,11 @@ namespace n2n\bind\build\impl\compose\union;
 use n2n\validation\plan\Validatable;
 use n2n\validation\plan\ValidatableSource;
 use n2n\validation\plan\ValidationContext;
-use n2n\bind\plan\BindableSource;
+use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
 use n2n\bind\plan\Bindable;
 
-interface UnionBindComposerSource extends BindableSource, BindContext {
+interface UnionBindComposerSource extends BindSource, BindContext {
 	/**
 	 * Must not exist.
 	 *

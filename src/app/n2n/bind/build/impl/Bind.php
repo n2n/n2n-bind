@@ -24,31 +24,31 @@ namespace n2n\bind\build\impl;
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\attrs\AttributeReader;
 use n2n\bind\build\impl\compose\union\UnionBindComposerSource;
-use n2n\bind\build\impl\compose\prop\PropBindComposerSource;
-use n2n\bind\build\impl\source\AttrsPropBindComposerSource;
+use n2n\bind\build\impl\compose\prop\PropBindSource;
+use n2n\bind\build\impl\source\AttrsPropBindSource;
 use n2n\validation\plan\DetailedName;
 use n2n\bind\build\impl\source\StaticUnionBindComposerSource;
 use n2n\bind\plan\impl\ValueBindable;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|PropBindComposerSource $source): PropBindTo {
+	static function attrs(AttributeReader|array|PropBindSource $source): PropBindTo {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		}
 
 		if ($source instanceof AttributeReader) {
-			$source = new AttrsPropBindComposerSource($source);
+			$source = new AttrsPropBindSource($source);
 		}
 
 		return self::props($source);
 	}
 
 	/**
-	 * @param PropBindComposerSource $source
+	 * @param PropBindSource $source
 	 * @return PropBindTo
 	 */
-	static function props(PropBindComposerSource $source): PropBindTo {
+	static function props(PropBindSource $source): PropBindTo {
 		return new PropBindTo($source);
 	}
 
@@ -63,5 +63,9 @@ class Bind {
 
 	static function union(UnionBindComposerSource $source): UnionBindTo {
 		return new UnionBindTo($source);
+	}
+
+	static function subProps(): SubPropBindComposer {
+		return new PropBindComposer();
 	}
 }
