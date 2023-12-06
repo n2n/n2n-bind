@@ -22,16 +22,12 @@
 namespace n2n\bind\plan;
 
 use n2n\util\type\TypeConstraint;
-use n2n\web\http\StatusException;
-use n2n\web\http\Response;
+
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\attrs\AttributeReader;
 use n2n\util\type\attrs\AttributesException;
 use n2n\util\type\attrs\AttributeWriter;
-use n2n\util\type\TypeConstraints;
-use n2n\util\StringUtils;
-use n2n\web\http\controller\impl\BindValuesMap;
 use n2n\bind\err\BindException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\bind\err\BindMismatchException;
@@ -182,7 +178,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	public function req($path, $type = null): static {
+	public function req($path, $type = null): mixed {
 		try {
 			return $this->dataMap->req($path, $type);
 		} catch (InvalidAttributeException $e) {
@@ -401,7 +397,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 */
 	public function reqBindValuesMap($path, bool $nullAllowed = false, int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->reqArray($path, null, $nullAllowed))) {
-			return new BindData(new DataMap($array), $errStatus ?? $this->errStatus);
+			return new BindData(new DataMap($array));
 		}
 		
 		return null;
@@ -416,7 +412,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 */
 	public function optBindValuesMap($path, mixed $defaultValue = null, bool $nullAllowed = true, int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->optArray($path, null, $defaultValue, $nullAllowed))) {
-			return new BindData(new DataMap($array), $errStatus ?? $this->errStatus);
+			return new BindData(new DataMap($array));
 		}
 		
 		return null;

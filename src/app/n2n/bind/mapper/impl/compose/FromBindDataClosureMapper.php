@@ -23,6 +23,7 @@ class FromBindDataClosureMapper implements Mapper {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setReturnTypeConstraint(TypeConstraints::type(Mapper::class));
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
+		$invoker->setClosure($this->closure);
 
 		$bindSource = $bindBoundary->unwarpBindSource();
 		$bindContext = $bindBoundary->unwrapBindContext();
