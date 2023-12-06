@@ -19,7 +19,7 @@ class BindablesClosureMapperTest extends TestCase {
 						Mappers::bindablesClosure(function(array $bindables, BindBoundary $bindBoundary) use ($dm) {
 							$bindables['string']->setValue('huii');
 							$bindables['int']->setExist(false);
-							$bindBoundary->acquireBindable('superInt')->setExist(true)->setValue(123);
+							$bindBoundary->acquireBindableByRelativeName('superInt')->setExist(true)->setValue(123);
 						}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 

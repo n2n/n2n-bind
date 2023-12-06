@@ -11,22 +11,34 @@ class BindBoundary {
 	 */
 	private array $bindables = [];
 
+	private array $paths = [];
+
 	/**
 	 * @param BindSource $bindSource
 	 * @param BindContext $bindContext
 	 * @param Bindable[] $bindables
 	 */
 	function __construct(private BindSource $bindSource, private BindContext $bindContext,
-			array $bindables) {
+			array $bindables, array $paths) {
 		foreach ($bindables as $bindable) {
 			$this->addBindable($bindable);
+		}
+
+		foreach ($paths as $path) {
+			$this->addPath($path);
 		}
 	}
 
 	private function addBindable(Bindable $bindable): void {
-		$contextName = $this->bindContext->getPath();
+		$path = $bindable->getPath();
 
-		$this->bindables[(string) $bindable->getPath()] = $bindable;
+		$this->bindables[(string) $path] = $bindable;
+
+		$this->addPath($path);
+	}
+
+	private function addPath(AttributePath $path): void {
+		$this->paths[(string) $path] = $path;
 	}
 
 	/**
@@ -34,6 +46,17 @@ class BindBoundary {
 	 */
 	function getBindables(): array {
 		return $this->bindables;
+	}
+
+	function getBindable(AttributePath $path): ?Bindable {
+		return $this->bindables[(string) $path] ?? null;
+	}
+
+	/**
+	 * @return AttributePath[]
+	 */
+	function getPaths(): array {
+		return $this->paths;
 	}
 
 	function pathToRelativeName(AttributePath $name): string {
@@ -54,7 +77,7 @@ class BindBoundary {
 	/**
 	 * @throws UnresolvableBindableException
 	 */
-	function acquireBindable(string $relativeName): Bindable {
+	function acquireBindableByRelativeName(string $relativeName): Bindable {
 		$name = $this->bindContext->getPath()->ext(AttributePath::create($relativeName));
 
 		$bindable = $this->bindSource->acquireBindable($name, false);

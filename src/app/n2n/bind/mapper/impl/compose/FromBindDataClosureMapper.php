@@ -28,18 +28,22 @@ class FromBindDataClosureMapper implements Mapper {
 		$bindSource = $bindBoundary->unwarpBindSource();
 		$bindContext = $bindBoundary->unwrapBindContext();
 
-		foreach ($bindBoundary->getBindables() as $bindable) {
+		foreach ($bindBoundary->getPaths() as $path) {
 			try {
 				$invoker->setClassParamObject(BindData::class,
-						$bindSource->getRawBindData($bindable->getPath(), true));
+						$bindSource->getRawBindData($path, true));
 			} catch (UnresolvableBindableException $e) {
 				throw new BindMismatchException(self::class . ' is not compatible with Bindable "'
-						. $bindable->getPath()->toAbsoluteString() . '"', previous: $e);
+						. $path->toAbsoluteString() . '"', previous: $e);
 			}
+
+			$bindable = $bindBoundary->getBindable($path);
 
 			$mapper = $invoker->invoke();
 			assert($mapper instanceof Mapper);
-			if (!$mapper->map(new BindBoundary($bindSource, $bindContext, [$bindable]), $magicContext)) {
+			if (!$mapper->map(new BindBoundary($bindSource, $bindContext,
+					$bindable === null ? [] : [$bindable],
+					[$path]), $magicContext)) {
 				return false;
 			}
 		}

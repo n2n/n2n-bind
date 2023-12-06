@@ -9,6 +9,11 @@ use n2n\bind\build\impl\target\mock\BindTestClassA;
 use n2n\util\type\attrs\DataMap;
 use n2n\util\magic\MagicTaskExecutionException;
 use n2n\bind\build\impl\target\mock\BindTestClassB;
+use n2n\bind\mapper\impl\mod\OuterTargetMock;
+use n2n\bind\mapper\impl\Mappers;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\mapper\Mapper;
 
 class ObjectBindableTargetTest extends TestCase {
 	public function testWrite() {
@@ -193,4 +198,28 @@ class ObjectBindableTargetTest extends TestCase {
 				->props(['string/value'])
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testIgnoreRoot(): void {
+		$dataMap = new DataMap(['holeradio' => 'foo']);
+		$targetMock = new ObjTargetMock();
+
+		$this->expectException(BindTargetException::class);
+
+		$mapperMock =  $this->createMock(Mapper::class);
+		$mapperMock->expects($this->once())->method('map')->willReturn(true);
+
+		Bind::attrs($dataMap)->toObj($targetMock)
+				->root($mapperMock)
+				->exec($this->createMock(MagicContext::class));
+	}
+}
+
+class ObjTargetMock {
+
+	public ?string $holeradio = null;
 }

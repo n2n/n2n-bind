@@ -33,6 +33,7 @@ use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\BindResult;
 use n2n\bind\build\impl\source\StaticBindSource;
 use n2n\bind\build\impl\compose\union\UnionBindablesResolver;
+use n2n\bind\mapper\impl\Mappers;
 
 class PropBindComposer {
 
@@ -60,12 +61,27 @@ class PropBindComposer {
 		return $this;
 	}
 
+
+	function logicalProp(string $expression, Mapper|Validator ...$mappers): static {
+		return $this->logicalProps([$expression], ...$mappers);
+	}
+
+	function logicalProps(array $expressions, Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup($expressions, $mappers, null);
+		return $this;
+	}
+
 	/**
 	 * @param Mapper|Validator ...$mappers
 	 * @return static
 	 */
 	function root(Mapper|Validator ...$mappers): static {
 		$this->assembleBindGroup([null], $mappers, true);
+		return $this;
+	}
+
+	function logicalRoot(Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup([null], $mappers, null);
 		return $this;
 	}
 
@@ -117,11 +133,15 @@ class PropBindComposer {
 	 * @param bool $mustExist
 	 * @return void
 	 */
-	private function assembleBindGroup(array $expressions, array $mappers, bool $mustExist): void {
+	private function assembleBindGroup(array $expressions, array $mappers, ?bool $mustExist): void {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
-		$this->bindPlan->addBindGroup(new BindGroup($mappers,
-				new PropBindablesResolver($expressions, $mustExist)));
+		$resolver = match($mustExist) {
+			true, false => new PropBindablesResolver($expressions, $mustExist),
+			null => new LogicalPropBindablesResolver($expressions)
+		};
+
+		$this->bindPlan->addBindGroup(new BindGroup($mappers, $resolver));
 	}
 
 }

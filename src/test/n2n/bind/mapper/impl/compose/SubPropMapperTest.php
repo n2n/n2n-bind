@@ -13,14 +13,11 @@ use n2n\bind\err\UnresolvableBindableException;
 
 class SubPropMapperTest extends TestCase {
 
-
 	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
+	 * @throws \Throwable
 	 */
-	function testSubProp(): void {
-		$dataMap = new DataMap(['holeradio' => 'foo', 'sub' => ['huii' => 'bar']]);
+	function testLogicalProp(): void {
+		$dataMap = new DataMap(['holeradio' => 'foo', 'sub' => ['huii' => 'bar', 'ignored' => '!!']]);
 		$targetDataMap = new DataMap();
 
 		Bind::attrs($dataMap)->toAttrs($targetDataMap)
@@ -28,7 +25,7 @@ class SubPropMapperTest extends TestCase {
 					$this->assertEquals('foo', $value);
 					return 'foo2';
 				}))
-				->prop('sub', Mappers::subProp()
+				->logicalProp('sub', Mappers::subProp()
 						->prop('huii', Mappers::valueClosure(function ($value) {
 							$this->assertEquals('bar', $value);
 							return 'bar2';
@@ -37,5 +34,31 @@ class SubPropMapperTest extends TestCase {
 
 		$this->assertEquals('foo2', $targetDataMap->req('holeradio'));
 		$this->assertEquals('bar2', $targetDataMap->req('sub/huii'));
+		$this->assertFalse($targetDataMap->has('sub/ignored'));
 	}
+
+	function testLogicalRoot(): void {
+		$dataMap = new DataMap(['holeradio' => 'foo', 'ignored' => '!!', 'sub' => ['huii' => 'bar', 'ignored' => '!!']]);
+		$targetDataMap = new DataMap();
+
+		Bind::attrs($dataMap)->toAttrs($targetDataMap)
+				->logicalRoot(Mappers::subProp()
+						->prop('holeradio', Mappers::valueClosure(function ($value) {
+							$this->assertEquals('foo', $value);
+							return 'foo2';
+						}))
+						->logicalProp('sub', Mappers::subProp()
+								->prop('huii', Mappers::valueClosure(function ($value) {
+									$this->assertEquals('bar', $value);
+									return 'bar2';
+								}))))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertEquals('foo2', $targetDataMap->req('holeradio'));
+		$this->assertEquals('bar2', $targetDataMap->req('sub/huii'));
+		$this->assertFalse($targetDataMap->has('ignored'));
+		$this->assertFalse($targetDataMap->has('sub/ignored'));
+	}
+
+
 }

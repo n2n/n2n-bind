@@ -16,9 +16,7 @@ class FromBindDataClosureMapperTest extends TestCase {
 
 
 	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
+	 * @throws \Throwable
 	 */
 	function testSubProp(): void {
 		$dataMap = new DataMap(['holeradio' => 'foo', 'sub' => ['huii' => 'bar']]);

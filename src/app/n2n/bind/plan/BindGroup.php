@@ -49,7 +49,8 @@ class BindGroup {
 	 */
 	function exec(BindSource $bindSource, BindContext $bindContext, MagicContext $magicContext): bool {
 		$bindables = $this->bindableResolver->resolve($bindSource, $bindContext);
-		$bindBoundary = new BindBoundary($bindSource, $bindContext, $bindables);
+		$logicalPaths = $this->bindableResolver->resolveLogicalPaths($bindSource, $bindContext);
+		$bindBoundary = new BindBoundary($bindSource, $bindContext, $bindables, $logicalPaths);
 
 		foreach ($this->mappers as $mapper) {
 			$bindables = $bindBoundary->getBindables();

@@ -15,5 +15,12 @@ interface BindablesResolver {
 	 */
 	function resolve(BindSource $bindSource, BindContext $bindContext): array;
 
+	/**
+	 * @param BindSource $bindSource
+	 * @param BindContext $bindContext
+	 * @return AttributePath[]
+	 * @throws UnresolvableBindableException
+	 */
+	function resolveLogicalPaths(BindSource $bindSource, BindContext $bindContext): array;
 
 }

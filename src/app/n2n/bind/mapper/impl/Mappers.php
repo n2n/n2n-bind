@@ -41,6 +41,7 @@ use n2n\bind\mapper\impl\string\PathPartMapper;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\compose\SubPropMapper;
 use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
+use n2n\bind\mapper\impl\mod\DeleteMapper;
 
 class Mappers {
 
@@ -177,11 +178,37 @@ class Mappers {
 		return new PipeMapper($mappers);
 	}
 
-	static function subProp(): SubPropMapper {
-		return new SubPropMapper();
+
+	/**
+	 * Example:
+	 *
+	 * <pre>
+	 * 	Bind::attrs($srcDataMap)->toAttrs($targetDataMap)
+	 * 			->prop('foo', Mappers::subProp()->prop('childOfFoo', Mappers::someMapper())
+	 * </pre>
+	 *
+	 * @return SubPropMapper
+	 */
+	static function subProp(bool $deleteContextBindable = true): SubPropMapper {
+		return new SubPropMapper($deleteContextBindable);
 	}
 
+	/**
+	 * Example:
+	 *
+	 * <pre>
+	 * 	Bind::attrs($srcDataMap)->toAttrs($targetDataMap)
+	 * 			->prop('foo', Mappers::fromBindDataClosure(function (BindData $bindData) {
+	 * 				$mandatory, $bindData->reqBool('propWhichWillDecideIfMandatory');
+	 * 				return Mappers::subProp()->dynProp('childOfFoo', $mandatory, Mappers::someMapper())
+	 * 			});
+	 * </pre>
+	 */
 	static function fromBindDataClosure(\Closure $closure): FromBindDataClosureMapper {
 		return new FromBindDataClosureMapper($closure);
+	}
+
+	static function delete(): DeleteMapper {
+		return new DeleteMapper();
 	}
 }

@@ -67,7 +67,13 @@ abstract class BindSourceAdapter implements BindSource {
 		$errorMap = new ErrorMap($this->generalMessages);
 		
 		foreach ($this->bindables as $bindable) {
-			$errorMap->putDecendant($bindable->getPath()->toArray(), new ErrorMap($bindable->getMessages()));
+			if (!$bindable->getPath()->isEmpty()) {
+				$errorMap->putDecendant($bindable->getPath()->toArray(), new ErrorMap($bindable->getMessages()));
+			}
+
+			foreach ($bindable->getMessages() as $message) {
+				$errorMap->addMessage($message);
+			}
 		}
 		
 		return $errorMap;
@@ -106,5 +112,9 @@ abstract class BindSourceAdapter implements BindSource {
 		foreach ($this->bindables as $bindable) {
 			$bindable->reset();
 		}
+	}
+
+	function resolvePaths(AttributePath $contextPath, ?string $expression): array {
+		return [$contextPath->ext($expression)];
 	}
 }

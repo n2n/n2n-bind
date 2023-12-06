@@ -39,7 +39,7 @@ class PropsClosureMapper extends MapperAdapter {
 		$returnValuesMap = $invoker->invoke(null, null, [$valuesMap]);
 
 		foreach ($returnValuesMap as $relativeName => $value) {
-			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindable($relativeName);
+			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindableByRelativeName($relativeName);
 			$bindable->setValue($value);
 			unset($bindablesMap[$relativeName]);
 			$bindable->setExist(true);

@@ -43,4 +43,8 @@ class UnionBindablesResolver implements BindablesResolver {
 				. $contextAttributePath);
 	}
 
+	function resolveLogicalPaths(BindSource $bindSource, BindContext $bindContext): array {
+		return [];
+	}
+
 }

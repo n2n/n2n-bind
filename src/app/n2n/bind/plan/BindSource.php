@@ -68,5 +68,12 @@ interface BindSource {
 
 	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData;
 
+	/**
+	 * @param AttributePath $contextPath
+	 * @param string|null $expression
+	 * @return AttributePath[]
+	 * @throws UnresolvableBindableException
+	 */
+	function resolvePaths(AttributePath $contextPath, ?string $expression): array;
 
 }
