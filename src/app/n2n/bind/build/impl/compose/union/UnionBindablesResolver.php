@@ -19,29 +19,28 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\prop;
+namespace n2n\bind\build\impl\compose\union;
 
-use n2n\bind\plan\BindSource;
-use n2n\bind\plan\Bindable;
+use n2n\bind\plan\BindablesResolver;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\Bindable;
+use n2n\bind\plan\BindSource;
+use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindContext;
 
-interface PropBindSource extends BindSource, BindContext {
+class UnionBindablesResolver implements BindablesResolver {
 
-	function acquireRootAsBindable(): Bindable;
+	function __construct(private BindSource $bindSource) {
+	}
 
-	/**
-	 * @param string $expression
-	 * @param bool $mustExist
-	 * @return Bindable[]
-	 * @throws UnresolvableBindableException only if $mustExist is true
-	 */
-	function acquireBindables(string $expression, bool $mustExist): array;
+	function resolve(BindSource $bindSource, BindContext $bindContext): array {
+		$contextAttributePath = $bindContext->getPath();
+		if ($contextAttributePath->isEmpty()) {
+			return $bindSource->getBindables();
+		}
 
-	/**
-	 * @param string $name
-	 * @param bool $mustExist
-	 * @return Bindable
-	 */
-	function acquireBindable(string $name, bool $mustExist): Bindable;
+		throw new UnresolvableBindableException('UnionBindablesResolver does not support context: '
+				. $contextAttributePath);
+	}
+
 }

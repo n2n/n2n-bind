@@ -12,7 +12,7 @@ use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\reflection\property\AccessProxy;
 use n2n\util\type\TypeName;
 use n2n\reflection\property\PropertyValueTypeMismatchException;
-use n2n\validation\plan\DetailedName;
+use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\TypeConstraints;
 use n2n\util\ex\IllegalStateException;
 use n2n\reflection\property\PropertyAccessException;
@@ -45,8 +45,8 @@ class ObjectBindableWriteProcess {
 			if (!$bindable->doesExist()) {
 				continue;
 			}
-			$this->writeValueToObject($bindable->getValue(), $obj, [], $bindable->getName()->toArray(),
-					$bindable->getName());
+			$this->writeValueToObject($bindable->getValue(), $obj, [], $bindable->getPath()->toArray(),
+					$bindable->getPath());
 		}
 
 		while (null !== ($callback = array_pop($this->pendingObjWriteCallbacks))) {
@@ -59,47 +59,47 @@ class ObjectBindableWriteProcess {
 	 * @param object $obj
 	 * @param array $previousNameParts
 	 * @param array $nextNameParts
-	 * @param DetailedName $fullDetailedName
+	 * @param AttributePath $fullAttributePath
 	 * @return void
 	 * @throws BindTargetException
 	 */
 	private function writeValueToObject(mixed $value, object $obj, array $previousNameParts, array $nextNameParts,
-			DetailedName $fullDetailedName): void {
+			AttributePath $fullAttributePath): void {
 		$nextNamePart = array_shift($nextNameParts);
-		$detailedName = $this->detailedName($nextNamePart, $previousNameParts);
+		$path = $this->path($nextNamePart, $previousNameParts);
 
 		if (empty($nextNameParts)) {
-			$this->writeBindable($value, $obj, $detailedName);
+			$this->writeBindable($value, $obj, $path);
 			return;
 		}
 
-		$childObj = $this->resolveChildObj($obj, $detailedName, $fullDetailedName);
-		$this->writeValueToObject($value, $childObj, $detailedName->toArray(), $nextNameParts, $fullDetailedName);
+		$childObj = $this->resolveChildObj($obj, $path, $fullAttributePath);
+		$this->writeValueToObject($value, $childObj, $path->toArray(), $nextNameParts, $fullAttributePath);
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
-	private function analyzeProperty(object $obj, DetailedName $detailedName, bool $settingRequired,
-			bool $gettingRequired, DetailedName $fullDetailedName = null): AccessProxy {
-		$detailedNameStr = $detailedName->__toString();
+	private function analyzeProperty(object $obj, AttributePath $path, bool $settingRequired,
+			bool $gettingRequired, AttributePath $fullAttributePath = null): AccessProxy {
+		$pathStr = $path->__toString();
 
 		try {
-			if (!isset($this->propertiesAnalyzers[$detailedNameStr])) {
-				$this->propertiesAnalyzers[$detailedNameStr] = new PropertiesAnalyzer(new \ReflectionClass($obj));
+			if (!isset($this->propertiesAnalyzers[$pathStr])) {
+				$this->propertiesAnalyzers[$pathStr] = new PropertiesAnalyzer(new \ReflectionClass($obj));
 			}
 
-			return $this->propertiesAnalyzers[$detailedNameStr]->analyzeProperty($detailedName->getSymbolicName(),
+			return $this->propertiesAnalyzers[$pathStr]->analyzeProperty($path->getLast(),
 					$settingRequired, $gettingRequired);
 		} catch (\ReflectionException $e) {
-			throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName, $e);
+			throw $this->createCouldNotResolveBindableException($path, $fullAttributePath, $e);
 		}
 	}
 
-	private function createCouldNotResolveBindableException(DetailedName $detailedName,
-			DetailedName $fullDetailedName = null, \Throwable $previous = null, string $reason = null): BindTargetException {
-		return new BindTargetException('Can not resolve bindable \'' . ($fullDetailedName ?? $detailedName)
-				. ($fullDetailedName === null ? '' : '\', error at \'' . $detailedName) . '\'.'
+	private function createCouldNotResolveBindableException(AttributePath $path,
+			AttributePath $fullAttributePath = null, \Throwable $previous = null, string $reason = null): BindTargetException {
+		return new BindTargetException('Can not resolve bindable \'' . ($fullAttributePath ?? $path)
+				. ($fullAttributePath === null ? '' : '\', error at \'' . $path) . '\'.'
 				. ($reason === null ? '' : ' Reason: ' . $reason), previous: $previous);
 	}
 
@@ -107,57 +107,57 @@ class ObjectBindableWriteProcess {
 	/**
 	 * @throws BindTargetException
 	 */
-	private function writeBindable(mixed $value, object $obj, DetailedName $detailedName): void {
-		$accessProxy = $this->analyzeProperty($obj, $detailedName, true, false);
+	private function writeBindable(mixed $value, object $obj, AttributePath $path): void {
+		$accessProxy = $this->analyzeProperty($obj, $path, true, false);
 
 		try {
 			$accessProxy->setValue($obj, $value);
 		} catch (PropertyAccessException $e) {
-			throw new BindTargetException('Could not write bindable: ' .  $detailedName . '\'', 0, $e);
+			throw new BindTargetException('Could not write bindable: ' .  $path . '\'', 0, $e);
 		}
 	}
 
 	/**
 	 * @param object $obj
-	 * @param DetailedName $detailedName
-	 * @param DetailedName $fullDetailedName
+	 * @param AttributePath $path
+	 * @param AttributePath $fullAttributePath
 	 * @return object
 	 * @throws BindTargetException
 	 */
-	private function resolveChildObj(object $obj, DetailedName $detailedName, DetailedName $fullDetailedName): object {
-		$detailedNameStr = (string) $detailedName;
+	private function resolveChildObj(object $obj, AttributePath $path, AttributePath $fullAttributePath): object {
+		$pathStr = (string) $path;
 
-		if (isset($this->bindableObjects[$detailedNameStr])) {
-			return $this->bindableObjects[$detailedNameStr];
+		if (isset($this->bindableObjects[$pathStr])) {
+			return $this->bindableObjects[$pathStr];
 		}
 
-		$accessProxy = $this->analyzeProperty($obj, $detailedName, false, true,
-				$fullDetailedName);
+		$accessProxy = $this->analyzeProperty($obj, $path, false, true,
+				$fullAttributePath);
 		$accessProxy = $accessProxy->createRestricted(TypeConstraints::namedType('object', true));
 
 		try {
 			$childObj = $accessProxy->getValue($obj);
 		} catch (PropertyAccessException $e) {
-			throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName, $e);
+			throw $this->createCouldNotResolveBindableException($path, $fullAttributePath, $e);
 		}
 
 		if ($childObj === null) {
-			$childObj = $this->createObjectFor($accessProxy, $detailedName, $fullDetailedName);
+			$childObj = $this->createObjectFor($accessProxy, $path, $fullAttributePath);
 
 			$this->pendingObjWriteCallbacks[] = function () use ($accessProxy, $obj, $childObj) {
 				$accessProxy->setValue($obj, $childObj);
 			};
 		}
 
-		return $this->bindableObjects[$detailedNameStr] = $childObj;
+		return $this->bindableObjects[$pathStr] = $childObj;
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
-	private function createObjectFor(AccessProxy $accessProxy, DetailedName $detailedName, DetailedName $fullDetailedName): object {
+	private function createObjectFor(AccessProxy $accessProxy, AttributePath $path, AttributePath $fullAttributePath): object {
 		if (!$accessProxy->isWritable()) {
-			throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName,
+			throw $this->createCouldNotResolveBindableException($path, $fullAttributePath,
 					reason: 'Property is null and new object could not be created since the property is not writable: '
 					. $accessProxy);
 		}
@@ -172,12 +172,12 @@ class ObjectBindableWriteProcess {
 			try {
 				return ReflectionUtils::createObject($class);
 			} catch (ObjectCreationFailedException $e) {
-				throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName, $e,
+				throw $this->createCouldNotResolveBindableException($path, $fullAttributePath, $e,
 						'Property is null and new object could not be created.');
 			}
 		}
 
-		throw $this->createCouldNotResolveBindableException($detailedName, $fullDetailedName,
+		throw $this->createCouldNotResolveBindableException($path, $fullAttributePath,
 				reason: 'Property is null and new object could not be created since the type could not be determined: '
 						. $accessProxy);
 	}
@@ -186,10 +186,10 @@ class ObjectBindableWriteProcess {
 	 * Creates the key used to cache bindable objects
 	 * @param string $name
 	 * @param array $previousNameParts
-	 * @return DetailedName
+	 * @return AttributePath
 	 */
-	private function detailedName(string $name, array $previousNameParts): DetailedName {
-		return new DetailedName([...$previousNameParts, $name]);
+	private function path(string $name, array $previousNameParts): AttributePath {
+		return new AttributePath([...$previousNameParts, $name]);
 	}
 
 //	/**

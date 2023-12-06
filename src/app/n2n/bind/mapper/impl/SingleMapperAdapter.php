@@ -24,25 +24,25 @@ namespace n2n\bind\mapper\impl;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\BindableBoundary;
+use n2n\bind\plan\BindBoundary;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
 
 abstract class SingleMapperAdapter extends MapperAdapter {
 	/**
-	 * @param BindableBoundary $bindableBoundary
+	 * @param BindBoundary $bindBoundary
 	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool
 	 * @throws BindMismatchException {@see Mapper::map()}
 	 */
-	final function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
-		foreach ($bindableBoundary->getBindables() as $bindable) {
+	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+		foreach ($bindBoundary->getBindables() as $bindable) {
 			if (!$bindable->doesExist()) {
 				continue;
 			}
 
-			if (!$this->mapSingle($bindable, $bindContext, $magicContext)) {
+			if (!$this->mapSingle($bindable, $bindBoundary->unwrapBindContext(), $magicContext)) {
 				return false;
 			}
 		}

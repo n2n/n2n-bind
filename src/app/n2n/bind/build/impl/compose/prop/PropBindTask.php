@@ -10,17 +10,23 @@ use n2n\bind\plan\BindResult;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\impl\SimpleBindResult;
 use n2n\bind\err\BindTargetException;
+use n2n\bind\plan\BindSource;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
+	private BindTask $bindTask;
 
-	function __construct(private PropBindSource $bindableSource, BindableTarget $bindableTarget) {
+	function __construct(private BindSource $bindSource, BindableTarget $bindableTarget) {
 		$bindPlan = new BindPlan();
 		parent::__construct($bindPlan);
-		$this->bindTask = new BindTask($bindableSource, $bindableTarget, $bindPlan);
+		$this->bindTask = new BindTask($bindSource, $bindableTarget, $bindPlan);
 	}
 
 	/**
 	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
 	 */
 	function exec(MagicContext $magicContext): BindResult {
 		return $this->bindTask->exec($magicContext);

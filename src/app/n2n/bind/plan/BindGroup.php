@@ -25,39 +25,41 @@ use n2n\util\type\ArgUtils;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
-use n2n\bind\build\impl\compose\prop\PropBindSource;
-use n2n\bind\build\impl\compose\prop\PropBindableResolver;
+use n2n\bind\err\UnresolvableBindableException;
 
 class BindGroup {
 
 	/**
 	 * @param Mapper[] $mappers
-	 * @param BindableResolver $bindableGroupSource
+	 * @param BindablesResolver $bindableResolver
 	 * @param BindContext $bindContext
 	 */
-	function __construct(private array $mappers, private BindableResolver $bindableGroupSource,
-			private BindContext $bindContext) {
+	function __construct(private array $mappers, private BindablesResolver $bindableResolver) {
 		ArgUtils::valArray($mappers, Mapper::class);
 	}
 
 	/**
+	 * @param BindSource $bindSource
+	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool false if a Mapper could not perform a modification of value due to errors. The bind process should be
 	 * aborted in this case.
 	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
 	 */
-	function exec(PropBindSource $probBindSource, MagicContext $magicContext): bool {
-		$bindableBoundary = new BindableBoundary(new PropBindableResolver($bindableGroupSource));
+	function exec(BindSource $bindSource, BindContext $bindContext, MagicContext $magicContext): bool {
+		$bindables = $this->bindableResolver->resolve($bindSource, $bindContext);
+		$bindBoundary = new BindBoundary($bindSource, $bindContext, $bindables);
 
 		foreach ($this->mappers as $mapper) {
-			$bindables = $bindableBoundary->getBindables();
+			$bindables = $bindBoundary->getBindables();
 			try {
-				if (!$mapper->map($bindableBoundary, $this->bindContext, $magicContext)) {
+				if (!$mapper->map($bindBoundary, $magicContext)) {
 					return false;
 				}
 			} catch (BindMismatchException $e) {
 				throw new BindMismatchException('Mapper ' . get_class($mapper) . ' rejected bindables group '
-						. implode(', ', array_map(fn ($b) => $b->getName(), $bindables)), 0, $e);
+						. implode(', ', array_map(fn ($b) => $b->getPath(), $bindables)), 0, $e);
 			}
 		}
 

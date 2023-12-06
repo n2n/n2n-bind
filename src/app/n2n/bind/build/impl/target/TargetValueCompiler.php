@@ -19,7 +19,7 @@ class TargetValueCompiler {
 				continue;
 			}
 
-			$key = (string) $bindable->getName();
+			$key = (string) $bindable->getPath();
 			if (ctype_digit($key)) {
 				$key = (int) $key;
 			}

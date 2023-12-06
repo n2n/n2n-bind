@@ -2,17 +2,18 @@
 
 namespace n2n\bind\build\impl;
 
-use n2n\bind\build\impl\compose\prop\PropBindSource;
 use n2n\bind\plan\BindableTarget;
 use n2n\bind\build\impl\compose\prop\PropBindComposer;
 use n2n\util\type\attrs\AttributeWriter;
 use n2n\bind\build\impl\target\RefBindableTarget;
 use n2n\bind\build\impl\target\AttrsBindableTarget;
 use n2n\bind\build\impl\target\ObjectBindableTarget;
+use n2n\bind\plan\BindSource;
+use n2n\bind\build\impl\compose\prop\PropBindTask;
 
 class PropBindTo {
 
-	function __construct(private PropBindSource $source) {
+	function __construct(private BindSource $source) {
 	}
 
 	/**
@@ -52,7 +53,7 @@ class PropBindTo {
 	 * @return PropBindComposer
 	 */
 	function to(BindableTarget $target): PropBindComposer {
-		return new PropBindComposer($this->source, $target);
+		return new PropBindTask($this->source, $target);
 	}
 
 }

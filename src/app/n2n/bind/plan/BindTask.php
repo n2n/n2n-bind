@@ -24,6 +24,9 @@ namespace n2n\bind\plan;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\impl\SimpleBindResult;
 use n2n\bind\err\BindTargetException;
+use n2n\bind\plan\impl\RootBindContext;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
 
 class BindTask {
 
@@ -44,11 +47,14 @@ class BindTask {
 	 * @param MagicContext $magicContext
 	 * @return BindResult
 	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
 	 */
 	function exec(MagicContext $magicContext): BindResult {
 		$this->bindableSource->reset();
 
-		if (!$this->bindPlan->exec($magicContext)) {
+		if (!$this->bindPlan->exec($this->bindableSource, new RootBindContext($this->bindableSource),
+				$magicContext)) {
 			return new SimpleBindResult($this->bindableSource->createErrorMap());
 		}
 

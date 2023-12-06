@@ -44,13 +44,15 @@ class BindPlan {
 	}
 
 	/**
+	 * @param BindSource $bindSource
+	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool
-	 * @throws BindMismatchException
+	 * @throws BindMismatchException|\n2n\bind\err\UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext): bool {
+	function exec(BindSource $bindSource, BindContext $bindContext, MagicContext $magicContext): bool {
 		foreach ($this->bindGroups as $bindGroup) {
-			if (!$bindGroup->exec($magicContext)) {
+			if (!$bindGroup->exec($bindSource, $bindContext, $magicContext)) {
 				return false;
 			}
 		}

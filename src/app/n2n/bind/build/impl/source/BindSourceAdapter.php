@@ -27,11 +27,11 @@ use n2n\bind\plan\BindSource;
 use n2n\bind\plan\Bindable;
 use n2n\validation\plan\ErrorMap;
 use n2n\util\ex\IllegalStateException;
-use n2n\validation\plan\DetailedName;
+use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\ArgUtils;
 use n2n\bind\build\impl\Bind;
 
-abstract class ComposerSourceAdapter implements BindSource, BindContext {
+abstract class BindSourceAdapter implements BindSource {
 	/**
 	 * @var Bindable[]
 	 */
@@ -59,15 +59,15 @@ abstract class ComposerSourceAdapter implements BindSource, BindContext {
 		$this->originalBindables = $this->bindables;
 	}
 	
-	public function addGeneralError(Message $message) {
+	public function addGeneralError(Message $message): void {
 		$this->generalMessages[] = $message;
 	}
-	
+
 	function createErrorMap(): ErrorMap {
 		$errorMap = new ErrorMap($this->generalMessages);
 		
 		foreach ($this->bindables as $bindable) {
-			$errorMap->putDecendant($bindable->getName()->toArray(), new ErrorMap($bindable->getMessages()));
+			$errorMap->putDecendant($bindable->getPath()->toArray(), new ErrorMap($bindable->getMessages()));
 		}
 		
 		return $errorMap;
@@ -78,20 +78,21 @@ abstract class ComposerSourceAdapter implements BindSource, BindContext {
 	 * @return void
 	 */
 	protected function addBindable(Bindable $bindable): void {
-		$nameStr = $bindable->getName()->__toString();
-		if (isset($this->bindables[$nameStr])) {
-			throw new IllegalStateException('Bindable \''  . $nameStr . '\' already defined.');
+		$path = $bindable->getPath();
+		if (isset($this->bindables[(string) $path])) {
+			throw new IllegalStateException('Bindable \''  . $path->toAbsoluteString()
+					. '\' already defined.');
 		}
 
-		$this->bindables[$nameStr] = $bindable;
+		$this->bindables[(string) $path] = $bindable;
 	}
 
 	/**
-	 * @param DetailedName $detailedName
+	 * @param AttributePath $path
 	 * @return Bindable|null
 	 */
-	protected function getBindable(DetailedName $detailedName) {
-		return $this->bindables[$detailedName->__toString()] ?? null;
+	protected function getBindable(AttributePath $path): ?Bindable {
+		return $this->bindables[(string) $path] ?? null;
 	}
 
 	function getBindables(): array {

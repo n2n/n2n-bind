@@ -22,7 +22,7 @@
 namespace n2n\bind\mapper\impl;
 
 use n2n\validation\validator\Validator;
-use n2n\bind\plan\BindableBoundary;
+use n2n\bind\plan\BindBoundary;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindContext;
 
@@ -32,8 +32,8 @@ class ValidatorMapper extends MapperAdapter {
 
 	}
 
-	function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
-		$this->validator->validate($bindableBoundary->getBindables(), $bindContext, $magicContext);
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+		$this->validator->validate($bindBoundary->getBindables(), $bindBoundary->unwrapBindContext(), $magicContext);
 		return true;
 	}
 

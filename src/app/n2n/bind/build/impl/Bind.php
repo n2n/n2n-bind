@@ -23,49 +23,45 @@ namespace n2n\bind\build\impl;
 
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\attrs\AttributeReader;
-use n2n\bind\build\impl\compose\union\UnionBindComposerSource;
-use n2n\bind\build\impl\compose\prop\PropBindSource;
-use n2n\bind\build\impl\source\AttrsPropBindSource;
-use n2n\validation\plan\DetailedName;
-use n2n\bind\build\impl\source\StaticUnionBindComposerSource;
+use n2n\bind\build\impl\source\AttrsBindSource;
+use n2n\util\type\attrs\AttributePath;
+use n2n\bind\build\impl\source\StaticBindSource;
 use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\plan\BindSource;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|PropBindSource $source): PropBindTo {
+	static function attrs(AttributeReader|array|BindSource $source): PropBindTo {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		}
 
 		if ($source instanceof AttributeReader) {
-			$source = new AttrsPropBindSource($source);
+			$source = new AttrsBindSource($source);
 		}
 
-		return self::props($source);
+		return self::propBindSource($source);
 	}
 
 	/**
-	 * @param PropBindSource $source
+	 * @param BindSource $source
 	 * @return PropBindTo
 	 */
-	static function props(PropBindSource $source): PropBindTo {
+	static function propBindSource(BindSource $source): PropBindTo {
 		return new PropBindTo($source);
 	}
 
 	static function values(...$values): UnionBindTo {
 		$bindables = [];
 		foreach ($values as $key => $value) {
-			$bindables[] = new ValueBindable(new DetailedName([(string) $key]), $value, true);
+			$bindables[] = new ValueBindable(new AttributePath([(string) $key]), $value, true);
 		}
 
-		return self::union(new StaticUnionBindComposerSource($bindables));
+		return self::unionBindSource(new StaticBindSource($bindables));
 	}
 
-	static function union(UnionBindComposerSource $source): UnionBindTo {
+	static function unionBindSource(BindSource $source): UnionBindTo {
 		return new UnionBindTo($source);
 	}
 
-	static function subProps(): SubPropBindComposer {
-		return new PropBindComposer();
-	}
 }

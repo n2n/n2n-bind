@@ -3,7 +3,7 @@
 namespace n2n\bind\mapper\impl\closure;
 
 use n2n\bind\mapper\impl\MapperAdapter;
-use n2n\bind\plan\BindableBoundary;
+use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
 use n2n\reflection\magic\MagicMethodInvoker;
@@ -18,14 +18,14 @@ class PropsClosureMapper extends MapperAdapter {
 		$this->closure = $closure;
 	}
 
-	function map(BindableBoundary $bindableBoundary, BindContext $bindContext, MagicContext $magicContext): bool {
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setMethod(new \ReflectionFunction($this->closure));
 		$invoker->setReturnTypeConstraint(TypeConstraints::array());
 
 		$bindablesMap = [];
-		foreach ($bindableBoundary->getBindables() as $bindable) {
-			$bindablesMap[(string) $bindable->getName()] = $bindable;
+		foreach ($bindBoundary->getBindables() as $bindable) {
+			$bindablesMap[$bindBoundary->pathToRelativeName($bindable->getPath())] = $bindable;
 		}
 
 		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(),
@@ -38,10 +38,10 @@ class PropsClosureMapper extends MapperAdapter {
 
 		$returnValuesMap = $invoker->invoke(null, null, [$valuesMap]);
 
-		foreach ($returnValuesMap as $name => $value) {
-			$bindable = $bindablesMap[$name] ?? $bindableBoundary->acquireBindable($name);
+		foreach ($returnValuesMap as $relativeName => $value) {
+			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindable($relativeName);
 			$bindable->setValue($value);
-			unset($bindablesMap[$name]);
+			unset($bindablesMap[$relativeName]);
 			$bindable->setExist(true);
 		}
 

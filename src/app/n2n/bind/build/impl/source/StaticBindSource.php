@@ -21,28 +21,31 @@
  */
 namespace n2n\bind\build\impl\source;
 
-use n2n\validation\plan\DetailedName;
+use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\Bindable;
-use n2n\bind\build\impl\compose\union\UnionBindComposerSource;
 use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\err\UnresolvableBindableException;
 
-class StaticUnionBindComposerSource extends ComposerSourceAdapter implements UnionBindComposerSource {
+class StaticBindSource extends BindSourceAdapter {
 
-	function acquireBindable(string $name): Bindable {
-		$detailedName = new DetailedName([$name]);
 
-		$bindable = $this->getBindable($detailedName);
+	function acquireBindable(AttributePath $path, bool $mustExist): Bindable {
+		$bindable = $this->getBindable($path);
 		if ($bindable !== null) {
 			return $bindable;
 		}
 
-		$bindable = new ValueBindable($detailedName, null, false);
+		if ($mustExist) {
+			throw new UnresolvableBindableException('Bindable not found: ' . $path);
+		}
+
+		$bindable = new ValueBindable($path, null, false);
 		$this->addBindable($bindable);
 
 		return $bindable;
 	}
 
-	function acquireBindables(string $expression): Bindable {
-		return $this->acquireBindable(äname)
+	function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array {
+		return [$this->acquireBindable($contextPath->ext($expression), $mustExist)];
 	}
 }

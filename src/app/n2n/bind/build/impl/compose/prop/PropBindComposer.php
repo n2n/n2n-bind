@@ -31,8 +31,8 @@ use n2n\validation\validator\Validator;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\BindResult;
-use n2n\bind\build\impl\source\StaticUnionBindComposerSource;
-use n2n\bind\build\impl\compose\union\UnionBindableResolver;
+use n2n\bind\build\impl\source\StaticBindSource;
+use n2n\bind\build\impl\compose\union\UnionBindablesResolver;
 
 class PropBindComposer {
 
@@ -121,8 +121,7 @@ class PropBindComposer {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
 		$this->bindPlan->addBindGroup(new BindGroup($mappers,
-				new PropBindableResolver($this->proBindComposerSource, $expressions, $mustExist),
-				$this->proBindComposerSource));
+				new PropBindablesResolver($expressions, $mustExist)));
 	}
 
 }

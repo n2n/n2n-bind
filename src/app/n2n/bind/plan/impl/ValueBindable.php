@@ -21,13 +21,13 @@
  */
 namespace n2n\bind\plan\impl;
 
-use n2n\validation\plan\DetailedName;
+use n2n\util\type\attrs\AttributePath;
 
 class ValueBindable extends BindableAdapter {
 	private mixed $origValue;
 	private bool $origDoesExist;
 
-	function __construct(DetailedName $name, private mixed $value, bool $doesExist, string $label = null) {
+	function __construct(AttributePath $name, private mixed $value, bool $doesExist, string $label = null) {
 		parent::__construct($name, $label, $doesExist);
 
 		$this->origValue = $this->value;

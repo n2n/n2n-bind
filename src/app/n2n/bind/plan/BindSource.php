@@ -22,6 +22,9 @@
 namespace n2n\bind\plan;
 
 use n2n\validation\plan\ErrorMap;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\type\attrs\AttributePath;
+use n2n\l10n\Message;
 
 interface BindSource {
 
@@ -37,8 +40,32 @@ interface BindSource {
 	 */
 	function getBindables(): array;
 
+	function addGeneralError(Message $message): void;
+
 	/**
 	 * @return ErrorMap
 	 */
 	function createErrorMap(): ErrorMap;
+
+
+	/**
+	 * @param AttributePath $contextPath
+	 * @param string|null $expression if null and $contextPath is empty this method should return a Bindable representing the root.
+	 * @param bool $mustExist
+	 * @return Bindable[]
+	 * @throws UnresolvableBindableException only if $mustExist is true
+	 */
+	function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array;
+
+	/**
+	 * @param AttributePath $path
+	 * @param bool $mustExist
+	 * @return Bindable|null can only be null if $mustExist is false.
+	 * @throws UnresolvableBindableException
+	 * /
+	 */
+	function acquireBindable(AttributePath $path, bool $mustExist): ?Bindable;
+
+
+
 }

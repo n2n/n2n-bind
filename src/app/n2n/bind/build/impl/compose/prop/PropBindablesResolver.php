@@ -19,21 +19,29 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\union;
+namespace n2n\bind\build\impl\compose\prop;
 
-use n2n\validation\plan\Validatable;
-use n2n\validation\plan\ValidatableSource;
-use n2n\validation\plan\ValidationContext;
+use n2n\bind\plan\BindablesResolver;
+use n2n\bind\plan\Bindable;
+use n2n\util\type\ArgUtils;
+use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
-use n2n\bind\plan\Bindable;
 
-interface UnionBindComposerSource extends BindSource, BindContext {
-	/**
-	 * Must not exist.
-	 *
-	 * @param string $name
-	 * @return Bindable
-	 */
-	function acquireBindable(string $name): Bindable;
+class PropBindablesResolver implements BindablesResolver {
+
+	function __construct(private array $expressions, private bool $mustExist) {
+		ArgUtils::valArray($this->expressions, ['string', 'null']);
+	}
+
+	function resolve(BindSource $bindSource, BindContext $bindContext): array {
+		$bindables = [];
+		foreach ($this->expressions as $expression) {
+			$iBindables = $bindSource->acquireBindables($bindContext->getPath(), $expression, $this->mustExist);
+			ArgUtils::valArrayReturn($iBindables, $bindSource, 'acquireBindables', Bindable::class);
+
+			array_push($bindables, ...$iBindables);
+		}
+		return $bindables;
+	}
 }

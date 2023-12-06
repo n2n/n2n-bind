@@ -22,73 +22,62 @@
 namespace n2n\bind\build\impl\source;
 
 use n2n\util\type\attrs\AttributeReader;
-use n2n\validation\plan\DetailedName;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\type\attrs\AttributesException;
 use n2n\bind\plan\Bindable;
-use n2n\bind\build\impl\compose\prop\PropBindSource;
 use n2n\bind\plan\impl\ValueBindable;
-use n2n\bind\plan\BindSource;
 
-class AttrsPropBindSource extends ComposerSourceAdapter implements PropBindSource {
+class AttrsBindSource extends BindSourceAdapter {
 
 	function __construct(private AttributeReader $attributeReader) {
 		parent::__construct([]);
 	}
 
-	function acquireRootAsBindable(): Bindable {
-
+	function acquireBindable(AttributePath $path, bool $mustExist): ?Bindable {
+		return $this->getOrCreateBindable($path, $mustExist);
 	}
 
-	function acquireBindable(string $name): Bindable {
-		return $this->getOrCreateBindableByName($name, false);
+	public function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array {
+		return [$this->getOrCreateBindable($contextPath->ext($expression), $mustExist)];
 	}
 
-	public function acquireBindables(string $expression, bool $mustExist): array {
-		return [$this->getOrCreateBindableByName($expression, $mustExist)];
-	}
-
-	function acquireBindableSource(DetailedName $detailedName, bool $mustExist): ?PropBindSource {
-		if ($detailedName->isEmpty()) {
-			return $this;
-		}
-
-		return new SubPropBindSource();
-	}
+//	/**
+//	 * @param string $name
+//	 * @param bool $mustExist
+//	 * @return Bindable
+//	 * @throws UnresolvableBindableException
+//	 */
+//	private function getOrCreateBindableByName(string $name, bool $mustExist): Bindable {
+//		$attributePath = AttributePath::create($name);
+//		$path = new AttributePath($attributePath->toArray());
+//
+//		return $this->getOrCreateBindable($path, $mustExist);
+//	}
 
 	/**
-	 * @param string $name
-	 * @param bool $mustExist
-	 * @return Bindable
 	 * @throws UnresolvableBindableException
 	 */
-	private function getOrCreateBindableByName(string $name, bool $mustExist): Bindable {
-		$attributePath = AttributePath::create($name);
-		$detailedName = new DetailedName($attributePath->toArray());
-
-		return $this->getOrCreateBindable($detailedName, $mustExist);
-	}
-
-	function getOrCreateBindable(DetailedName $detailedName, bool $mustExist): Bindable {
-		$bindable = $this->getBindable($detailedName);
+	function getOrCreateBindable(AttributePath $path, bool $mustExist): Bindable {
+		$bindable = $this->getBindable($path);
 		if ($bindable !== null && (!$mustExist || $bindable->doesExist())) {
 			return $bindable;
 		}
 
 		if ($bindable !== null) {
-			throw new UnresolvableBindableException('Bindable not found: ' . $attributePath);
+			throw new UnresolvableBindableException('Bindable not found: ' . $path);
 		}
 
 		try {
-			$value = $this->attributeReader->readAttribute($attributePath);
-			$valueBindable = new ValueBindable($detailedName, $value, true);
+			$value = $this->attributeReader->readAttribute($path);
+			$valueBindable = new ValueBindable($path, $value, true);
 		} catch (AttributesException $e) {
 			if ($mustExist) {
-				throw new UnresolvableBindableException('Could not resolve bindable: ' . $name, 0, $e);
+				throw new UnresolvableBindableException('Could not resolve bindable: '
+						. $path->toAbsoluteString(), 0, $e);
 			}
 
-			$valueBindable = new ValueBindable($detailedName, null, false);
+			$valueBindable = new ValueBindable($path, null, false);
 		}
 
 		$this->addBindable($valueBindable);
