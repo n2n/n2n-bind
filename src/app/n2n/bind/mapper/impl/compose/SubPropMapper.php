@@ -1,17 +1,15 @@
 <?php
 
-namespace n2n\bind\build\impl\compose\prop;
+namespace n2n\bind\mapper\impl\compose;
 
 use n2n\bind\mapper\Mapper;
 use n2n\bind\plan\BindBoundary;
-use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindPlan;
 use n2n\bind\plan\impl\BindableBindContext;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\err\BindMismatchException;
+use n2n\bind\build\impl\compose\prop\PropBindComposer;
 
-class PropBindMapper extends PropBindComposer implements Mapper {
+class SubPropMapper extends PropBindComposer implements Mapper {
 
 	private BindPlan $bindPlan;
 

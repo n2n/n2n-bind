@@ -66,6 +66,7 @@ interface BindSource {
 	 */
 	function acquireBindable(AttributePath $path, bool $mustExist): ?Bindable;
 
+	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData;
 
 
 }

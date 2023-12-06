@@ -27,6 +27,10 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\type\attrs\AttributesException;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\plan\BindData;
+use n2n\util\type\attrs\DataMap;
+use n2n\util\type\TypeConstraints;
+use n2n\bind\err\BindMismatchException;
 
 class AttrsBindSource extends BindSourceAdapter {
 
@@ -83,5 +87,21 @@ class AttrsBindSource extends BindSourceAdapter {
 		$this->addBindable($valueBindable);
 
 		return $valueBindable;
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 */
+	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData {
+		try {
+			return new BindData(new DataMap($this->attributeReader->readAttribute($path, TypeConstraints::array())));
+		} catch (AttributesException $e) {
+			if (!$mustExist) {
+				return null;
+			}
+
+			throw new UnresolvableBindableException('Could not resolve BindData for path: '
+					. $path->toAbsoluteString(), previous: $e);
+		}
 	}
 }

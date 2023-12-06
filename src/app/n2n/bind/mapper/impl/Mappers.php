@@ -39,6 +39,8 @@ use n2n\bind\mapper\impl\numeric\FloatMapper;
 use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
 use n2n\bind\mapper\impl\string\PathPartMapper;
 use n2n\bind\mapper\Mapper;
+use n2n\bind\mapper\impl\compose\SubPropMapper;
+use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
 
 class Mappers {
 
@@ -173,5 +175,13 @@ class Mappers {
 
 	static function pipe(Mapper ...$mappers): PipeMapper {
 		return new PipeMapper($mappers);
+	}
+
+	static function subProp(): SubPropMapper {
+		return new SubPropMapper();
+	}
+
+	static function fromBindDataClosure(\Closure $closure): FromBindDataClosureMapper {
+		return new FromBindDataClosureMapper($closure);
 	}
 }

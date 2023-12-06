@@ -25,9 +25,19 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindData;
+use n2n\util\type\attrs\DataMap;
 
 class StaticBindSource extends BindSourceAdapter {
 
+	function __construct(private array $values) {
+		$bindables = [];
+		foreach ($values as $key => $value) {
+			$bindables[] = new ValueBindable(new AttributePath([(string) $key]), $value, true);
+		}
+
+		parent::__construct($bindables);
+	}
 
 	function acquireBindable(AttributePath $path, bool $mustExist): Bindable {
 		$bindable = $this->getBindable($path);
@@ -47,5 +57,21 @@ class StaticBindSource extends BindSourceAdapter {
 
 	function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array {
 		return [$this->acquireBindable($contextPath->ext($expression), $mustExist)];
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 */
+	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData {
+		if ($path->isEmpty()) {
+			return new BindData(new DataMap($this->values));
+		}
+
+		if (!$mustExist) {
+			return null;
+		}
+
+		throw new UnresolvableBindableException('Could not resolve BindData for path: '
+				. $path->toAbsoluteString());
 	}
 }

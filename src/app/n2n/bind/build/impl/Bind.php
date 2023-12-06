@@ -52,12 +52,7 @@ class Bind {
 	}
 
 	static function values(...$values): UnionBindTo {
-		$bindables = [];
-		foreach ($values as $key => $value) {
-			$bindables[] = new ValueBindable(new AttributePath([(string) $key]), $value, true);
-		}
-
-		return self::unionBindSource(new StaticBindSource($bindables));
+		return self::unionBindSource(new StaticBindSource($values));
 	}
 
 	static function unionBindSource(BindSource $source): UnionBindTo {
