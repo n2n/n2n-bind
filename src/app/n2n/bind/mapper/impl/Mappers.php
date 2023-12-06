@@ -189,8 +189,8 @@ class Mappers {
 	 *
 	 * @return SubPropMapper
 	 */
-	static function subProp(bool $deleteContextBindable = true): SubPropMapper {
-		return new SubPropMapper($deleteContextBindable);
+	static function subProp(): SubPropMapper {
+		return new SubPropMapper();
 	}
 
 	/**
