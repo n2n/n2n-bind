@@ -18,41 +18,41 @@ class PropBindTo {
 
 	/**
 	 * @param AttributeWriter $attributeWriter
-	 * @return PropBindComposer
+	 * @return PropBindTask
 	 */
-	function toAttrs(AttributeWriter $attributeWriter): PropBindComposer {
+	function toAttrs(AttributeWriter $attributeWriter): PropBindTask {
 		return $this->to(new AttrsBindableTarget($attributeWriter));
 	}
 
 	/**
 	 * @param array $array
-	 * @return PropBindComposer
+	 * @return PropBindTask
 	 */
-	function toArray(array &$array): PropBindComposer {
+	function toArray(array &$array): PropBindTask {
 		return $this->to(new RefBindableTarget($array, true));
 	}
 
 	/**
 	 * @param $value
-	 * @return PropBindComposer
+	 * @return PropBindTask
 	 */
-	function toValue(&$value): PropBindComposer {
+	function toValue(&$value): PropBindTask {
 		return $this->to(new RefBindableTarget($value, false));
 	}
 
 	/**
 	 * @param object $obj
-	 * @return PropBindComposer
+	 * @return PropBindTask
 	 */
-	function toObj(object $obj): PropBindComposer {
+	function toObj(object $obj): PropBindTask {
 		return $this->to(new ObjectBindableTarget($obj));
 	}
 
 	/**
 	 * @param BindableTarget $target
-	 * @return PropBindComposer
+	 * @return PropBindTask
 	 */
-	function to(BindableTarget $target): PropBindComposer {
+	function to(BindableTarget $target): PropBindTask {
 		return new PropBindTask($this->source, $target);
 	}
 
