@@ -17,6 +17,7 @@ use n2n\util\type\ArgUtils;
 use n2n\validation\validator\impl\ValidationUtils;
 use InvalidArgumentException;
 use n2n\l10n\Message;
+use n2n\bind\plan\BindBoundary;
 
 
 class PathPartMapper extends SingleMapperAdapter {
@@ -107,23 +108,23 @@ class PathPartMapper extends SingleMapperAdapter {
 		$validationGroup->exec($magicContext);
 	}
 
-	function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
+	function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		if ($value !== null) {
 			$bindable->setValue(mb_strtolower(StringUtils::clean($value)));
-			$this->validate($bindable, $bindContext, $magicContext);
+			$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 			return true;
 		}
 
 		if ($this->generationIfNullBaseName === null) {
-			$this->validate($bindable, $bindContext, $magicContext);
+			$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 			return true;
 		}
 
 		$bindable->setValue($this->generatePathPart($this->generationIfNullBaseName, $magicContext));
 
-		$this->validate($bindable, $bindContext, $magicContext);
+		$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 		return true;
 	}
 

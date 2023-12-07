@@ -42,7 +42,7 @@ abstract class SingleMapperAdapter extends MapperAdapter {
 				continue;
 			}
 
-			if (!$this->mapSingle($bindable, $bindBoundary->unwrapBindContext(), $magicContext)) {
+			if (!$this->mapSingle($bindable, $bindBoundary, $magicContext)) {
 				return false;
 			}
 		}
@@ -52,11 +52,11 @@ abstract class SingleMapperAdapter extends MapperAdapter {
 
 	/**
 	 * @param Bindable $bindable
-	 * @param BindContext $bindContext
+	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
 	 * @return bool
 	 * @throws BindMismatchException {@see Mapper::map()}
 	 */
-	protected abstract function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool;
+	protected abstract function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool;
 	
 }

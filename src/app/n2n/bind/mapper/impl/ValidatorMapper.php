@@ -33,7 +33,7 @@ class ValidatorMapper extends MapperAdapter {
 	}
 
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		$this->validator->validate($bindBoundary->getBindables(), $bindBoundary->unwrapBindContext(), $magicContext);
+		$this->validator->validate($bindBoundary->getBindables(), $bindBoundary->getBindContext(), $magicContext);
 		return true;
 	}
 

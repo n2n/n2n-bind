@@ -26,7 +26,7 @@ class FromBindDataClosureMapper implements Mapper {
 		$invoker->setClosure($this->closure);
 
 		$bindSource = $bindBoundary->unwarpBindSource();
-		$bindContext = $bindBoundary->unwrapBindContext();
+		$bindContext = $bindBoundary->getBindContext();
 
 		foreach ($bindBoundary->getPaths() as $path) {
 			try {

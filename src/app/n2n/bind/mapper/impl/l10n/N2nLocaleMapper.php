@@ -15,13 +15,14 @@ use n2n\util\type\ArgUtils;
 use n2n\validation\lang\ValidationMessages;
 use n2n\bind\err\BindMismatchException;
 use n2n\l10n\IllegalN2nLocaleFormatException;
+use n2n\bind\plan\BindBoundary;
 
 class N2nLocaleMapper extends SingleMapperAdapter {
 	function __construct(private readonly bool $mandatory, private readonly ?array $allowedN2nLocales = null) {
 		ArgUtils::valArray($allowedN2nLocales, N2nLocale::class, true);
 	}
 
-	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
+	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		try {
 			$value = N2nLocale::build($this->readSafeValue($bindable, TypeConstraints::string(true)));
 		} catch (IllegalN2nLocaleFormatException $e) {
@@ -32,7 +33,7 @@ class N2nLocaleMapper extends SingleMapperAdapter {
 			$bindable->setValue($value);
 		}
 
-		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
+		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindBoundary->getBindContext());
 		$validationGroup->exec($magicContext);
 
 		return true;

@@ -23,7 +23,7 @@ class SubPropMapper extends PropBindComposer implements Mapper {
 			if (null !== ($bindable = $bindBoundary->getBindable($path))) {
 				$bindContext = new BindableBindContext($bindable);
 			} else {
-				$bindContext = new LogicalBindContext($path, $bindBoundary->unwrapBindContext());
+				$bindContext = new LogicalBindContext($path, $bindBoundary->getBindContext());
 			}
 
 			if (!$this->bindPlan->exec($bindBoundary->unwarpBindSource(), $bindContext, $magicContext)) {

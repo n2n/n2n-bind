@@ -30,11 +30,21 @@ use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\type\attrs\MissingAttributeFieldException;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\BindMismatchException;
 
 class BindTest extends TestCase {
 
 
-
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testAttrs() {
 		$this->assertFalse(ctype_print("\x06"));
 
@@ -50,6 +60,11 @@ class BindTest extends TestCase {
 		$this->assertEquals('von Testen', $tdm->reqString('lastname'));
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testAttrsValFail() {
 		$this->assertFalse(ctype_print("\x06"));
 

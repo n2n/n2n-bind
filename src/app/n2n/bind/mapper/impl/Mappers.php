@@ -42,6 +42,7 @@ use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\compose\SubPropMapper;
 use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
 use n2n\bind\mapper\impl\mod\DeleteMapper;
+use n2n\bind\mapper\impl\mod\SubMergeMapper;
 
 class Mappers {
 
@@ -184,13 +185,20 @@ class Mappers {
 	 *
 	 * <pre>
 	 * 	Bind::attrs($srcDataMap)->toAttrs($targetDataMap)
-	 * 			->prop('foo', Mappers::subProp()->prop('childOfFoo', Mappers::someMapper())
+	 * 			->logicalProp('foo', Mappers::subProp()->prop('childOfFoo', Mappers::someMapper())
 	 * </pre>
 	 *
 	 * @return SubPropMapper
 	 */
 	static function subProp(): SubPropMapper {
 		return new SubPropMapper();
+	}
+
+	/**
+	 * Merges descendants Bindables into current Bindable and removes them.
+	 */
+	static function subMerge(): SubMergeMapper {
+		return new SubMergeMapper();
 	}
 
 	/**

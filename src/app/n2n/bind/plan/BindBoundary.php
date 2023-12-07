@@ -90,7 +90,7 @@ class BindBoundary {
 		return $this->bindSource;
 	}
 
-	function unwrapBindContext(): BindContext {
+	function getBindContext(): BindContext {
 		return $this->bindContext;
 	}
 

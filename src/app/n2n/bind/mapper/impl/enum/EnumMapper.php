@@ -10,12 +10,13 @@ use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
 use n2n\util\type\TypeConstraints;
+use n2n\bind\plan\BindBoundary;
 
 class EnumMapper extends SingleMapperAdapter {
 	function __construct(private \ReflectionEnum $enum, private bool $mandatory) {
 	}
 
-	protected function mapSingle(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): bool {
+	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::namedType($this->enum, true, true));
 		// @todo: test null without ''
 
@@ -23,7 +24,7 @@ class EnumMapper extends SingleMapperAdapter {
 			$bindable->setValue($value);
 		}
 
-		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
+		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindBoundary->getBindContext());
 		$validationGroup->exec($magicContext);
 
 		return true;
