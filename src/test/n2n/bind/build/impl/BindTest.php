@@ -119,4 +119,41 @@ class BindTest extends TestCase {
 		$this->assertEquals('huii', $resultValue);
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testOnSuccessCall(): void {
+		$called = false;
+		$dataMap = new DataMap();
+		$result = Bind::attrs(['prop1' => 'valid'])->toAttrs($dataMap)
+				->prop('prop1', Mappers::cleanString(true))
+				->onSuccess(function () use (&$called) {
+					$called = true;
+				})
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($called);
+		$this->assertFalse($result->hasErrors());
+	}
+
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testOnSuccessNoCallOrError(): void {
+		$dataMap = new DataMap();
+		$result = Bind::attrs(['prop1' => null])->toAttrs($dataMap)
+				->prop('prop1', Mappers::cleanString(true))
+				->onSuccess(function () use (&$called) {
+					$this->fail();
+				})
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($result->hasErrors());
+	}
+
 }

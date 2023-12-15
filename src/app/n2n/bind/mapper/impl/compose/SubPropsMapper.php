@@ -10,7 +10,7 @@ use n2n\bind\plan\impl\BindableBindContext;
 use n2n\bind\build\impl\compose\prop\PropBindComposer;
 use n2n\bind\plan\impl\LogicalBindContext;
 
-class SubPropMapper extends PropBindComposer implements Mapper {
+class SubPropsMapper extends PropBindComposer implements Mapper {
 
 	private BindPlan $bindPlan;
 

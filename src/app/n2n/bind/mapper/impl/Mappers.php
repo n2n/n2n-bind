@@ -39,7 +39,7 @@ use n2n\bind\mapper\impl\numeric\FloatMapper;
 use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
 use n2n\bind\mapper\impl\string\PathPartMapper;
 use n2n\bind\mapper\Mapper;
-use n2n\bind\mapper\impl\compose\SubPropMapper;
+use n2n\bind\mapper\impl\compose\SubPropsMapper;
 use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
 use n2n\bind\mapper\impl\mod\DeleteMapper;
 use n2n\bind\mapper\impl\mod\SubMergeMapper;
@@ -181,6 +181,14 @@ class Mappers {
 
 
 	/**
+	 * @deprecated use {@link self::subProps()}
+	 * @return SubPropsMapper
+	 */
+	static function subProp(): SubPropsMapper {
+		return self::subProps();
+	}
+
+	/**
 	 * Example:
 	 *
 	 * <pre>
@@ -188,14 +196,14 @@ class Mappers {
 	 * 			->logicalProp('foo', Mappers::subProp()->prop('childOfFoo', Mappers::someMapper())
 	 * </pre>
 	 *
-	 * @return SubPropMapper
+	 * @return SubPropsMapper
 	 */
-	static function subProp(): SubPropMapper {
-		return new SubPropMapper();
+	static function subProps(): SubPropsMapper {
+		return new SubPropsMapper();
 	}
 
 	/**
-	 * Merges descendants Bindables into current Bindable and removes them.
+	 * Merges values of descendant Bindables as array into current Bindable and removes them.
 	 */
 	static function subMerge(): SubMergeMapper {
 		return new SubMergeMapper();

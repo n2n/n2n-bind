@@ -11,7 +11,7 @@ use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 
-class SubPropMapperTest extends TestCase {
+class SubPropsMapperTest extends TestCase {
 
 	/**
 	 * @throws \Throwable
@@ -25,7 +25,7 @@ class SubPropMapperTest extends TestCase {
 					$this->assertEquals('foo', $value);
 					return 'foo2';
 				}))
-				->logicalProp('sub', Mappers::subProp()
+				->logicalProp('sub', Mappers::subProps()
 						->prop('huii', Mappers::valueClosure(function ($value) {
 							$this->assertEquals('bar', $value);
 							return 'bar2';
@@ -42,12 +42,12 @@ class SubPropMapperTest extends TestCase {
 		$targetDataMap = new DataMap();
 
 		Bind::attrs($dataMap)->toAttrs($targetDataMap)
-				->logicalRoot(Mappers::subProp()
+				->logicalRoot(Mappers::subProps()
 						->prop('holeradio', Mappers::valueClosure(function ($value) {
 							$this->assertEquals('foo', $value);
 							return 'foo2';
 						}))
-						->logicalProp('sub', Mappers::subProp()
+						->logicalProp('sub', Mappers::subProps()
 								->prop('huii', Mappers::valueClosure(function ($value) {
 									$this->assertEquals('bar', $value);
 									return 'bar2';

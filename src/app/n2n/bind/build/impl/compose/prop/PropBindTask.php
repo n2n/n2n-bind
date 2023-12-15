@@ -13,9 +13,15 @@ use n2n\bind\err\BindTargetException;
 use n2n\bind\plan\BindSource;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\reflection\magic\MagicMethodInvoker;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
 	private BindTask $bindTask;
+
+	/**
+	 * @var \Closure[]
+	 */
+	private array $onSuccessCallbacks = [];
 
 	function __construct(private BindSource $bindSource, BindableTarget $bindableTarget) {
 		$bindPlan = new BindPlan();
@@ -29,7 +35,33 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @throws UnresolvableBindableException
 	 */
 	function exec(MagicContext $magicContext): BindResult {
-		return $this->bindTask->exec($magicContext);
+		$bindResult = $this->bindTask->exec($magicContext);
+
+		if (!$bindResult->hasErrors()) {
+			$this->triggerOnSuccessCallbacks($magicContext);
+		}
+
+		return $bindResult;
 	}
+
+	function onSuccess(\Closure $onSuccessCallback): static {
+		$this->onSuccessCallbacks[spl_object_hash($onSuccessCallback)] = $onSuccessCallback;
+		return $this;
+	}
+
+	function offSuccess(\Closure $onSuccessCallback): static {
+		unset($this->onSuccessCallbacks[spl_object_hash($onSuccessCallback)]);
+		return $this;
+	}
+
+	private function triggerOnSuccessCallbacks(MagicContext $magicContext): void {
+		foreach ($this->onSuccessCallbacks as $onSuccessCallback) {
+			$invoker = new MagicMethodInvoker($magicContext);
+			$invoker->invoke(null, $onSuccessCallback);
+		}
+	}
+
+
+
 
 }

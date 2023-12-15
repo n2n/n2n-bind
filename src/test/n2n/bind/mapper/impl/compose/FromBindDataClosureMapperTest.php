@@ -26,7 +26,7 @@ class FromBindDataClosureMapperTest extends TestCase {
 				->prop('sub', Mappers::fromBindDataClosure(function (BindData $bindData) {
 					$this->assertEquals('bar', $bindData->req('huii'));
 
-					return Mappers::subProp()
+					return Mappers::subProps()
 							->prop('huii', Mappers::valueClosure(function ($value) {
 								$this->assertEquals('bar', $value);
 								return 'bar2';

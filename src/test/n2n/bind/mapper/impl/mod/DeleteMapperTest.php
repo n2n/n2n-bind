@@ -25,7 +25,7 @@ class DeleteMapperTest extends TestCase {
 
 		Bind::attrs($dataMap)->toObj($targetMock)
 				->prop('holeradio')
-				->prop('sub', Mappers::delete(), Mappers::subProp()->prop('huii'))
+				->prop('sub', Mappers::delete(), Mappers::subProps()->prop('huii'))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals('foo', $targetMock->holeradio);
