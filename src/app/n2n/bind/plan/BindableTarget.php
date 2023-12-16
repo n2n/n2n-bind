@@ -23,12 +23,15 @@ namespace n2n\bind\plan;
 
 use n2n\bind\err\BindTargetException;
 
+/**
+ * @template T
+ */
 interface BindableTarget {
 
 	/**
 	 * @param Bindable[] $bindables includes {@link Bindable}s which do not exists.
-	 * @return void
+	 * @return T
 	 * @throws BindTargetException
 	 */
-	function write(array $bindables): void;
+	function write(array $bindables): mixed;
 }

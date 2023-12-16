@@ -63,8 +63,8 @@ class BindTask {
 			return new SimpleBindResult($errorMap);
 		}
 
-		$this->bindableTarget->write($this->bindableSource->getBindables());
+		$resultValue = $this->bindableTarget->write($this->bindableSource->getBindables());
 
-		return new SimpleBindResult(null);
+		return new SimpleBindResult(null, $resultValue);
 	}
 }

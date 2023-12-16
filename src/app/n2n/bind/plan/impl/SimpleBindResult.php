@@ -23,7 +23,32 @@ namespace n2n\bind\plan\impl;
 
 use n2n\bind\plan\BindResult;
 use n2n\validation\plan\impl\SimpleValidationResult;
+use n2n\validation\plan\ErrorMap;
+use n2n\util\ex\IllegalStateException;
 
-class SimpleBindResult extends SimpleValidationResult implements BindResult {
+/**
+ * @template T
+ * @template-implements BindResult<T>
+ */
+class SimpleBindResult implements BindResult {
 
+	/**
+	 * @param ErrorMap|null $errorMap
+	 * @param T $value
+	 */
+	function __construct(private ?ErrorMap $errorMap = null, private mixed $value = null) {
+	}
+
+	function hasErrors(): bool {
+		return $this->errorMap !== null;
+	}
+
+	function getErrorMap(): ErrorMap {
+		IllegalStateException::assertTrue($this->errorMap !== null, 'ValidationResult is valid.');
+		return $this->errorMap;
+	}
+
+	function get(): mixed {
+		return $this->value;
+	}
 }

@@ -34,7 +34,7 @@ class AttrsBindableTarget implements BindableTarget {
 	function __construct(private AttributeWriter $attributeWriter) {
 	}
 
-	function write(array $bindables): void {
+	function write(array $bindables): AttributeWriter {
 		ArgUtils::valArray($bindables, Bindable::class);
 
 		foreach ($bindables as $bindable) {
@@ -52,5 +52,6 @@ class AttrsBindableTarget implements BindableTarget {
 			}
 		}
 
+		return $this->attributeWriter;
 	}
 }

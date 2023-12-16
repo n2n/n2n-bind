@@ -36,9 +36,10 @@ class RefBindableTarget implements BindableTarget {
 		$this->targetValueCompiler = new TargetValueCompiler($arrayStrict);
 	}
 
-	function write(array $bindables): void {
+	function write(array $bindables): mixed {
 		$this->ref = $this->targetValueCompiler->compile($bindables);
 
 		ArgUtils::valArray($bindables, Bindable::class);
+		return $this->ref;
 	}
 }

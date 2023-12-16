@@ -37,8 +37,8 @@ class ClosureBindableTarget implements BindableTarget {
 		$this->targetValueCompiler = new TargetValueCompiler(false);
 	}
 
-	function write(array $bindables): void {
+	function write(array $bindables): mixed {
 		$c = $this->closure;
-		$c($this->targetValueCompiler->compile($bindables));
+		return $c($this->targetValueCompiler->compile($bindables));
 	}
 }

@@ -17,8 +17,9 @@ class ObjectBindableTarget implements BindableTarget {
 	/**
 	 * @throws BindTargetException
 	 */
-	function write(array $bindables): void {
+	function write(array $bindables): object {
 		$objectBindableWriteProcess = new ObjectBindableWriteProcess($bindables);
 		$objectBindableWriteProcess->process($this->obj);
+		return $this->obj;
 	}
 }
