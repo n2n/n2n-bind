@@ -44,11 +44,12 @@ class SimpleBindResult implements BindResult {
 	}
 
 	function getErrorMap(): ErrorMap {
-		IllegalStateException::assertTrue($this->errorMap !== null, 'ValidationResult is valid.');
+		IllegalStateException::assertTrue($this->errorMap !== null, 'BindResult is valid.');
 		return $this->errorMap;
 	}
 
 	function get(): mixed {
+		IllegalStateException::assertTrue(!$this->hasErrors(), 'BindResult has errors.');
 		return $this->value;
 	}
 }

@@ -34,6 +34,7 @@ use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
+use n2n\util\ex\IllegalStateException;
 
 class BindTest extends TestCase {
 
@@ -58,6 +59,8 @@ class BindTest extends TestCase {
 
 		$this->assertEquals('Testerich', $tdm->reqString('firstname'));
 		$this->assertEquals('von Testen', $tdm->reqString('lastname'));
+
+		$this->assertEquals($tdm, $result->get());
 	}
 
 	/**
@@ -92,6 +95,11 @@ class BindTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('lastname')->getMessages());
 		$this->assertCount(1, $errorMap->getChild('huii')->getChild('hoi')->getMessages());
 		$this->assertCount(1, $errorMap->getChild('hobby')->getMessages());
+
+
+
+		$this->expectException(IllegalStateException::class);
+		$result->get();
 	}
 
 	function testUnresolvableBindable() {

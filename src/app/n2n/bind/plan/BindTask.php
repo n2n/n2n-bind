@@ -49,6 +49,7 @@ class BindTask {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
+	 * /
 	 */
 	function exec(MagicContext $magicContext): BindResult {
 		$this->bindableSource->reset();

@@ -35,8 +35,12 @@ use n2n\bind\plan\BindGroup;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\plan\BindTask;
 use n2n\bind\plan\BindSource;
+use n2n\bind\plan\BindResult;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
 
-class UnionBindComposer implements ValidationTask {
+class UnionBindComposer {
 
 	/**
 	 * @var BindPlan
@@ -61,10 +65,11 @@ class UnionBindComposer implements ValidationTask {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * @see \n2n\validation\plan\ValidationTask::exec()
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext): ValidationResult {
+	function exec(MagicContext $magicContext): BindResult {
 		return $this->bindTask->exec($magicContext);
 	}	
 }
