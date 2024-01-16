@@ -43,6 +43,7 @@ use n2n\bind\mapper\impl\compose\SubPropsMapper;
 use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
 use n2n\bind\mapper\impl\mod\DeleteMapper;
 use n2n\bind\mapper\impl\mod\SubMergeMapper;
+use n2n\validation\validator\Validator;
 
 class Mappers {
 
@@ -175,7 +176,8 @@ class Mappers {
 		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $min, $max, $mandatory);
 	}
 
-	static function pipe(Mapper ...$mappers): PipeMapper {
+	static function pipe(Mapper|Validator ...$mappers): PipeMapper {
+		$mappers = ValidatorMapper::convertValidators($mappers);
 		return new PipeMapper($mappers);
 	}
 

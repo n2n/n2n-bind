@@ -10,6 +10,8 @@ use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\StringUtils;
 use n2n\bind\mapper\Mapper;
+use PHPUnit\Util\Xml\Validator;
+use n2n\validation\validator\impl\Validators;
 
 class PipeMapperTest extends TestCase {
 	/**
@@ -163,6 +165,59 @@ class PipeMapperTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertContainsOnly('int', $tdm->toArray());
 		$this->assertContainsEquals(6, $tdm->toArray());
+
+	}
+
+	function testValidatorAsPipeParam() {
+		//have validators instead of mappers inside pipe, because pipe can do that :-D
+		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'blubber@n2n.test']);
+		$tdm = new DataMap();
+
+		$result = Bind::attrs($dataMap)->toAttrs($tdm)
+				->optProps(['clo1', 'clo2', 'clo3', 'clo4'],
+						Mappers::pipe(
+								Validators::noSpecialChars(),
+								Validators::email(),
+						))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$this->assertContainsOnly('string', $tdm->toArray());
+
+		$this->assertTrue($result->hasErrors());
+		$errorMap = $result->getErrorMap();
+		$this->assertCount(1, $errorMap->getChild('clo1')->getMessages());
+		$this->assertEquals('Email', $errorMap->getChild('clo1')->jsonSerialize()['messages'][0]);
+		$this->assertCount(1, $errorMap->getChild('clo2')->getMessages());
+		$this->assertEquals('Email', $errorMap->getChild('clo2')->jsonSerialize()['messages'][0]);
+		$this->assertCount(1, $errorMap->getChild('clo3')->getMessages());
+		$this->assertEquals('Special Chars', $errorMap->getChild('clo3')->jsonSerialize()['messages'][0]);
+		$this->assertCount(1, $errorMap->getChild('clo4')->getMessages());
+		$this->assertEquals('Special Chars', $errorMap->getChild('clo4')->jsonSerialize()['messages'][0]);
+
+	}
+
+	function testMapperValidatorMix() {
+		//mappers and validators can given to pipe-mapper :-D
+		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'bli@n2n.test']);
+		$tdm = new DataMap();
+
+		$result = Bind::attrs($dataMap)->toAttrs($tdm)
+				->optProps(['clo1', 'clo2', 'clo3', 'clo4'],
+						Mappers::pipe(
+								Mappers::cleanString(false, 4, 12),
+								Validators::email(),
+						))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$this->assertContainsOnly('string', $tdm->toArray());
+
+		$this->assertTrue($result->hasErrors());
+		$errorMap = $result->getErrorMap();
+		$this->assertCount(1, $errorMap->getChild('clo1')->getMessages());
+		$this->assertEquals('Minlength [minlength = 4]', $errorMap->getChild('clo1')->jsonSerialize()['messages'][0]);
+		$this->assertCount(1, $errorMap->getChild('clo2')->getMessages());
+		$this->assertEquals('Email', $errorMap->getChild('clo2')->jsonSerialize()['messages'][0]);
+		$this->assertCount(1, $errorMap->getChild('clo3')->getMessages());
+		$this->assertEquals('Maxlength [maxlength = 12]', $errorMap->getChild('clo3')->jsonSerialize()['messages'][0]);
+		$this->assertCount(0, $errorMap->getChild('clo4')->getMessages());
 
 	}
 }
