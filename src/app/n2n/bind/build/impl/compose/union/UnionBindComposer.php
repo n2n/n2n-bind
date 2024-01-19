@@ -29,7 +29,7 @@ use n2n\util\type\ArgUtils;
 use n2n\validation\plan\ValidationGroup;
 use n2n\validation\plan\ValidationResult;
 use n2n\bind\plan\BindPlan;
-use n2n\bind\plan\BindableTarget;
+use n2n\bind\plan\BindTarget;
 use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\BindGroup;
 use n2n\bind\mapper\Mapper;
@@ -47,7 +47,7 @@ class UnionBindComposer {
 	 */
 	private BindTask $bindTask;
 
-	function __construct(private BindSource $source, private BindableTarget $bindableTarget) {
+	function __construct(private BindSource $source, private BindTarget $bindableTarget) {
 		$this->bindTask = new BindTask($source, $this->bindableTarget, new BindPlan());
 	}
 

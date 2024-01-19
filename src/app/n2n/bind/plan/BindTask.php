@@ -35,7 +35,7 @@ class BindTask {
 	 */
 	private array $bindGroups = [];
 
-	function __construct(private BindSource $bindableSource, private BindableTarget $bindableTarget,
+	function __construct(private BindSource $bindableSource, private BindTarget $bindableTarget,
 			private BindPlan $bindPlan) {
 	}
 

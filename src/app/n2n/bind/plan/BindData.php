@@ -395,7 +395,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	public function reqBindValuesMap($path, bool $nullAllowed = false, int $errStatus = null): ?BindData {
+	public function reqBindDataMap($path, bool $nullAllowed = false, int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->reqArray($path, null, $nullAllowed))) {
 			return new BindData(new DataMap($array));
 		}
@@ -410,7 +410,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @param int|null $errStatus
 	 * @return BindData|null
 	 */
-	public function optBindValuesMap($path, mixed $defaultValue = null, bool $nullAllowed = true, int $errStatus = null): ?BindData {
+	public function optBindDataMap($path, mixed $defaultValue = null, bool $nullAllowed = true, int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->optArray($path, null, $defaultValue, $nullAllowed))) {
 			return new BindData(new DataMap($array));
 		}
@@ -422,7 +422,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
-	public function reqBindValuesMaps($path, bool $nullAllowed = false): array {
+	public function reqBindDataMaps($path, bool $nullAllowed = false): array {
 		return array_map(fn ($data) => new BindData(new DataMap($data)),
 				$this->reqArray($path, 'array', $nullAllowed));
 	}
@@ -430,7 +430,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	/**
 	 * @throws BindMismatchException
 	 */
-	public function optBindValuesMaps($path, $defaultValue = [], bool $nullAllowed = false) {
+	public function optBindDataMaps($path, $defaultValue = [], bool $nullAllowed = false) {
 		$httpDatas = $this->optArray($path, 'array', null, $nullAllowed);
 		if ($httpDatas === null) {
 			return $defaultValue;

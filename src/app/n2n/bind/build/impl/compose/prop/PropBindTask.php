@@ -3,7 +3,7 @@
 namespace n2n\bind\build\impl\compose\prop;
 
 use n2n\bind\plan\BindPlan;
-use n2n\bind\plan\BindableTarget;
+use n2n\bind\plan\BindTarget;
 use n2n\bind\plan\BindTask;
 use n2n\util\magic\MagicTask;
 use n2n\bind\plan\BindResult;
@@ -23,7 +23,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 */
 	private array $onSuccessCallbacks = [];
 
-	function __construct(private BindSource $bindSource, BindableTarget $bindableTarget) {
+	function __construct(private BindSource $bindSource, BindTarget $bindableTarget) {
 		$bindPlan = new BindPlan();
 		parent::__construct($bindPlan);
 		$this->bindTask = new BindTask($bindSource, $bindableTarget, $bindPlan);

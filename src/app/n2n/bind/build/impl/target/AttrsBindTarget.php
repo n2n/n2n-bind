@@ -21,7 +21,7 @@
  */
 namespace n2n\bind\build\impl\target;
 
-use n2n\bind\plan\BindableTarget;
+use n2n\bind\plan\BindTarget;
 use n2n\util\type\attrs\AttributeWriter;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\attrs\AttributesException;
@@ -29,17 +29,29 @@ use n2n\bind\err\BindTargetException;
 use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 
-class RefBindableTarget implements BindableTarget {
-	private TargetValueCompiler $targetValueCompiler;
+class AttrsBindTarget implements BindTarget {
 
-	function __construct(private &$ref, bool $arrayStrict) {
-		$this->targetValueCompiler = new TargetValueCompiler($arrayStrict);
+	function __construct(private AttributeWriter $attributeWriter) {
 	}
 
-	function write(array $bindables): mixed {
-		$this->ref = $this->targetValueCompiler->compile($bindables);
-
+	function write(array $bindables): AttributeWriter {
 		ArgUtils::valArray($bindables, Bindable::class);
-		return $this->ref;
+
+		foreach ($bindables as $bindable) {
+			if (!$bindable->doesExist()) {
+				continue;
+			}
+
+			try {
+				$this->attributeWriter->writeAttribute(
+						AttributePath::create((string) $bindable->getPath()),
+						$bindable->getValue());
+			} catch (AttributesException $e) {
+				throw new BindTargetException('Could not write bindable \'' . $bindable->getPath(), 0, $e);
+
+			}
+		}
+
+		return $this->attributeWriter;
 	}
 }

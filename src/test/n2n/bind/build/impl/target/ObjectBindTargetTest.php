@@ -15,7 +15,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\Mapper;
 
-class ObjectBindableTargetTest extends TestCase {
+class ObjectBindTargetTest extends TestCase {
 	public function testWrite() {
 		$obj = new BindTestClassA();
 		$objToWrite = new BindTestClassA();
@@ -58,7 +58,7 @@ class ObjectBindableTargetTest extends TestCase {
 		$obj = new BindTestClassA();
 
 		Bind::values(...['string' => 'test'])
-				->to(new ObjectBindableTarget($obj))
+				->to(new ObjectBindTarget($obj))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertEquals('test', $obj->getString());
@@ -67,28 +67,28 @@ class ObjectBindableTargetTest extends TestCase {
 	public function testExceptionUnknownProperty() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(doesntExist: '')
-				->to(new ObjectBindableTarget(new BindTestClassA()))
+				->to(new ObjectBindTarget(new BindTestClassA()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
 	public function testExceptionPropertyNotAccessible() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(unaccessible: '')
-				->to(new ObjectBindableTarget(new BindTestClassA()))
+				->to(new ObjectBindTarget(new BindTestClassA()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
 	public function testExceptionIncompatibleTypes() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(obj: '123')
-				->to(new ObjectBindableTarget(new BindTestClassA()))
+				->to(new ObjectBindTarget(new BindTestClassA()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
 	public function testEmptyObject() {
 		$a = new BindTestClassA();
 		Bind::values(...['string' => 'test'])
-				->to(new ObjectBindableTarget($a))
+				->to(new ObjectBindTarget($a))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertEquals('test', $a->getString());

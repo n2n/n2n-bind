@@ -26,7 +26,7 @@ use n2n\bind\err\BindTargetException;
 /**
  * @template T
  */
-interface BindableTarget {
+interface BindTarget {
 
 	/**
 	 * @param Bindable[] $bindables includes {@link Bindable}s which do not exists.

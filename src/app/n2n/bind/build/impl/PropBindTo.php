@@ -2,12 +2,12 @@
 
 namespace n2n\bind\build\impl;
 
-use n2n\bind\plan\BindableTarget;
+use n2n\bind\plan\BindTarget;
 use n2n\bind\build\impl\compose\prop\PropBindComposer;
 use n2n\util\type\attrs\AttributeWriter;
-use n2n\bind\build\impl\target\RefBindableTarget;
-use n2n\bind\build\impl\target\AttrsBindableTarget;
-use n2n\bind\build\impl\target\ObjectBindableTarget;
+use n2n\bind\build\impl\target\RefBindTarget;
+use n2n\bind\build\impl\target\AttrsBindTarget;
+use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\bind\plan\BindSource;
 use n2n\bind\build\impl\compose\prop\PropBindTask;
 
@@ -21,7 +21,7 @@ class PropBindTo {
 	 * @return PropBindTask
 	 */
 	function toAttrs(AttributeWriter $attributeWriter): PropBindTask {
-		return $this->to(new AttrsBindableTarget($attributeWriter));
+		return $this->to(new AttrsBindTarget($attributeWriter));
 	}
 
 	/**
@@ -29,7 +29,7 @@ class PropBindTo {
 	 * @return PropBindTask
 	 */
 	function toArray(array &$array): PropBindTask {
-		return $this->to(new RefBindableTarget($array, true));
+		return $this->to(new RefBindTarget($array, true));
 	}
 
 	/**
@@ -37,7 +37,7 @@ class PropBindTo {
 	 * @return PropBindTask
 	 */
 	function toValue(&$value): PropBindTask {
-		return $this->to(new RefBindableTarget($value, false));
+		return $this->to(new RefBindTarget($value, false));
 	}
 
 	/**
@@ -45,14 +45,14 @@ class PropBindTo {
 	 * @return PropBindTask
 	 */
 	function toObj(object $obj): PropBindTask {
-		return $this->to(new ObjectBindableTarget($obj));
+		return $this->to(new ObjectBindTarget($obj));
 	}
 
 	/**
-	 * @param BindableTarget $target
+	 * @param BindTarget $target
 	 * @return PropBindTask
 	 */
-	function to(BindableTarget $target): PropBindTask {
+	function to(BindTarget $target): PropBindTask {
 		return new PropBindTask($this->source, $target);
 	}
 

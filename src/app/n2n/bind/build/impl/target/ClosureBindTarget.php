@@ -21,7 +21,7 @@
  */
 namespace n2n\bind\build\impl\target;
 
-use n2n\bind\plan\BindableTarget;
+use n2n\bind\plan\BindTarget;
 use n2n\util\type\attrs\AttributeWriter;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\attrs\AttributesException;
@@ -29,7 +29,7 @@ use n2n\bind\err\BindTargetException;
 use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 
-class ClosureBindableTarget implements BindableTarget {
+class ClosureBindTarget implements BindTarget {
 
 	private TargetValueCompiler $targetValueCompiler;
 
