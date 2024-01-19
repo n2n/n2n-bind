@@ -419,6 +419,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	}
 
 	/**
+	 * @return BindData[]
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
@@ -428,6 +429,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	}
 
 	/**
+	 * @return BindData[]
 	 * @throws BindMismatchException
 	 */
 	public function optBindDataMaps($path, $defaultValue = [], bool $nullAllowed = false) {
