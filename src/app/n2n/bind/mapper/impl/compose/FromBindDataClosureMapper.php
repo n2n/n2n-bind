@@ -15,13 +15,16 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\type\TypeConstraints;
 use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\util\type\attrs\DataMap;
+use n2n\bind\mapper\impl\SingleMapperAdapter;
+use n2n\bind\plan\Bindable;
 
-class FromBindDataClosureMapper implements Mapper {
+class FromBindDataClosureMapper extends SingleMapperAdapter {
 
 	function __construct(private \Closure $closure) {
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+
+	function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setReturnTypeConstraint(TypeConstraints::type(Mapper::class));
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
@@ -30,20 +33,18 @@ class FromBindDataClosureMapper implements Mapper {
 		$bindSource = $bindBoundary->unwarpBindSource();
 		$bindContext = $bindBoundary->getBindContext();
 
-		foreach ($bindBoundary->getBindables() as $bindable) {
-			try {
-				$bindData = new BindData(new DataMap(TypeConstraints::array()->validate($bindable->getValue())));
-				$invoker->setClassParamObject(BindData::class, $bindData);
-			} catch (ValueIncompatibleWithConstraintsException $e) {
-				throw new BindMismatchException(self::class . ' is not compatible with Bindable "'
-						. $bindable->getPath()->toAbsoluteString() . '"', previous: $e);
-			}
+		try {
+			$bindData = new BindData(new DataMap(TypeConstraints::array()->validate($bindable->getValue())));
+			$invoker->setClassParamObject(BindData::class, $bindData);
+		} catch (ValueIncompatibleWithConstraintsException $e) {
+			throw new BindMismatchException(self::class . ' is not compatible with Bindable "'
+					. $bindable->getPath()->toAbsoluteString() . '"', previous: $e);
+		}
 
-			$mapper = $invoker->invoke();
-			assert($mapper instanceof Mapper);
-			if (!$mapper->map(new BindBoundary($bindSource, $bindContext, [$bindable]), $magicContext)) {
-				return false;
-			}
+		$mapper = $invoker->invoke();
+		assert($mapper instanceof Mapper);
+		if (!$mapper->map(new BindBoundary($bindSource, $bindContext, [$bindable]), $magicContext)) {
+			return false;
 		}
 
 		return true;
