@@ -123,7 +123,7 @@ class PropBindComposer {
 	 * @return static
 	 */
 	function dynProps(array $expressions, bool $mustExist, Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup($expressions, $mappers, $mustExist);
+		$this->assembleBindGroup($expressions, $mappers, $mustExist, false);
 		return $this;
 	}
 

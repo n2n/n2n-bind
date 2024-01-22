@@ -114,6 +114,52 @@ class BindTest extends TestCase {
 
 	}
 
+	function testOptProp() {
+		$sdm = new DataMap([ 'huii' => 'hoii' ]);
+
+		$tdm = new DataMap();
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->optProp('huii', Mappers::propsClosureAny(function ($valuesMap) {
+					$this->assertEquals(['huii' => 'hoii'], $valuesMap);
+					return ['huii' => 'holeradio'];
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals(['huii' => 'holeradio'], $tdm->toArray());
+
+		$tdm = new DataMap();
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->optProp('doesNotExist', Mappers::propsClosureAny(function ($valuesMap) {
+					$this->fail();
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals([], $tdm->toArray());
+	}
+
+	function testDynProp() {
+		$sdm = new DataMap([ 'huii' => 'hoii' ]);
+
+		$tdm = new DataMap();
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->dynProp('huii', true, Mappers::propsClosureAny(function ($valuesMap) {
+					$this->assertEquals(['huii' => 'hoii'], $valuesMap);
+					return ['huii' => 'holeradio'];
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals(['huii' => 'holeradio'], $tdm->toArray());
+
+		$tdm = new DataMap();
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->dynProp('doesNotExist', false, Mappers::propsClosureAny(function ($valuesMap) {
+					$this->fail();
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals([], $tdm->toArray());
+	}
+
 	function testValue() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 		$tdm = new DataMap();
