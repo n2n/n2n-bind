@@ -13,6 +13,7 @@ use n2n\bind\mapper\impl\MultiMapperAdapter;
 use n2n\bind\mapper\impl\MultiMapMode;
 use n2n\bind\plan\BindData;
 use n2n\bind\build\impl\Bind;
+use n2n\util\type\attrs\DataMap;
 
 class PropsClosureMapper extends MultiMapperAdapter {
 
@@ -36,7 +37,7 @@ class PropsClosureMapper extends MultiMapperAdapter {
 		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(), $bindablesMap);
 
 		$returnValuesMap = $invoker->invoke(null, null,
-				[$this->bindDataMode ? new BindData($valuesMap) : $valuesMap]);
+				[$this->bindDataMode ? new BindData(new DataMap($valuesMap)) : $valuesMap]);
 
 		if ($returnValuesMap instanceof BindData) {
 			$returnValuesMap = $returnValuesMap->toDataMap()->toArray();

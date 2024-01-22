@@ -124,7 +124,20 @@ class Mappers {
 		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_EXIST);
 	}
 
-	private static function propsAsBindData(Closure $closure): PropsClosureMapper {
+	/**
+	 * Example:
+	 *
+	 * <pre>
+	 * 	Bind::attrs($srcDataMap)->toAttrs($targetDataMap)
+	 * 			->props(['foo', 'bar'], Mappers::propsAsBindDataClosure(function (BindData $bindData) {
+	 * 				$fooValue = $bindData->reqString('foo');
+	 * 				$barValue = $bindData->reqString('bar');
+
+	 * 				return ['foo' => 'someOtherFooValue', 'bar' => 'someOtherBarValue'];
+	 * 			});
+	 * </pre>
+	 */
+	static function propsAsBindDataClosure(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, MultiMapMode::ALWAYS, true);
 	}
 

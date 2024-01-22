@@ -8,6 +8,10 @@ use n2n\util\magic\MagicContext;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\bind\build\impl\target\mock\BindTestClass;
+use n2n\bind\plan\BindData;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
 
 class PropsClosureMapperTest extends TestCase {
 	function testPropsClosure() {
@@ -102,5 +106,26 @@ class PropsClosureMapperTest extends TestCase {
 				}))->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals(['huii' => 'changed'], $resultArr);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testPropsAsBindDataToArrayClosure() {
+		$srcArr = ['string' => 'test'];
+		$targetArr = [];
+
+		Bind::attrs($srcArr)->toArray($targetArr)
+				->props(['string'], Mappers::propsAsBindDataClosure(function (BindData $bindData) {
+					return [
+						'string' => $bindData->reqString('string') . '-holeradio',
+						'int' => 7
+					];
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals(['string' => 'test-holeradio', 'int' => 7], $targetArr);
 	}
 }
