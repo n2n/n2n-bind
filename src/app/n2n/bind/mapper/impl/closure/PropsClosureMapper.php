@@ -9,38 +9,38 @@ use n2n\util\magic\MagicContext;
 use n2n\reflection\magic\MagicMethodInvoker;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\plan\Bindable;
+use n2n\bind\mapper\impl\MultiMapperAdapter;
+use n2n\bind\mapper\impl\MultiMapMode;
+use n2n\bind\plan\BindData;
+use n2n\bind\build\impl\Bind;
 
-class PropsClosureMapper extends MapperAdapter {
+class PropsClosureMapper extends MultiMapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure, private ?bool $everyBindableMustExist) {
+	public function __construct(\Closure $closure, private MultiMapMode $multiMapMode, private bool $bindDataMode = false) {
+		parent::__construct($this->multiMapMode);
 		$this->closure = $closure;
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	protected function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setMethod(new \ReflectionFunction($this->closure));
-		$invoker->setReturnTypeConstraint(TypeConstraints::array());
+		$invoker->setReturnTypeConstraint(TypeConstraints::type(['array', BindData::class]));
 
 		$bindablesMap = [];
-		foreach ($bindBoundary->getBindables() as $bindable) {
-			if ($bindable->isLogical()) {
-				continue;
-			}
-
+		foreach ($bindables as $bindable) {
 			$bindablesMap[$bindBoundary->pathToRelativeName($bindable->getPath())] = $bindable;
 		}
 
-		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(),
-				array_filter($bindablesMap, fn (Bindable $b) => $b->doesExist()));
+		$valuesMap = array_map(fn (Bindable $b) => $b->getValue(), $bindablesMap);
 
-		if (($this->everyBindableMustExist === false && empty($valuesMap))
-				|| ($this->everyBindableMustExist === true && count($valuesMap) < count($bindablesMap))) {
-			return true;
+		$returnValuesMap = $invoker->invoke(null, null,
+				[$this->bindDataMode ? new BindData($valuesMap) : $valuesMap]);
+
+		if ($returnValuesMap instanceof BindData) {
+			$returnValuesMap = $returnValuesMap->toDataMap()->toArray();
 		}
-
-		$returnValuesMap = $invoker->invoke(null, null, [$valuesMap]);
 
 		foreach ($returnValuesMap as $relativeName => $value) {
 			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindableByRelativeName($relativeName);

@@ -4,6 +4,7 @@ namespace n2n\bind\plan;
 
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\ex\IllegalStateException;
 
 class BindBoundary {
 	/**
@@ -62,13 +63,11 @@ class BindBoundary {
 	}
 
 
-	/**
-	 * @throws UnresolvableBindableException
-	 */
 	function acquireBindableByRelativeName(string $relativeName): Bindable {
 		$name = $this->bindContext->getPath()->ext(AttributePath::create($relativeName));
 
-		$bindable = $this->bindSource->getBindable($name) ?? $this->bindSource->createBindable($name, false);
+		$bindable = $this->bindSource->getBindable($name) ??
+				IllegalStateException::try(fn () => $this->bindSource->createBindable($name, false));
 
 		$this->addBindable($bindable);
 

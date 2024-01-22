@@ -46,7 +46,7 @@ interface BindSource {
 	 * @param AttributePath $path
 	 * @param bool $mustExist
 	 * @return Bindable
-	 * @throws UnresolvableBindableException
+	 * @throws UnresolvableBindableException will only be thrown if $mustExist is true
 	 * /
 	 */
 	function createBindable(AttributePath $path, bool $mustExist): Bindable;

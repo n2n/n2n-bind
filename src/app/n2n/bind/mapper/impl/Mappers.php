@@ -105,7 +105,7 @@ class Mappers {
 	 * @return PropsClosureMapper
 	 */
 	public static function propsClosure(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, null);
+		return new PropsClosureMapper($closure, MultiMapMode::ALWAYS);
 	}
 
 	/**
@@ -113,7 +113,7 @@ class Mappers {
 	 * @return PropsClosureMapper
 	 */
 	public static function propsClosureAny(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, false);
+		return new PropsClosureMapper($closure, MultiMapMode::ANY_BINDABLE_MUST_EXIST);
 	}
 
 	/**
@@ -121,7 +121,11 @@ class Mappers {
 	 * @return PropsClosureMapper
 	 */
 	public static function propsClosureEvery(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, true);
+		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_EXIST);
+	}
+
+	private static function propsAsBindData(Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, MultiMapMode::ALWAYS, true);
 	}
 
 	/**
