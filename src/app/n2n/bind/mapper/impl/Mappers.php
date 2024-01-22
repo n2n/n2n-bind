@@ -44,7 +44,7 @@ use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
 use n2n\bind\mapper\impl\mod\DeleteMapper;
 use n2n\bind\mapper\impl\mod\SubMergeMapper;
 use n2n\validation\validator\Validator;
-use n2n\bind\mapper\impl\closure\BindDataClosureMapper;
+use n2n\bind\mapper\impl\closure\ValueAsBindDataClosureMapper;
 
 class Mappers {
 
@@ -232,15 +232,15 @@ class Mappers {
 	 *
 	 * <pre>
 	 * 	Bind::attrs($srcDataMap)->toAttrs($targetDataMap)
-	 * 			->prop('foo', Mappers::bindDataClosure(function (BindData $bindData) {
+	 * 			->prop('foo', Mappers::valueAsBindDataClosure(function (BindData $bindData) {
 	 * 				$value = $bindData->reqString('childPropOfFoo');
 
 	 * 				return ['childPropOfFoo' => 'someOtherValue'];
 	 * 			});
 	 * </pre>
 	 */
-	static function bindDataClosure(\Closure $closure): BindDataClosureMapper {
-		return new BindDataClosureMapper($closure);
+	static function valueAsBindDataClosure(\Closure $closure): ValueAsBindDataClosureMapper {
+		return new ValueAsBindDataClosureMapper($closure);
 	}
 
 	static function delete(): DeleteMapper {

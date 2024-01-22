@@ -25,6 +25,10 @@ class PropsClosureMapper extends MapperAdapter {
 
 		$bindablesMap = [];
 		foreach ($bindBoundary->getBindables() as $bindable) {
+			if ($bindable->isLogical()) {
+				continue;
+			}
+
 			$bindablesMap[$bindBoundary->pathToRelativeName($bindable->getPath())] = $bindable;
 		}
 

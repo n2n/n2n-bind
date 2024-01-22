@@ -18,14 +18,9 @@ class BindBoundary {
 	 * @param BindContext $bindContext
 	 * @param Bindable[] $bindables
 	 */
-	function __construct(private BindSource $bindSource, private BindContext $bindContext,
-			array $bindables, array $paths) {
+	function __construct(private BindSource $bindSource, private BindContext $bindContext, array $bindables) {
 		foreach ($bindables as $bindable) {
 			$this->addBindable($bindable);
-		}
-
-		foreach ($paths as $path) {
-			$this->addPath($path);
 		}
 	}
 
@@ -52,13 +47,6 @@ class BindBoundary {
 		return $this->bindables[(string) $path] ?? null;
 	}
 
-	/**
-	 * @return AttributePath[]
-	 */
-	function getPaths(): array {
-		return $this->paths;
-	}
-
 	function pathToRelativeName(AttributePath $name): string {
 		$contextName = $this->bindContext->getPath();
 
@@ -80,7 +68,8 @@ class BindBoundary {
 	function acquireBindableByRelativeName(string $relativeName): Bindable {
 		$name = $this->bindContext->getPath()->ext(AttributePath::create($relativeName));
 
-		$bindable = $this->bindSource->acquireBindable($name, false);
+		$bindable = $this->bindSource->getBindable($name) ?? $this->bindSource->createBindable($name, false);
+
 		$this->addBindable($bindable);
 
 		return $bindable;

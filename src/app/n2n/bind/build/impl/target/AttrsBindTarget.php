@@ -38,7 +38,7 @@ class AttrsBindTarget implements BindTarget {
 		ArgUtils::valArray($bindables, Bindable::class);
 
 		foreach ($bindables as $bindable) {
-			if (!$bindable->doesExist()) {
+			if (!$bindable->doesExist() || $bindable->isLogical()) {
 				continue;
 			}
 

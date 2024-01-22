@@ -29,7 +29,7 @@ use n2n\bind\err\BindTargetException;
 interface BindTarget {
 
 	/**
-	 * @param Bindable[] $bindables includes {@link Bindable}s which do not exists.
+	 * @param Bindable[] $bindables includes also {@link Bindable}s which do not exists or are logical.
 	 * @return T
 	 * @throws BindTargetException
 	 */

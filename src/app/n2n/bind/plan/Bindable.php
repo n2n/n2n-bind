@@ -28,4 +28,8 @@ interface Bindable extends Validatable {
 	function setExist(bool $exist): static;
 
 	function setValue(mixed $value): static;
+
+	function isLogical(): bool;
+
+	function setLogical(bool $logical): static;
 }

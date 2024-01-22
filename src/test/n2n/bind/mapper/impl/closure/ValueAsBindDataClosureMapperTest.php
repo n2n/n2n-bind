@@ -14,7 +14,7 @@ use n2n\bind\plan\BindData;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 
-class BindDataClosureMapperTest extends TestCase {
+class ValueAsBindDataClosureMapperTest extends TestCase {
 	/**
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
@@ -24,7 +24,7 @@ class BindDataClosureMapperTest extends TestCase {
 		$dm = new DataMap(['prop' => ['key1' => 'value1', 'key2' => 'value2']]);
 		$targetArr = [];
 		Bind::attrs($dm)->toArray($targetArr)
-				->prop('prop', Mappers::bindDataClosure(function(BindData $bindData) use ($dm) {
+				->prop('prop', Mappers::valueAsBindDataClosure(function(BindData $bindData) use ($dm) {
 					$this->assertEquals('value1', $bindData->reqString('key1'));
 					$this->assertEquals('value2', $bindData->reqString('key2'));
 

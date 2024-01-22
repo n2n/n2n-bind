@@ -97,7 +97,7 @@ abstract class BindSourceAdapter implements BindSource {
 	 * @param AttributePath $path
 	 * @return Bindable|null
 	 */
-	protected function getBindable(AttributePath $path): ?Bindable {
+	function getBindable(AttributePath $path): ?Bindable {
 		return $this->bindables[(string) $path] ?? null;
 	}
 

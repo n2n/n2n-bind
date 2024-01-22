@@ -27,6 +27,8 @@ class ValueBindable extends BindableAdapter {
 	private mixed $origValue;
 	private bool $origDoesExist;
 
+	private bool $logical = false;
+
 	function __construct(AttributePath $name, private mixed $value, bool $doesExist, string $label = null) {
 		parent::__construct($name, $label, $doesExist);
 
@@ -46,6 +48,15 @@ class ValueBindable extends BindableAdapter {
 		parent::reset();
 
 		$this->value = $this->origValue;
+	}
+
+	function isLogical(): bool {
+		return $this->logical;
+	}
+
+	function setLogical(bool $logical): static {
+		$this->logical = $logical;
+		return $this;
 	}
 
 }

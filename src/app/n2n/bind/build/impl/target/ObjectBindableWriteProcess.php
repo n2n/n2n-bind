@@ -42,7 +42,7 @@ class ObjectBindableWriteProcess {
 	 */
 	public function process(object $obj): void {
 		foreach ($this->bindables as $bindable) {
-			if (!$bindable->doesExist()) {
+			if (!$bindable->doesExist() || $bindable->isLogical()) {
 				continue;
 			}
 

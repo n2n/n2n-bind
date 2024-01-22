@@ -40,6 +40,17 @@ interface BindSource {
 	 */
 	function getBindables(): array;
 
+	function getBindable(AttributePath $attributePath): ?Bindable;
+
+	/**
+	 * @param AttributePath $path
+	 * @param bool $mustExist
+	 * @return Bindable
+	 * @throws UnresolvableBindableException
+	 * /
+	 */
+	function createBindable(AttributePath $path, bool $mustExist): Bindable;
+
 	function addGeneralError(Message $message): void;
 
 	/**
@@ -47,26 +58,6 @@ interface BindSource {
 	 */
 	function createErrorMap(): ErrorMap;
 
-
-	/**
-	 * @param AttributePath $contextPath
-	 * @param string|null $expression if null and $contextPath is empty this method should return a Bindable representing the root.
-	 * @param bool $mustExist
-	 * @return Bindable[]
-	 * @throws UnresolvableBindableException only if $mustExist is true
-	 */
-	function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array;
-
-	/**
-	 * @param AttributePath $path
-	 * @param bool $mustExist
-	 * @return Bindable|null can only be null if $mustExist is false.
-	 * @throws UnresolvableBindableException
-	 * /
-	 */
-	function acquireBindable(AttributePath $path, bool $mustExist): ?Bindable;
-
-	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData;
 
 	/**
 	 * @param AttributePath $contextPath

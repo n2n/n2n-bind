@@ -10,12 +10,16 @@ class TargetValueCompiler {
 	function __construct(private bool $arrayStrict) {
 	}
 
+	/**
+	 * @param Bindable[] $bindables
+	 * @return mixed
+	 */
 	function compile(array $bindables): mixed {
 		ArgUtils::valArray($bindables, Bindable::class);
 
 		$values = [];
 		foreach ($bindables as $bindable) {
-			if (!$bindable->doesExist()) {
+			if (!$bindable->doesExist() || $bindable->isLogical()) {
 				continue;
 			}
 

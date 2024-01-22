@@ -39,7 +39,7 @@ class StaticBindSource extends BindSourceAdapter {
 		parent::__construct($bindables);
 	}
 
-	function acquireBindable(AttributePath $path, bool $mustExist): Bindable {
+	function createBindable(AttributePath $path, bool $mustExist): Bindable {
 		$bindable = $this->getBindable($path);
 		if ($bindable !== null) {
 			return $bindable;
@@ -53,25 +53,5 @@ class StaticBindSource extends BindSourceAdapter {
 		$this->addBindable($bindable);
 
 		return $bindable;
-	}
-
-	function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array {
-		return [$this->acquireBindable($contextPath->ext($expression), $mustExist)];
-	}
-
-	/**
-	 * @throws UnresolvableBindableException
-	 */
-	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData {
-		if ($path->isEmpty()) {
-			return new BindData(new DataMap($this->values));
-		}
-
-		if (!$mustExist) {
-			return null;
-		}
-
-		throw new UnresolvableBindableException('Could not resolve BindData for path: '
-				. $path->toAbsoluteString());
 	}
 }

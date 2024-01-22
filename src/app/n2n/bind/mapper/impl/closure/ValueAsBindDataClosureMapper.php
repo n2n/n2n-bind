@@ -11,7 +11,7 @@ use n2n\bind\mapper\impl\SingleMapperAdapter;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\plan\Bindable;
 
-class BindDataClosureMapper extends SingleMapperAdapter {
+class ValueAsBindDataClosureMapper extends SingleMapperAdapter {
 
 	function __construct(private \Closure $closure) {
 	}

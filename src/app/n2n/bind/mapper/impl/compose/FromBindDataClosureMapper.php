@@ -13,6 +13,8 @@ use n2n\bind\plan\BindData;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\type\TypeConstraints;
+use n2n\util\type\ValueIncompatibleWithConstraintsException;
+use n2n\util\type\attrs\DataMap;
 
 class FromBindDataClosureMapper implements Mapper {
 
@@ -28,22 +30,18 @@ class FromBindDataClosureMapper implements Mapper {
 		$bindSource = $bindBoundary->unwarpBindSource();
 		$bindContext = $bindBoundary->getBindContext();
 
-		foreach ($bindBoundary->getPaths() as $path) {
+		foreach ($bindBoundary->getBindables() as $bindable) {
 			try {
-				$invoker->setClassParamObject(BindData::class,
-						$bindSource->getRawBindData($path, true));
-			} catch (UnresolvableBindableException $e) {
+				$bindData = new BindData(new DataMap(TypeConstraints::array()->validate($bindable->getValue())));
+				$invoker->setClassParamObject(BindData::class, $bindData);
+			} catch (ValueIncompatibleWithConstraintsException $e) {
 				throw new BindMismatchException(self::class . ' is not compatible with Bindable "'
-						. $path->toAbsoluteString() . '"', previous: $e);
+						. $bindable->getPath()->toAbsoluteString() . '"', previous: $e);
 			}
-
-			$bindable = $bindBoundary->getBindable($path);
 
 			$mapper = $invoker->invoke();
 			assert($mapper instanceof Mapper);
-			if (!$mapper->map(new BindBoundary($bindSource, $bindContext,
-					$bindable === null ? [] : [$bindable],
-					[$path]), $magicContext)) {
+			if (!$mapper->map(new BindBoundary($bindSource, $bindContext, [$bindable]), $magicContext)) {
 				return false;
 			}
 		}

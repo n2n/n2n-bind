@@ -27,25 +27,46 @@ use n2n\util\type\ArgUtils;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
+use n2n\bind\err\UnresolvableBindableException;
 
 class PropBindablesResolver implements BindablesResolver {
 
-	function __construct(private array $expressions, private bool $mustExist) {
+	function __construct(private array $expressions, private bool $mustExist, private bool $logical) {
 		ArgUtils::valArray($this->expressions, ['string', 'null']);
+	}
+
+
+	/**
+	 * @throws UnresolvableBindableException
+	 */
+	private function acquireBindable(BindSource $bindSource, AttributePath $attributePath): Bindable {
+		$bindable = $bindSource->getBindable($attributePath);
+		if ($bindable === null) {
+			$bindable = $bindSource->createBindable($attributePath, $this->mustExist);
+			$bindable->setLogical($this->logical);
+			return $bindable;
+		}
+
+		if ($this->mustExist && !$bindable->doesExist()) {
+			throw new UnresolvableBindableException(
+					'Bindable does not exist and was probably removed during bind process: '
+							. $attributePath);
+		}
+
+		if (!$this->logical) {
+			$bindable->setLogical(false);
+		}
+
+		return $bindable;
 	}
 
 	function resolve(BindSource $bindSource, BindContext $bindContext): array {
 		$bindables = [];
 		foreach ($this->expressions as $expression) {
-			$iBindables = $bindSource->acquireBindables($bindContext->getPath(), $expression, $this->mustExist);
-			ArgUtils::valArrayReturn($iBindables, $bindSource, 'acquireBindables', Bindable::class);
-
-			array_push($bindables, ...$iBindables);
+			foreach ($bindSource->resolvePaths($bindContext->getPath(), $expression) as $path) {
+				$bindables[] = $this->acquireBindable($bindSource, $path);
+			}
 		}
 		return $bindables;
-	}
-
-	function resolveLogicalPaths(BindSource $bindSource, BindContext $bindContext): array {
-		return [];
 	}
 }

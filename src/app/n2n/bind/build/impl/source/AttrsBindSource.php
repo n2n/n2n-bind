@@ -38,40 +38,7 @@ class AttrsBindSource extends BindSourceAdapter {
 		parent::__construct([]);
 	}
 
-	function acquireBindable(AttributePath $path, bool $mustExist): ?Bindable {
-		return $this->getOrCreateBindable($path, $mustExist);
-	}
-
-	public function acquireBindables(AttributePath $contextPath, ?string $expression, bool $mustExist): array {
-		return [$this->getOrCreateBindable($contextPath->ext($expression), $mustExist)];
-	}
-
-//	/**
-//	 * @param string $name
-//	 * @param bool $mustExist
-//	 * @return Bindable
-//	 * @throws UnresolvableBindableException
-//	 */
-//	private function getOrCreateBindableByName(string $name, bool $mustExist): Bindable {
-//		$attributePath = AttributePath::create($name);
-//		$path = new AttributePath($attributePath->toArray());
-//
-//		return $this->getOrCreateBindable($path, $mustExist);
-//	}
-
-	/**
-	 * @throws UnresolvableBindableException
-	 */
-	function getOrCreateBindable(AttributePath $path, bool $mustExist): Bindable {
-		$bindable = $this->getBindable($path);
-		if ($bindable !== null && (!$mustExist || $bindable->doesExist())) {
-			return $bindable;
-		}
-
-		if ($bindable !== null) {
-			throw new UnresolvableBindableException('Bindable not found: ' . $path);
-		}
-
+	public function createBindable(AttributePath $path, bool $mustExist): Bindable  {
 		try {
 			$value = $this->attributeReader->readAttribute($path);
 			$valueBindable = new ValueBindable($path, $value, true);
@@ -87,21 +54,5 @@ class AttrsBindSource extends BindSourceAdapter {
 		$this->addBindable($valueBindable);
 
 		return $valueBindable;
-	}
-
-	/**
-	 * @throws UnresolvableBindableException
-	 */
-	function getRawBindData(AttributePath $path, bool $mustExist): ?BindData {
-		try {
-			return new BindData(new DataMap($this->attributeReader->readAttribute($path, TypeConstraints::array())));
-		} catch (AttributesException $e) {
-			if (!$mustExist) {
-				return null;
-			}
-
-			throw new UnresolvableBindableException('Could not resolve BindData for path: '
-					. $path->toAbsoluteString(), previous: $e);
-		}
 	}
 }

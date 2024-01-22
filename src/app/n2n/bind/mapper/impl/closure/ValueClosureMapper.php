@@ -9,6 +9,7 @@ use n2n\util\magic\MagicContext;
 use n2n\util\type\TypeConstraints;
 use n2n\reflection\magic\MagicMethodInvoker;
 use n2n\bind\plan\BindBoundary;
+use n2n\bind\plan\BindData;
 
 class ValueClosureMapper extends SingleMapperAdapter {
 
@@ -28,6 +29,10 @@ class ValueClosureMapper extends SingleMapperAdapter {
 		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
 
 		$returnValue = $invoker->invoke(null, $this->closure, [$value]);
+
+		if ($returnValue instanceof BindData) {
+			$returnValue = $returnValue->toDataMap()->toArray();
+		}
 
 		$bindable->setValue($returnValue);
 

@@ -57,7 +57,7 @@ class PropBindComposer {
 	 * @return static
 	 */
 	function props(array $expressions, Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup($expressions, $mappers, true);
+		$this->assembleBindGroup($expressions, $mappers, true, false);
 		return $this;
 	}
 
@@ -67,7 +67,7 @@ class PropBindComposer {
 	}
 
 	function logicalProps(array $expressions, Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup($expressions, $mappers, null);
+		$this->assembleBindGroup($expressions, $mappers, false, true);
 		return $this;
 	}
 
@@ -76,12 +76,12 @@ class PropBindComposer {
 	 * @return static
 	 */
 	function root(Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup([null], $mappers, true);
+		$this->assembleBindGroup([null], $mappers, true, false);
 		return $this;
 	}
 
 	function logicalRoot(Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup([null], $mappers, null);
+		$this->assembleBindGroup([null], $mappers, false, true);
 		return $this;
 	}
 
@@ -101,7 +101,7 @@ class PropBindComposer {
 	 * @return static
 	 */
 	function optProps(array $expressions, Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup($expressions, $mappers, false);
+		$this->assembleBindGroup($expressions, $mappers, false, false);
 		return $this;
 	}
 
@@ -133,13 +133,10 @@ class PropBindComposer {
 	 * @param bool $mustExist
 	 * @return void
 	 */
-	private function assembleBindGroup(array $expressions, array $mappers, ?bool $mustExist): void {
+	private function assembleBindGroup(array $expressions, array $mappers, bool $mustExist, bool $logical): void {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
-		$resolver = match($mustExist) {
-			true, false => new PropBindablesResolver($expressions, $mustExist),
-			null => new LogicalPropBindablesResolver($expressions)
-		};
+		$resolver = new PropBindablesResolver($expressions, $mustExist, $logical);
 
 		$this->bindPlan->addBindGroup(new BindGroup($mappers, $resolver));
 	}
