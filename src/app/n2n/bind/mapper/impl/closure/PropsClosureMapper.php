@@ -14,6 +14,7 @@ use n2n\bind\mapper\impl\MultiMapMode;
 use n2n\bind\plan\BindData;
 use n2n\bind\build\impl\Bind;
 use n2n\util\type\attrs\DataMap;
+use n2n\util\ex\IllegalStateException;
 
 class PropsClosureMapper extends MultiMapperAdapter {
 
@@ -26,7 +27,8 @@ class PropsClosureMapper extends MultiMapperAdapter {
 
 	protected function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$invoker = new MagicMethodInvoker($magicContext);
-		$invoker->setMethod(new \ReflectionFunction($this->closure));
+		$invoker->setMethod(IllegalStateException::try(fn () => new \ReflectionFunction($this->closure)));
+		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
 		$invoker->setReturnTypeConstraint(TypeConstraints::type(['array', BindData::class]));
 
 		$bindablesMap = [];
