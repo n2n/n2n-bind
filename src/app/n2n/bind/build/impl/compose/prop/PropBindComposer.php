@@ -22,18 +22,10 @@
 namespace n2n\bind\build\impl\compose\prop;
 
 use n2n\bind\plan\BindPlan;
-use n2n\bind\plan\BindTarget;
-use n2n\util\magic\MagicTask;
-use n2n\util\magic\TaskResult;
-use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindGroup;
 use n2n\validation\validator\Validator;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\ValidatorMapper;
-use n2n\bind\plan\BindResult;
-use n2n\bind\build\impl\source\StaticBindSource;
-use n2n\bind\build\impl\compose\union\UnionBindablesResolver;
-use n2n\bind\mapper\impl\Mappers;
 
 class PropBindComposer {
 
