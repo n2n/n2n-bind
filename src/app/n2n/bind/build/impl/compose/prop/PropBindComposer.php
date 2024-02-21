@@ -61,12 +61,20 @@ class PropBindComposer {
 		return $this;
 	}
 
-
 	function logicalProp(string $expression, Mapper|Validator ...$mappers): static {
 		return $this->logicalProps([$expression], ...$mappers);
 	}
 
 	function logicalProps(array $expressions, Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup($expressions, $mappers, true, true);
+		return $this;
+	}
+
+	function optLogicalProp(string $expression, Mapper|Validator ...$mappers): static {
+		return $this->optLogicalProps([$expression], ...$mappers);
+	}
+
+	function optLogicalProps(array $expressions, Mapper|Validator ...$mappers): static {
 		$this->assembleBindGroup($expressions, $mappers, false, true);
 		return $this;
 	}
@@ -81,7 +89,7 @@ class PropBindComposer {
 	}
 
 	function logicalRoot(Mapper|Validator ...$mappers): static {
-		$this->assembleBindGroup([null], $mappers, false, true);
+		$this->assembleBindGroup([null], $mappers, true, true);
 		return $this;
 	}
 
@@ -124,6 +132,21 @@ class PropBindComposer {
 	 */
 	function dynProps(array $expressions, bool $mustExist, Mapper|Validator ...$mappers): static {
 		$this->assembleBindGroup($expressions, $mappers, $mustExist, false);
+		return $this;
+	}
+
+	function dynLogicalProp(string $expression, bool $mustExist, Mapper|Validator ...$mappers): static {
+		return $this->dynLogicalProps([$expression], $mustExist, ...$mappers);
+	}
+
+	/**
+	 * @param string[] $expressions
+	 * @param bool $mustExist
+	 * @param Mapper|Validator ...$mappers
+	 * @return static
+	 */
+	function dynLogicalProps(array $expressions, bool $mustExist, Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup($expressions, $mappers, $mustExist, true);
 		return $this;
 	}
 
