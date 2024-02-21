@@ -5,6 +5,7 @@ namespace n2n\bind\plan;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\ex\IllegalStateException;
+use n2n\bind\err\BindMismatchException;
 
 class BindBoundary {
 	/**
@@ -80,6 +81,15 @@ class BindBoundary {
 
 	function getBindContext(): BindContext {
 		return $this->bindContext;
+	}
+
+	function createBindMismatch(string $reason = null, \Throwable $previous = null): BindMismatchException {
+		$message = 'Bindables could not be mapped: ' . join(', ', array_keys($this->paths));
+		if ($reason !== null) {
+			$message .= ' Reason: ' . $reason;
+		}
+
+		return new BindMismatchException($message, $previous);
 	}
 
 }
