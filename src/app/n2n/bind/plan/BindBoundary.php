@@ -89,7 +89,7 @@ class BindBoundary {
 			$message .= ' Reason: ' . $reason ?? $previous->getMessage();
 		}
 
-		return new BindMismatchException($message, $previous);
+		return new BindMismatchException($message, previous: $previous);
 	}
 
 }
