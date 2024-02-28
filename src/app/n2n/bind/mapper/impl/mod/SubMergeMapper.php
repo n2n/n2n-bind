@@ -27,6 +27,10 @@ class SubMergeMapper extends SingleMapperAdapter {
 
 		$merger = new BindableValuesMerger();
 		foreach ($bindablesFilter->descendantsOf($path) as $descendantBindable) {
+			if (!$descendantBindable->doesExist() || $descendantBindable->isLogical()) {
+				continue;
+			}
+
 			$merger->merge($descendantBindable->getPath()->slice($pathSize), $descendantBindable->getValue());
 			$descendantBindable->setExist(false);
 		}
