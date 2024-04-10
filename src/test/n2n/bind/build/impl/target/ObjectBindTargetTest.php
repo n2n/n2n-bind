@@ -188,6 +188,10 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testNonObjProp(): void {
 		$this->expectException(BindTargetException::class);
 

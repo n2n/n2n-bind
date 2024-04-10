@@ -45,6 +45,8 @@ use n2n\bind\mapper\impl\mod\DeleteMapper;
 use n2n\bind\mapper\impl\mod\SubMergeMapper;
 use n2n\validation\validator\Validator;
 use n2n\bind\mapper\impl\closure\ValueAsBindDataClosureMapper;
+use n2n\bind\mapper\impl\valobj\UnmarshalMapper;
+use n2n\bind\mapper\impl\valobj\MarshalMapper;
 
 class Mappers {
 
@@ -263,4 +265,13 @@ class Mappers {
 	static function delete(): DeleteMapper {
 		return new DeleteMapper();
 	}
+
+	static function marshal(): MarshalMapper {
+		return new MarshalMapper();
+	}
+
+	static function unmarshal(string $typeName): UnmarshalMapper {
+		return new UnmarshalMapper($typeName);
+	}
+
 }
