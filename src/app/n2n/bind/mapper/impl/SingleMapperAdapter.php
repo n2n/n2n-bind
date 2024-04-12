@@ -33,7 +33,7 @@ abstract class SingleMapperAdapter extends MapperAdapter {
 
 	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		foreach ($bindBoundary->getBindables() as $bindable) {
-			if (!$bindable->doesExist()) {
+			if (!$bindable->doesExist() || $bindable->isDirty()) {
 				continue;
 			}
 

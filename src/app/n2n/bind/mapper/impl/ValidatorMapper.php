@@ -25,6 +25,8 @@ use n2n\validation\validator\Validator;
 use n2n\bind\plan\BindBoundary;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindContext;
+use n2n\bind\mapper\Mapper;
+use n2n\bind\mapper\MapperUtils;
 
 class ValidatorMapper extends MapperAdapter {
 
@@ -33,15 +35,16 @@ class ValidatorMapper extends MapperAdapter {
 	}
 
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		$this->validator->validate($bindBoundary->getBindables(), $bindBoundary->getBindContext(), $magicContext);
+		MapperUtils::validate($bindBoundary->getBindables(), [$this->validator], $bindBoundary->getBindContext(),
+				$magicContext);
 		return true;
 	}
 
 	/**
-	 * @param array
-	 * @return array
+	 * @param array<Validator|Mapper> $validators
+	 * @return Mapper[]
 	 */
-	static function convertValidators(array $validators) {
+	static function convertValidators(array $validators): array {
 		foreach ($validators as $key => $validator) {
 			if ($validator instanceof Validator) {
 				$validators[$key] = new ValidatorMapper($validator);

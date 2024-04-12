@@ -11,6 +11,7 @@ use n2n\validation\validator\impl\Validators;
 use n2n\util\StringUtils;
 use n2n\validation\validator\Validator;
 use n2n\bind\plan\BindBoundary;
+use n2n\bind\mapper\MapperUtils;
 
 class EmailMapper extends SingleMapperAdapter {
 	function __construct(private bool $mandatory) {
@@ -24,8 +25,7 @@ class EmailMapper extends SingleMapperAdapter {
 			$bindable->setValue(mb_strtolower(StringUtils::clean($value)));
 		}
 
-		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindBoundary->getBindContext());
-		$validationGroup->exec($magicContext);
+		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
 
 		return true;
 	}

@@ -29,6 +29,27 @@ interface Bindable extends Validatable {
 
 	function setValue(mixed $value): static;
 
+	/**
+	 * If true it means that a Mapper could not perform necessary modifications on this Bindable and this bindable
+	 * should be skipped by future Mappers. This can cause other Bindable to become dirty too if a Mapper
+	 * needs to perform modification in context of multiple Bindable and one of these Bindables is dirty.
+	 *
+	 * @return bool
+	 */
+	function isDirty(): bool;
+
+	/**
+	 * See {@link self::isDirty()} for meaning.
+	 *
+	 * If a Mapper sets dirty to true it should be either due to other dirty or invalid Bindables or due to a valdation
+	 * error with should result in adding an error (see {@link Bindable::addError()}) and {@link Bindable::isValid()}
+	 * becoming false.
+	 *
+	 * @param bool $dirty
+	 * @return void
+	 */
+	function setDirty(bool $dirty): void;
+
 	function isLogical(): bool;
 
 	function setLogical(bool $logical): static;

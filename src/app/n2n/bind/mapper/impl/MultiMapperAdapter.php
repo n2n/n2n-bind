@@ -28,6 +28,7 @@ use n2n\bind\plan\BindBoundary;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\mapper\MapperUtils;
 
 abstract class MultiMapperAdapter extends MapperAdapter {
 
@@ -39,6 +40,11 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 
 	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$allBindables = $bindBoundary->getBindables();
+
+		if (MapperUtils::spreadDirtyState($allBindables)) {
+			return true;
+		}
+
 		$existingBindables = array_filter($allBindables, fn (Bindable $b) => $b->doesExist());
 
 		if (($this->multiMapMode === MultiMapMode::ANY_BINDABLE_MUST_EXIST && empty($existingBindables))

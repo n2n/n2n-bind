@@ -15,6 +15,7 @@ use n2n\util\type\TypeConstraints;
 use n2n\validation\plan\ValidationGroup;
 use DateTimeInterface;
 use n2n\bind\plan\BindBoundary;
+use n2n\bind\mapper\MapperUtils;
 
 abstract class DateTimeInterfaceMapperAdapter extends SingleMapperAdapter {
 
@@ -36,8 +37,7 @@ abstract class DateTimeInterfaceMapperAdapter extends SingleMapperAdapter {
 
 		$bindable->setValue($this->createValueFromDateTimeInterface($value));
 
-		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindBoundary->getBindContext());
-		$validationGroup->exec($magicContext);
+		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
 
 		return true;
 	}

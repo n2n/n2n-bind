@@ -31,6 +31,7 @@ use n2n\bind\plan\BindContext;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\plan\BindBoundary;
+use n2n\bind\mapper\MapperUtils;
 
 class FloatMapper extends SingleMapperAdapter {
 
@@ -43,8 +44,7 @@ class FloatMapper extends SingleMapperAdapter {
 			$bindable->setValue($value);
 		}
 
-		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindBoundary->getBindContext());
-		$validationGroup->exec($magicContext);
+		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
 
 		return true;
 	}
