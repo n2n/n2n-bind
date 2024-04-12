@@ -33,15 +33,17 @@ use n2n\bind\mapper\MapperUtils;
 abstract class MultiMapperAdapter extends MapperAdapter {
 
 	private MultiMapMode $multiMapMode = MultiMapMode::ALWAYS;
+	private bool $spreadDirtyState = true;
 
-	function __construct(MultiMapMode $multiMapMode) {
+	function __construct(MultiMapMode $multiMapMode = MultiMapMode::ALWAYS, bool $spreadDirtyState = true) {
 		$this->multiMapMode = $multiMapMode;
+		$this->spreadDirtyState = $spreadDirtyState;
 	}
 
 	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$allBindables = $bindBoundary->getBindables();
 
-		if (MapperUtils::spreadDirtyState($allBindables)) {
+		if ($this->spreadDirtyState && MapperUtils::spreadDirtyState($allBindables)) {
 			return true;
 		}
 

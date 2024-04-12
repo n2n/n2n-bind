@@ -26,8 +26,6 @@ use n2n\util\type\attrs\AttributePath;
 class ValueBindable extends BindableAdapter {
 	private mixed $origValue;
 	private bool $origDoesExist;
-	private bool $dirty = false;
-	private bool $logical = false;
 
 	function __construct(AttributePath $name, private mixed $value, bool $doesExist, string $label = null) {
 		parent::__construct($name, $label, $doesExist);
@@ -48,23 +46,6 @@ class ValueBindable extends BindableAdapter {
 		parent::reset();
 
 		$this->value = $this->origValue;
-	}
-
-	function isDirty(): bool {
-		return $this->dirty;
-	}
-
-	function setDirty(bool $dirty): void {
-		$this->dirty = $dirty;
-	}
-
-	function isLogical(): bool {
-		return $this->logical;
-	}
-
-	function setLogical(bool $logical): static {
-		$this->logical = $logical;
-		return $this;
 	}
 
 }

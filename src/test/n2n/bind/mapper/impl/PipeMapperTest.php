@@ -58,6 +58,11 @@ class PipeMapperTest extends TestCase {
 		$this->assertEquals('TRUE', $tdm->reqString('clo5', true));
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testAttrsFail() {
 		//every bindable will only show the error of the first mapper that fails, even if it would fail on a later mapper too
 		$dataMap = new DataMap(['clo1' => 'aa', 'clo2' => 'blibla', 'clo3' => 'blubb']);
@@ -131,6 +136,11 @@ class PipeMapperTest extends TestCase {
 		$this->assertEquals('Minlength [minlength = 8]', $errorMap->getChild('clo3')->jsonSerialize()['messages'][0]); //error from Mapper1
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testNotValidateMappersDoNotPreventExecutionOfFollowingMappers() {
 		//all mapper behind will be reached even if Validation of a previous Mapper would fail
 		//same test like testThatFailingMapperPreventLaterMappersToBeReached, but second mapper is true
@@ -179,8 +189,6 @@ class PipeMapperTest extends TestCase {
 	}
 
 	function testValidatorAsPipeParam() {
-		$this->markTestSkipped('Test fails due to dirty implementation.');
-
 		//have validators instead of mappers inside pipe, because pipe can do that :-D
 		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'blubber@n2n.test']);
 		$tdm = new DataMap();
@@ -208,8 +216,6 @@ class PipeMapperTest extends TestCase {
 	}
 
 	function testMapperValidatorMix() {
-		$this->markTestSkipped('Test fails due to dirty implementation.');
-
 		//mappers and validators can given to pipe-mapper :-D
 		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'bli@n2n.test']);
 		$tdm = new DataMap();

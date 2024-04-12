@@ -31,7 +31,7 @@ use n2n\bind\mapper\MapperUtils;
 class ValidatorMapper extends MultiMapperAdapter {
 
 	function __construct(private Validator $validator) {
-
+		parent::__construct(spreadDirtyState: false);
 	}
 
 	function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool {

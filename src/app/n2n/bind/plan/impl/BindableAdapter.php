@@ -28,6 +28,8 @@ use n2n\l10n\Lstr;
 
 abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
 	private bool $origExist;
+	private bool $dirty = false;
+	private bool $logical = false;
 
 	function __construct(AttributePath $name, string|Lstr $label = null, private bool $exist = true) {
 		parent::__construct($name, $label);
@@ -49,5 +51,26 @@ abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
 		parent::reset();
 
 		$this->exist = $this->origExist;
+	}
+
+	function isValid(): bool {
+		return !$this->dirty && parent::isValid();
+	}
+
+	function isDirty(): bool {
+		return $this->dirty;
+	}
+
+	function setDirty(bool $dirty): void {
+		$this->dirty = $dirty;
+	}
+
+	function isLogical(): bool {
+		return $this->logical;
+	}
+
+	function setLogical(bool $logical): static {
+		$this->logical = $logical;
+		return $this;
 	}
 }

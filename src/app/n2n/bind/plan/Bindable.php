@@ -32,7 +32,9 @@ interface Bindable extends Validatable {
 	/**
 	 * If true it means that a Mapper could not perform necessary modifications on this Bindable and this bindable
 	 * should be skipped by future Mappers. This can cause other Bindable to become dirty too if a Mapper
-	 * needs to perform modification in context of multiple Bindable and one of these Bindables is dirty.
+	 * needs to perform modification in context of multiple Bindables and one of these Bindables is dirty.
+	 *
+	 * If this method returns true, {@link self::isValid()} should return false. So Validators ignore this Validatable.
 	 *
 	 * @return bool
 	 */
