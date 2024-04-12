@@ -28,14 +28,14 @@ use n2n\bind\plan\BindContext;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\MapperUtils;
 
-class ValidatorMapper extends MapperAdapter {
+class ValidatorMapper extends MultiMapperAdapter {
 
 	function __construct(private Validator $validator) {
 
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		MapperUtils::validate($bindBoundary->getBindables(), [$this->validator], $bindBoundary->getBindContext(),
+	function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+		MapperUtils::validate($bindables, [$this->validator], $bindBoundary->getBindContext(),
 				$magicContext);
 		return true;
 	}
