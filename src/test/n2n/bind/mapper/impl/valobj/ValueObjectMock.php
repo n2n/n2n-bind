@@ -6,14 +6,14 @@ use n2n\bind\attribute\impl\Marshal;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\valobj\StringValueObject;
 use n2n\validation\validator\impl\ValidationUtils;
-use n2n\util\valobj\IncompatibleValueException;
+use n2n\util\valobj\IllegalValueException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\attribute\impl\Unmarshal;
 
 class ValueObjectMock implements StringValueObject {
 
 	function __construct(private string $value) {
-		IncompatibleValueException::assertTrue(ValidationUtils::isEmail($this->value),
+		IllegalValueException::assertTrue(ValidationUtils::isEmail($this->value),
 				'Invalid email: ' . $this->value);
 	}
 
