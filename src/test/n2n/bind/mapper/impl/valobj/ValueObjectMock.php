@@ -4,11 +4,11 @@ namespace n2n\bind\mapper\impl\valobj;
 
 use n2n\bind\attribute\impl\Marshal;
 use n2n\bind\mapper\impl\Mappers;
-use n2n\util\valobj\StringValueObject;
 use n2n\validation\validator\impl\ValidationUtils;
-use n2n\util\valobj\IllegalValueException;
+use n2n\spec\valobj\err\IllegalValueException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\attribute\impl\Unmarshal;
+use n2n\spec\valobj\scalar\StringValueObject;
 
 class ValueObjectMock implements StringValueObject {
 
