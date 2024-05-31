@@ -88,7 +88,7 @@ class PipeMapperTest extends TestCase {
 		$this->assertEquals('Maxlength [maxlength = 5]', $errorMap->getChild('clo2')->jsonSerialize()['messages'][0]); //error from Mapper2
 
 		//if Mapper1 and Mapper2 throw no error message then there is no count ;-)
-		$this->assertCount(0, $errorMap->getChild('clo3')->getMessages());
+		$this->assertCount(0, $errorMap->getOrCreateChild('clo3')->getMessages());
 	}
 
 	/**
@@ -237,7 +237,7 @@ class PipeMapperTest extends TestCase {
 		$this->assertEquals('Email', $errorMap->getChild('clo2')->jsonSerialize()['messages'][0]);
 		$this->assertCount(1, $errorMap->getChild('clo3')->getMessages());
 		$this->assertEquals('Maxlength [maxlength = 12]', $errorMap->getChild('clo3')->jsonSerialize()['messages'][0]);
-		$this->assertCount(0, $errorMap->getChild('clo4')->getMessages());
+		$this->assertCount(0, $errorMap->getOrCreateChild('clo4')->getMessages());
 
 	}
 }

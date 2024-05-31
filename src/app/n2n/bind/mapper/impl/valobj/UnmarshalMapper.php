@@ -23,7 +23,7 @@ class UnmarshalMapper extends MapperAdapter {
 			$this->mapper = (new ValueObjectMapperExtractor($this->class))->extractUnmarshalMapper();
 		} catch (ValueObjectMapperExtractionException $e) {
 			throw new \InvalidArgumentException('UnmarshalMapper of ' . $valueObjectClassName
-					. ' could not be extracted. Reason: ' . $e->getMessage());
+					. ' could not be extracted. Reason: ' . $e->getMessage(), previous: $e);
 		}
 	}
 

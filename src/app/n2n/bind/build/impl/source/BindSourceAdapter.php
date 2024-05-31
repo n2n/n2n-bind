@@ -67,8 +67,12 @@ abstract class BindSourceAdapter implements BindSource {
 		$errorMap = new ErrorMap($this->generalMessages);
 		
 		foreach ($this->bindables as $bindable) {
-			if (!$bindable->getPath()->isEmpty()) {
-				$errorMap->putDecendant($bindable->getPath()->toArray(), new ErrorMap($bindable->getMessages()));
+			if ($bindable->getPath()->isEmpty()) {
+				continue;
+			}
+
+			foreach ($bindable->getMessages() as $message) {
+				$errorMap->addDecendantMessage($bindable->getPath()->toArray(), $message);
 			}
 		}
 		
