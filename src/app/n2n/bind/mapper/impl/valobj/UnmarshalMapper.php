@@ -34,7 +34,7 @@ class UnmarshalMapper extends MapperAdapter {
 
 		foreach ($bindBoundary->getBindables() as $bindable) {
 			$value = $bindable->getValue();
-			if (!$bindable->doesExist() || $bindable->isLogical()
+			if (!$bindable->doesExist() || $bindable->isDirty()
 					|| $value === null ||  TypeUtils::isValueA($value, $this->class)) {
 				continue;
 			}

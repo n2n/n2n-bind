@@ -47,6 +47,7 @@ use n2n\validation\validator\Validator;
 use n2n\bind\mapper\impl\closure\ValueAsBindDataClosureMapper;
 use n2n\bind\mapper\impl\valobj\UnmarshalMapper;
 use n2n\bind\mapper\impl\valobj\MarshalMapper;
+use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
 
 class Mappers {
 
@@ -229,6 +230,13 @@ class Mappers {
 	 */
 	static function subMerge(): SubMergeMapper {
 		return new SubMergeMapper();
+	}
+
+	/**
+	 * Merges values of descendant Bindables as to an object into the current Bindable and removes them.
+	 */
+	static function subMergeToObject(\Closure $objCallbackClosure): SubMergeToObjectMapper {
+		return new SubMergeToObjectMapper($objCallbackClosure);
 	}
 
 	/**

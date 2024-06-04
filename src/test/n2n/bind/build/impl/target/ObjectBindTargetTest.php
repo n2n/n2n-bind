@@ -16,6 +16,11 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\Mapper;
 
 class ObjectBindTargetTest extends TestCase {
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testWrite() {
 		$obj = new BindTestClassA();
 		$objToWrite = new BindTestClassA();

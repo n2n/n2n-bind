@@ -12,7 +12,7 @@ use n2n\spec\valobj\scalar\StringValueObject;
 
 class ValueObjectMock implements StringValueObject {
 
-	function __construct(private string $value) {
+	function __construct(private readonly string $value) {
 		IllegalValueException::assertTrue(ValidationUtils::isEmail($this->value),
 				'Invalid email: ' . $this->value);
 	}
