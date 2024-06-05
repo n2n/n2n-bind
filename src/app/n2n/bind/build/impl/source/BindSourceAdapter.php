@@ -58,7 +58,21 @@ abstract class BindSourceAdapter implements BindSource {
 
 		$this->originalBindables = $this->bindables;
 	}
-	
+
+//	function isValid(): bool {
+//		if (!empty($this->generalMessages)) {
+//			return false;
+//		}
+//
+//		foreach ($this->bindables as $bindable) {
+//			if (!$bindable->isValid()) {
+//				return false;
+//			}
+//		}
+//
+//		return true;
+//	}
+
 	public function addGeneralError(Message $message): void {
 		$this->generalMessages[] = $message;
 	}
@@ -97,8 +111,8 @@ abstract class BindSourceAdapter implements BindSource {
 	 * @param AttributePath $path
 	 * @return Bindable|null
 	 */
-	function getBindable(AttributePath $path): ?Bindable {
-		return $this->bindables[(string) $path] ?? null;
+	function getBindable(AttributePath $attributePath): ?Bindable {
+		return $this->bindables[(string) $attributePath] ?? null;
 	}
 
 	function getBindables(): array {

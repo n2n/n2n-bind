@@ -37,7 +37,7 @@ class ValueNotNullClosureMapperTest extends TestCase {
 		$result = Bind::attrs($dataMap)->toAttrs($toDataMapValueNotNullClosure)
 				->optProps(['clo1', 'clo2', 'clo3', 'clo4', 'clo5'], Mappers::valueNotNullClosure($closure))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals(null, $toDataMapValueNotNullClosure->reqString('clo1', true)); //default closure not executed, null returned
 		$this->assertEquals('OK', $toDataMapValueNotNullClosure->reqString('clo2', true));
@@ -49,7 +49,7 @@ class ValueNotNullClosureMapperTest extends TestCase {
 		$result2 = Bind::attrs($dataMap)->toAttrs($toDataMapValueClosure)
 				->optProps(['clo1', 'clo2', 'clo3', 'clo4', 'clo5'], Mappers::valueClosure($closure))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertFalse($result2->hasErrors());
+		$this->assertTrue($result2->isValid());
 
 		$this->assertEquals('ERROR', $toDataMapValueClosure->reqString('clo1', true)); //default closure executed, where we return ERROR if value is null
 		$this->assertEquals('OK', $toDataMapValueClosure->reqString('clo2', true));

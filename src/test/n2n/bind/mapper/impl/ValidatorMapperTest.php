@@ -39,7 +39,7 @@ class ValidatorMapperTest extends TestCase  {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals(2, $calls);
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertEquals([], $values);
 	}
 
@@ -62,7 +62,7 @@ class ValidatorMapperTest extends TestCase  {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals(2, $calls);
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertEquals([], $values);
 	}
 

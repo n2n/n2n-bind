@@ -27,20 +27,37 @@ use n2n\bind\err\BindTargetException;
 use n2n\bind\plan\impl\RootBindContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\magic\impl\TaskResults;
+use n2n\util\magic\TaskResult;
 
 class BindTask {
 
+	private BindTarget $bindTarget;
 	/**
-	 * @var BindGroup[]
+	 * @var array<BindPlan>
 	 */
-	private array $bindGroups = [];
+	private array $bindPlans = [];
 
-	function __construct(private BindSource $bindableSource, private BindTarget $bindableTarget,
-			private BindPlan $bindPlan) {
+	function __construct(private BindSource $bindSource) {
 	}
 
-	function getBindPlan(): BindPlan {
-		return $this->bindPlan;
+	/**
+	 * @return BindPlan[]
+	 */
+	function getBindPlans(): array {
+		return $this->bindPlans;
+	}
+
+	function addBindPlan(BindPlan $bindPlan): void {
+		$this->bindPlans[] = $bindPlan;
+	}
+
+	function setBindTarget(BindTarget $bindTarget): void {
+		$this->bindTarget = $bindTarget;
+	}
+
+	function getBindTarget(): BindTarget {
+		return $this->bindTarget;
 	}
 
 	/**
@@ -51,21 +68,23 @@ class BindTask {
 	 * @throws UnresolvableBindableException
 	 * /
 	 */
-	function exec(MagicContext $magicContext): BindResult {
-		$this->bindableSource->reset();
+	function exec(MagicContext $magicContext): TaskResult {
+		$this->bindSource->reset();
 
-		if (!$this->bindPlan->exec($this->bindableSource, new RootBindContext($this->bindableSource),
-				$magicContext)) {
-			return new SimpleBindResult($this->bindableSource->createErrorMap());
+		foreach ($this->bindPlans as $bindPlan) {
+			if (!$bindPlan->exec($this->bindSource, new RootBindContext($this->bindSource),
+					$magicContext)) {
+				return TaskResults::invalid($this->bindSource->createErrorMap());
+			}
+
+			$errorMap = $this->bindSource->createErrorMap();
+			if (!$errorMap->isEmpty()) {
+				return TaskResults::invalid($errorMap);
+			}
 		}
 
-		$errorMap = $this->bindableSource->createErrorMap();
-		if (!$errorMap->isEmpty()) {
-			return new SimpleBindResult($errorMap);
-		}
+		$resultValue = $this->bindTarget?->write($this->bindSource->getBindables());
 
-		$resultValue = $this->bindableTarget->write($this->bindableSource->getBindables());
-
-		return new SimpleBindResult(null, $resultValue);
+		return TaskResults::valid($resultValue);
 	}
 }

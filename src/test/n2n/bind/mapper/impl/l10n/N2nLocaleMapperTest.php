@@ -19,7 +19,7 @@ class N2nLocaleMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['n2nLocale'], Mappers::n2nLocale(true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals(new N2nLocale('mn'), $tdm->req('n2nLocale'));
 	}
@@ -33,7 +33,7 @@ class N2nLocaleMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['n2nLocale'], Mappers::n2nLocale(true, $allowedN2nLocales))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals(new N2nLocale('mn'), $tdm->req('n2nLocale'));
 	}
@@ -45,7 +45,7 @@ class N2nLocaleMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['n2nLocale'], Mappers::n2nLocale())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertNull($tdm->req('n2nLocale'));
 	}
@@ -68,7 +68,7 @@ class N2nLocaleMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['n2nLocale'], Mappers::n2nLocale(true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 	}
 
 	function testValAllowedValuesFail() {
@@ -81,6 +81,6 @@ class N2nLocaleMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['n2nLocale'], Mappers::n2nLocale(true, $allowedN2nLocales))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 	}
 }

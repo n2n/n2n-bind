@@ -23,7 +23,7 @@ class FloatMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuenull', 'valuemin', 'value1', 'value2', 'valuemax'],
 				Mappers::float(mandatory: false, min: 0, max: 100, step: 10))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertNull($tdm->reqNumeric('valuenull', true));
 		$this->assertEquals(0, $tdm->reqNumeric('valuemin'));
@@ -45,7 +45,7 @@ class FloatMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)
 				->props(['valuemin', 'value1', 'value2', 'valuemax'], Mappers::float(min: 40))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$errorMap = $result->getErrorMap();
 
@@ -64,7 +64,7 @@ class FloatMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuemin', 'value1', 'value2', 'valuemax'],
 				Mappers::float(max: 40))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$errorMap = $result->getErrorMap();
 
@@ -83,7 +83,7 @@ class FloatMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuemin', 'value1', 'value2', 'valuemax'],
 				Mappers::float(step: 30))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$errorMap = $result->getErrorMap();
 
@@ -102,7 +102,7 @@ class FloatMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['valuenull', 'valuemin', 'value1', 'value2', 'valuemax'],
 				Mappers::float(mandatory: true, min: 20, max: 80, step: 30))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$errorMap = $result->getErrorMap();
 		// if multiple violations exist only fist is used order: (mandatory > min > max > step)

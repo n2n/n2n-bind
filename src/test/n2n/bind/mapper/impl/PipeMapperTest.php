@@ -49,7 +49,7 @@ class PipeMapperTest extends TestCase {
 								Mappers::cleanString(false, 2, 5)))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('ERROR', $tdm->reqString('clo1', true));
 		$this->assertEquals('OK', $tdm->reqString('clo2', true));
@@ -76,7 +76,7 @@ class PipeMapperTest extends TestCase {
 
 
 		$this->assertTrue($tdm->isEmpty());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$errorMap = $result->getErrorMap();
 
 		//Mapper2 validations are not executed if there is an error from mapper1
@@ -120,7 +120,7 @@ class PipeMapperTest extends TestCase {
 
 
 		$this->assertTrue($tdm->isEmpty());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$errorMap = $result->getErrorMap();
 
 		//Mapper1 validations are shown but mapper is aborted
@@ -202,7 +202,7 @@ class PipeMapperTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertContainsOnly('string', $tdm->toArray());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$errorMap = $result->getErrorMap();
 		$this->assertCount(1, $errorMap->getChild('clo1')->getMessages());
 		$this->assertEquals('Email', $errorMap->getChild('clo1')->jsonSerialize()['messages'][0]);
@@ -229,7 +229,7 @@ class PipeMapperTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertContainsOnly('string', $tdm->toArray());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$errorMap = $result->getErrorMap();
 		$this->assertCount(1, $errorMap->getChild('clo1')->getMessages());
 		$this->assertEquals('Minlength [minlength = 4]', $errorMap->getChild('clo1')->jsonSerialize()['messages'][0]);

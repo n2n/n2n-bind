@@ -18,7 +18,7 @@ class EnumMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['timezone'], Mappers::enum(MockEnum::class))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertInstanceOf(MockEnum::class, $tdm->req('timezone'));
 	}
@@ -30,7 +30,7 @@ class EnumMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['timezone'], Mappers::enum(MockEnum::class))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertNull($tdm->req('timezone'));
 	}

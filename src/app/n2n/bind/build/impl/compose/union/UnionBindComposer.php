@@ -39,16 +39,27 @@ use n2n\bind\plan\BindResult;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\type\attrs\AttributeWriter;
+use n2n\bind\build\impl\target\AttrsBindTarget;
+use n2n\bind\build\impl\target\RefBindTarget;
+use n2n\bind\build\impl\target\ClosureBindTarget;
+use n2n\bind\build\impl\target\ObjectBindTarget;
+use n2n\util\magic\TaskResult;
 
 class UnionBindComposer {
 
-	/**
-	 * @var BindPlan
-	 */
 	private BindTask $bindTask;
 
-	function __construct(private BindSource $source, private BindTarget $bindableTarget) {
-		$this->bindTask = new BindTask($source, $this->bindableTarget, new BindPlan());
+	private BindPlan $bindPlan;
+
+	function __construct(private BindSource $source) {
+		$this->bindTask = new BindTask($source);
+		$this->bindTask->addBindPlan($this->bindPlan = new BindPlan());
+	}
+
+	function ifValid(): static {
+		$this->bindTask->addBindPlan($this->bindPlan = new BindPlan());
+		return $this;
 	}
 
 	/**
@@ -58,9 +69,51 @@ class UnionBindComposer {
 	function map(Mapper|Validator ...$mappers): static {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
-		$this->bindTask->getBindPlan()->addBindGroup(
+		$this->bindPlan->addBindGroup(
 				new BindGroup($mappers, new UnionBindablesResolver($this->source), $this->source));
 
+		return $this;
+	}
+
+	function toAttrs(AttributeWriter $attributeWriter): UnionBindComposer {
+		return $this->to(new AttrsBindTarget($attributeWriter));
+	}
+
+	/**
+	 * @param array $array
+	 * @return UnionBindComposer
+	 */
+	function toArray(array &$array): UnionBindComposer {
+		return $this->to(new RefBindTarget($array, true));
+	}
+
+	/**
+	 * @param $value
+	 * @return UnionBindComposer
+	 */
+	function toValue(&$value): UnionBindComposer {
+		return $this->to(new RefBindTarget($value, false));
+	}
+
+	function toClosure(\Closure $closure): UnionBindComposer {
+		return $this->to(new ClosureBindTarget($closure));
+	}
+
+	/**
+	 * @param object $obj
+	 * @return UnionBindComposer
+	 */
+	function toObj(object $obj): UnionBindComposer {
+		return $this->to(new ObjectBindTarget($obj));
+	}
+
+
+	/**
+	 * @param BindTarget $target
+	 * @return UnionBindComposer
+	 */
+	function to(BindTarget $target): UnionBindComposer {
+		$this->bindTask->setBindTarget($target);
 		return $this;
 	}
 
@@ -69,7 +122,7 @@ class UnionBindComposer {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext): BindResult {
+	function exec(MagicContext $magicContext): TaskResult {
 		return $this->bindTask->exec($magicContext);
 	}	
 }

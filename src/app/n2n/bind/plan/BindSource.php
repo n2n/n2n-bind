@@ -53,6 +53,7 @@ interface BindSource {
 
 	function addGeneralError(Message $message): void;
 
+//	function isValid(): bool;
 	/**
 	 * @return ErrorMap
 	 */

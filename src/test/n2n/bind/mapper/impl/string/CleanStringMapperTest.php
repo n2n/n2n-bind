@@ -39,7 +39,7 @@ class CleanStringMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['firstname', 'lastname'], Mappers::cleanString())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('Testerich', $tdm->reqString('firstname'));
 		$this->assertEquals('von Testen', $tdm->reqString('lastname'));
@@ -60,7 +60,7 @@ class CleanStringMapperTest extends TestCase {
 						Mappers::cleanString(true, 11, 255))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$this->assertTrue($tdm->isEmpty());
 

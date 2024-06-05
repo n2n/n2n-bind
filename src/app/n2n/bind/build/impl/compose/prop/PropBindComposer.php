@@ -30,7 +30,7 @@ use n2n\bind\mapper\impl\ValidatorMapper;
 class PropBindComposer {
 
 
-	function __construct(private BindPlan $bindPlan) {
+	function __construct(protected BindPlan $bindPlan) {
 	}
 
 	/**

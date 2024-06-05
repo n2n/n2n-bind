@@ -35,6 +35,8 @@ use n2n\util\type\attrs\MissingAttributeFieldException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\ex\IllegalStateException;
+use n2n\bind\mapper\Mapper;
+use n2n\validation\plan\ErrorMap;
 
 class BindTest extends TestCase {
 
@@ -55,7 +57,7 @@ class BindTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['firstname', 'lastname'], Mappers::cleanString())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('Testerich', $tdm->reqString('firstname'));
 		$this->assertEquals('von Testen', $tdm->reqString('lastname'));
@@ -85,7 +87,7 @@ class BindTest extends TestCase {
 				->prop('hobby', Mappers::cleanString(), Validators::closure(fn () => false))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$this->assertTrue($tdm->isEmpty());
 
@@ -169,7 +171,7 @@ class BindTest extends TestCase {
 				->map(Mappers::cleanString())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertEquals('huii', $resultValue);
 	}
 
@@ -189,7 +191,7 @@ class BindTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($called);
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 	}
 
 
@@ -207,7 +209,72 @@ class BindTest extends TestCase {
 				})
 				->exec($this->createMock(MagicContext::class));
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testPropsIfValid(): void {
+		$neverMapper = $this->createMock(Mapper::class);
+		$neverMapper->expects($this->never())->method('map');
+
+		$dataMap = new DataMap();
+		$result = Bind::attrs(['prop1' => null, 'prop2' => 'valid'])->toAttrs($dataMap)
+				->prop('prop1', Mappers::cleanString(true))
+				->ifValid()
+				->prop('prop2', $neverMapper)
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
+		$magicContext = $this->createMock(MagicContext::class);
+		$errorMap = $result->getErrorMap();
+		assert($errorMap instanceof ErrorMap);
+		$this->assertEqualsIgnoringCase('Mandatory', (string) $errorMap->getChild('prop1')->getMessages()[0]);
+
+
+		$onceMapper = $this->createMock(Mapper::class);
+		$onceMapper->expects($this->once())->method('map')->willReturn(true);
+
+		$dataMap = new DataMap();
+		$result = Bind::attrs(['prop1' => null, 'prop2' => 'valid'])->toAttrs($dataMap)
+				->prop('prop1', Mappers::cleanString(true))
+				->prop('prop2', $onceMapper)
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	function testValuesIfValid(): void {
+		$neverMapper = $this->createMock(Mapper::class);
+		$neverMapper->expects($this->never())->method('map');
+
+		$dataMap = new DataMap();
+		$result = Bind::values(null, 'valid')->toAttrs($dataMap)
+				->map(Mappers::cleanString(true))
+				->ifValid()
+				->map($neverMapper)
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
+
+		$onceMapper = $this->createMock(Mapper::class);
+		$onceMapper->expects($this->once())->method('map')->willReturn(true);
+
+		$dataMap = new DataMap();
+		$result = Bind::values(null, 'valid')->toAttrs($dataMap)
+				->map(Mappers::cleanString(true))
+				->map($onceMapper)
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
 	}
 
 }

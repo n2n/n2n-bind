@@ -9,6 +9,9 @@ use PHPUnit\Framework\TestCase;
 use n2n\util\type\attrs\DataMap;
 use InvalidArgumentException;
 use n2n\util\magic\MagicTaskExecutionException;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
 
 class PathPartMapperTest extends TestCase {
 
@@ -24,7 +27,7 @@ class PathPartMapperTest extends TestCase {
 						Mappers::pathPart(null, null, min: null))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals(null, $tdm->reqString('pathPart1', true));
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2'));
@@ -44,7 +47,7 @@ class PathPartMapperTest extends TestCase {
 							return !in_array($value, ['blubb', 'somepath']);
 						}), null, true, 4, 8))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertTrue($tdm->isEmpty());
 		$errorMap = $result->getErrorMap();
 
@@ -80,7 +83,7 @@ class PathPartMapperTest extends TestCase {
 						}, 'blubb', true, 4, 8))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertTrue($tdm->isEmpty());
 		$this->assertCount(19998, $unique); //2x9999Entries
 		$errorMap = $result->getErrorMap();
@@ -109,7 +112,7 @@ class PathPartMapperTest extends TestCase {
 						Mappers::pathPart(null, 'bl ubb', min: 4, max: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('blubb', $tdm->reqString('pathPart1')); //basename don't exist, nothing changed
 		$this->assertEquals('blubb', $tdm->reqString('pathPart2')); //exist but unique is not required
@@ -144,7 +147,7 @@ class PathPartMapperTest extends TestCase {
 						}), 'blubb', min: 4, max: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('blubb', $tdm->reqString('pathPart1')); //basename don't exist, nothing changed
 		$this->assertEquals('blubb-3', $tdm->reqString('pathPart2')); //basename exist, first alternate exist and is skipped
@@ -187,7 +190,7 @@ class PathPartMapperTest extends TestCase {
 						}), 'aWayToLongString', min: 4, max: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('blubb', $tdm->reqString('pathPart1')); //use lowercase
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2')); //stripped special-chars
@@ -231,7 +234,7 @@ class PathPartMapperTest extends TestCase {
 						}), 'aWayToLongString', min: 8, max: 255))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('blubb-path', $tdm->reqString('pathPart1')); ////use lowercase and extended to reach min
 		$this->assertEquals('asdf-path', $tdm->reqString('pathPart2')); //stripped special-chars and extended to reach min
@@ -275,7 +278,7 @@ class PathPartMapperTest extends TestCase {
 						}), 'aWayToLongString', min: 8, max: 10)->setFillStr('hoi'))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('blubb-hoi', $tdm->reqString('pathPart1')); ////use lowercase and extended to reach min
 		$this->assertEquals('asdf-hoi', $tdm->reqString('pathPart2')); //stripped special-chars and extended to reach min
@@ -320,6 +323,11 @@ class PathPartMapperTest extends TestCase {
 		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 0, max: 5);
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testAttrsValFailCustomErrorMessages() {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'min', 'pathPart3' => 'holeradio', 'pathPart4' => '§§§§', 'pathPart5' => 'blubb']);
 		$tdm = new DataMap();
@@ -334,7 +342,7 @@ class PathPartMapperTest extends TestCase {
 								->setMandatoryErrorMessage('CustomErrorMessage req')
 								->setNoSpecialCharsErrorMessage('CustomErrorMessage noSpecial'))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertTrue($tdm->isEmpty());
 		$errorMap = $result->getErrorMap();
 

@@ -16,7 +16,7 @@ class EmailMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['email1', 'email2', 'email3'], Mappers::email(true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('test@testerich.ch', $tdm->reqString('email1'));
 		$this->assertEquals('test@testerich.ch', $tdm->reqString('email2'));
@@ -30,7 +30,7 @@ class EmailMapperTest extends TestCase {
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['email1', 'email2', 'email3'], Mappers::email(true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 
 		$this->assertTrue($tdm->isEmpty());
 

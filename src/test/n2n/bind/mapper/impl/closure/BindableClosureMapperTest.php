@@ -60,7 +60,7 @@ class BindableClosureMapperTest extends TestCase {
 							return false;
 						}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertEquals(0, $obj->getInt());
 	}
 

@@ -28,10 +28,12 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\build\impl\source\StaticBindSource;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\bind\plan\BindSource;
+use n2n\bind\build\impl\compose\prop\PropBindTask;
+use n2n\bind\build\impl\compose\union\UnionBindComposer;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|BindSource $source): PropBindTo {
+	static function attrs(AttributeReader|array|BindSource $source): PropBindTask {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		}
@@ -43,20 +45,16 @@ class Bind {
 		return self::propBindSource($source);
 	}
 
-	/**
-	 * @param BindSource $source
-	 * @return PropBindTo
-	 */
-	static function propBindSource(BindSource $source): PropBindTo {
-		return new PropBindTo($source);
+	static function propBindSource(BindSource $source): PropBindTask {
+		return new PropBindTask($source);
 	}
 
-	static function values(...$values): UnionBindTo {
+	static function values(...$values): UnionBindComposer {
 		return self::unionBindSource(new StaticBindSource($values));
 	}
 
-	static function unionBindSource(BindSource $source): UnionBindTo {
-		return new UnionBindTo($source);
+	static function unionBindSource(BindSource $source): UnionBindComposer {
+		return new UnionBindComposer($source);
 	}
 
 }

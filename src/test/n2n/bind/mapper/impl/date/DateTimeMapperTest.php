@@ -8,6 +8,12 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindResult;
+use n2n\util\magic\TaskResult;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
+use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\type\attrs\MissingAttributeFieldException;
 
 class DateTimeMapperTest extends TestCase {
 	private $sdm;
@@ -25,7 +31,7 @@ class DateTimeMapperTest extends TestCase {
 	public function testDateTimeWithinBoundaries(): void {
 		$result = $this->performMapping();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
@@ -33,7 +39,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', new \DateTime('2009-12-30'));
 		$result = $this->performMapping();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
@@ -41,7 +47,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', new \DateTime('2010-01-03'));
 		$result = $this->performMapping();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
@@ -49,7 +55,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->min = $this->max = new \DateTime('2010-01-01');
 		$result = $this->performMapping();
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
@@ -57,7 +63,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', '2010-01-01 00:00:00');
 		$result = $this->performMapping();
 
-		$this->assertTrue(!$result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertInstanceOf(\DateTime::class, $this->tdm->req('date'));
 		$this->assertEquals(new \DateTime($this->sdm->req('date')), $this->tdm->req('date'));
 	}
@@ -66,7 +72,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', 'wrong_format');
 		$result = $this->performMapping();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
@@ -74,7 +80,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', new \DateTimeImmutable('2010-01-01'));
 		$result = $this->performMappingImmutable();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
@@ -82,7 +88,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', new \DateTimeImmutable('2009-12-30'));
 		$result = $this->performMappingImmutable();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
@@ -90,7 +96,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', new \DateTimeImmutable('2010-01-03'));
 		$result = $this->performMappingImmutable();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
@@ -99,7 +105,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->min = $this->max = new \DateTimeImmutable('2010-01-01');
 		$result = $this->performMappingImmutable();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 		$this->assertInstanceOf(\DateTimeImmutable::class, $this->tdm->req('date'));
 	}
@@ -108,7 +114,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', '2010-01-01 00:00:00');
 		$result = $this->performMappingImmutable();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertInstanceOf(\DateTimeImmutable::class, $this->tdm->req('date'));
 		$this->assertEquals(new \DateTimeImmutable($this->sdm->req('date')), $this->tdm->req('date'));
 	}
@@ -117,15 +123,22 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', 'wrong_format');
 		$result = $this->performMappingImmutable();
 
-		$this->assertTrue($result->hasErrors());
+		$this->assertFalse($result->isValid());
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
 	public function testDateTimeMapperNull(): void {
 		$this->sdm->set('date', null);
 		$result = $this->performMapping();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertNull($this->tdm->req('date'));
 	}
 
@@ -133,7 +146,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', null);
 		$result = $this->performMappingImmutable();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertNull($this->tdm->req('date'));
 	}
 
@@ -143,27 +156,44 @@ class DateTimeMapperTest extends TestCase {
 		$this->sdm->set('date', null);
 		$result = $this->performMapping();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertNull($this->tdm->req('date'));
 	}
 
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	public function testDateTimeImmutableMapperBoundariesNull(): void {
 		$this->min = null;
 		$this->max = null;
 		$this->sdm->set('date', null);
 		$result = $this->performMappingImmutable();
 
-		$this->assertFalse($result->hasErrors());
+		$this->assertTrue($result->isValid());
 		$this->assertNull($this->tdm->req('date'));
 	}
 
-	private function performMapping(): BindResult {
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	private function performMapping(): TaskResult {
 		return Bind::attrs($this->sdm)->toAttrs($this->tdm)
 				->props(['date'], Mappers::dateTime(true, $this->min, $this->max))
 				->exec($this->createMock(MagicContext::class));
 	}
 
-	private function performMappingImmutable(): BindResult {
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	private function performMappingImmutable(): TaskResult {
 		return Bind::attrs($this->sdm)->toAttrs($this->tdm)
 				->props(['date'], Mappers::dateTimeImmutable(true, $this->min, $this->max))
 				->exec($this->createMock(MagicContext::class));
