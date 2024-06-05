@@ -39,6 +39,10 @@ class SimpleBindResult implements BindResult {
 	function __construct(private ?ErrorMap $errorMap = null, private mixed $value = null) {
 	}
 
+	function isValid(): bool {
+		return $this->errorMap === null;
+	}
+
 	function hasErrors(): bool {
 		return $this->errorMap !== null;
 	}
