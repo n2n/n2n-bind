@@ -28,7 +28,7 @@ class PropBindTo {
 	 * @param array $array
 	 * @return PropBindTask
 	 */
-	function toArray(array &$array): PropBindTask {
+	function toArray(array &$array = []): PropBindTask {
 		return $this->to(new RefBindTarget($array, true));
 	}
 
