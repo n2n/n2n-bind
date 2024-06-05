@@ -48,6 +48,8 @@ use n2n\bind\mapper\impl\closure\ValueAsBindDataClosureMapper;
 use n2n\bind\mapper\impl\valobj\UnmarshalMapper;
 use n2n\bind\mapper\impl\valobj\MarshalMapper;
 use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
+use n2n\bind\mapper\impl\op\AbortIfMapper;
+use n2n\bind\mapper\impl\op\AbortIfCondition;
 
 class Mappers {
 
@@ -280,6 +282,24 @@ class Mappers {
 
 	static function unmarshal(string $typeName): UnmarshalMapper {
 		return new UnmarshalMapper($typeName);
+	}
+
+	/**
+	 * Aborts bind process if any of the passed Bindables are invalid.
+	 *
+	 * @return AbortIfMapper
+	 */
+	static function abortIfInvalid(): AbortIfMapper {
+		return new AbortIfMapper(AbortIfCondition::INVALID);
+	}
+
+	/**
+	 * Aborts bind process if any of the passed Bindables are dirty.
+	 *
+	 * @return AbortIfMapper
+	 */
+	static function abortIfDirty(): AbortIfMapper {
+		return new AbortIfMapper(AbortIfCondition::DIRTY);
 	}
 
 }
