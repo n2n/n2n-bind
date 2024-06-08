@@ -32,7 +32,7 @@ use n2n\util\magic\TaskResult;
 
 class BindTask {
 
-	private BindTarget $bindTarget;
+	private ?BindTarget $bindTarget = null;
 	/**
 	 * @var array<BindPlan>
 	 */
@@ -52,11 +52,11 @@ class BindTask {
 		$this->bindPlans[] = $bindPlan;
 	}
 
-	function setBindTarget(BindTarget $bindTarget): void {
+	function setBindTarget(?BindTarget $bindTarget): void {
 		$this->bindTarget = $bindTarget;
 	}
 
-	function getBindTarget(): BindTarget {
+	function getBindTarget(): ?BindTarget {
 		return $this->bindTarget;
 	}
 
