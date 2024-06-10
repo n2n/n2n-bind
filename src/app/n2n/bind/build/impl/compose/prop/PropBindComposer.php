@@ -85,6 +85,11 @@ class PropBindComposer {
 		return $this;
 	}
 
+	function optLogicalRoot(Mapper|Validator ...$mappers): static {
+		$this->assembleBindGroup([null], $mappers, false, true);
+		return $this;
+	}
+
 	/**
 	 *
 	 * @param string $expression
