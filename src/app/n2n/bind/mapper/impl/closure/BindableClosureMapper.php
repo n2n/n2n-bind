@@ -12,13 +12,14 @@ use n2n\bind\plan\BindBoundary;
 
 class BindableClosureMapper extends SingleMapperAdapter {
 
-	private $closure;
-
-	public function __construct(\Closure $closure) {
-		$this->closure = $closure;
+	public function __construct(private \Closure $closure, private bool $nullSkipped) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+		if ($this->nullSkipped && $bindable->getValue() === null) {
+			return true;
+		}
+
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setClosure($this->closure);
 		$invoker->setReturnTypeConstraint(TypeConstraints::bool(true));

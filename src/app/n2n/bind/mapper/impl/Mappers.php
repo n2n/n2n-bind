@@ -167,7 +167,15 @@ class Mappers {
 	 * @return BindableClosureMapper
 	 */
 	static function bindableClosure(Closure $closure): BindableClosureMapper {
-		return new BindableClosureMapper($closure);
+		return new BindableClosureMapper($closure, false);
+	}
+
+	/**
+	 * @param Closure $closure
+	 * @return BindableClosureMapper
+	 */
+	static function bindableNotNullClosure(Closure $closure): BindableClosureMapper {
+		return new BindableClosureMapper($closure, true);
 	}
 
 	/**

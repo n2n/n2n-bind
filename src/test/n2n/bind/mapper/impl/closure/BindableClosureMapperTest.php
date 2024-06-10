@@ -75,4 +75,20 @@ class BindableClosureMapperTest extends TestCase {
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
+
+	function testBindableNotNullClosure() {
+		$dm = new DataMap(['notNullProp' => 'test', 'nullProp' => null]);
+
+		$called = false;
+		Bind::attrs($dm)
+				->props(['nullProp', 'notNullProp'], Mappers::bindableNotNullClosure(function(Bindable $bindable)
+						use (&$called) {
+					$this->assertNotNull($bindable->getValue());
+					$this->assertFalse($called);
+					$called = true;
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertTrue($called);
+	}
 }
