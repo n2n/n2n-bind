@@ -185,7 +185,9 @@ class BindTest extends TestCase {
 		$dataMap = new DataMap();
 		$result = Bind::attrs(['prop1' => 'valid'])->toAttrs($dataMap)
 				->prop('prop1', Mappers::cleanString(true))
-				->onSuccess(function () use (&$called) {
+				->onSuccess(function ($arg) use (&$called) {
+					$this->assertInstanceOf(DataMap::class, $arg);
+					$this->assertEquals('valid', $arg->req('prop1'));
 					$called = true;
 				})
 				->exec($this->createMock(MagicContext::class));

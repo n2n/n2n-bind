@@ -91,7 +91,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 		$bindResult = $this->bindTask->exec($magicContext);
 
 		if ($bindResult->isValid()) {
-			$this->triggerOnSuccessCallbacks($magicContext);
+			$this->triggerOnSuccessCallbacks($magicContext, $bindResult);
 		}
 
 		return $bindResult;
@@ -107,10 +107,12 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 		return $this;
 	}
 
-	private function triggerOnSuccessCallbacks(MagicContext $magicContext): void {
+	private function triggerOnSuccessCallbacks(MagicContext $magicContext, TaskResult $taskResult): void {
+		$invoker = new MagicMethodInvoker($magicContext);
+		$invoker->setClassParamObject(TaskResult::class, $taskResult);
+
 		foreach ($this->onSuccessCallbacks as $onSuccessCallback) {
-			$invoker = new MagicMethodInvoker($magicContext);
-			$invoker->invoke(null, $onSuccessCallback);
+			$invoker->invoke(null, $onSuccessCallback, firstArgs: [$taskResult->get()]);
 		}
 	}
 

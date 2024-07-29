@@ -50,6 +50,7 @@ use n2n\bind\mapper\impl\valobj\MarshalMapper;
 use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
 use n2n\bind\mapper\impl\op\AbortIfMapper;
 use n2n\bind\mapper\impl\op\AbortIfCondition;
+use n2n\util\ex\NotYetImplementedException;
 
 class Mappers {
 
@@ -67,6 +68,10 @@ class Mappers {
 	static function cleanMultilineString(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255): CleanStringMapper {
 		return self::cleanString($mandatory, $minlength, $maxlength, false);
 	}
+
+//	static function emptyStringToNull(): EmptyStringToNullMapper {
+//		throw new NotYetImplementedException();
+//	}
 
 	/**
 	 * @param bool $mandatory
