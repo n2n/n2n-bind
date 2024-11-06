@@ -43,9 +43,7 @@ class AttrsBindTarget implements BindTarget {
 			}
 
 			try {
-				$this->attributeWriter->writeAttribute(
-						AttributePath::create((string) $bindable->getPath()),
-						$bindable->getValue());
+				$this->attributeWriter->writeAttribute($bindable->getPath(), $bindable->getValue());
 			} catch (AttributesException $e) {
 				throw new BindTargetException('Could not write bindable \'' . $bindable->getPath(), 0, $e);
 

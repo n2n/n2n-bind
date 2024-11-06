@@ -19,33 +19,39 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\union;
+namespace n2n\bind\build\impl\source;
 
-use n2n\bind\plan\BindablesResolver;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\plan\Bindable;
-use n2n\bind\plan\BindSource;
 use n2n\util\type\attrs\AttributePath;
-use n2n\bind\plan\BindContext;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\Bindable;
+use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindData;
+use n2n\util\type\attrs\DataMap;
 
-class UnionBindablesResolver implements BindablesResolver {
+class StaticBindInstance extends BindInstanceAdapter {
 
-	function __construct(private BindSource $bindSource) {
-	}
-
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
-		$contextAttributePath = $bindContext->getPath();
-		if ($contextAttributePath->isEmpty()) {
-			return $bindInstance->getBindables();
+	function __construct(private array $values) {
+		$bindables = [];
+		foreach ($values as $key => $value) {
+			$bindables[] = new ValueBindable(new AttributePath([(string) $key]), $value, true);
 		}
 
-		throw new UnresolvableBindableException('UnionBindablesResolver does not support context: '
-				. $contextAttributePath);
+		parent::__construct($bindables);
 	}
 
-//	function resolveLogicalPaths(BindInstance $bindInstance, BindContext $bindContext): array {
-//		return [];
-//	}
+	function createBindable(AttributePath $path, bool $mustExist): Bindable {
+		$bindable = $this->getBindable($path);
+		if ($bindable !== null) {
+			return $bindable;
+		}
 
+		if ($mustExist) {
+			throw new UnresolvableBindableException('Bindable not found: ' . $path);
+		}
+
+		$bindable = new ValueBindable($path, null, false);
+		$this->addBindable($bindable);
+
+		return $bindable;
+	}
 }

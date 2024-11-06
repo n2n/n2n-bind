@@ -19,6 +19,7 @@ use n2n\bind\build\impl\target\AttrsBindTarget;
 use n2n\bind\build\impl\target\RefBindTarget;
 use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
+use n2n\util\magic\impl\MagicContexts;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
 	private BindTask $bindTask;
@@ -87,8 +88,10 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext): TaskResult {
-		$bindResult = $this->bindTask->exec($magicContext);
+	function exec(MagicContext $magicContext = null, mixed $input = null): TaskResult {
+		$magicContext ??= MagicContexts::simple([]);
+
+		$bindResult = $this->bindTask->exec($magicContext, $input);
 
 		if ($bindResult->isValid()) {
 			$this->triggerOnSuccessCallbacks($magicContext, $bindResult);

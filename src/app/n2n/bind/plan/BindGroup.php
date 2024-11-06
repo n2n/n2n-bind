@@ -39,7 +39,7 @@ class BindGroup {
 	}
 
 	/**
-	 * @param BindSource $bindSource
+	 * @param BindInstance $bindInstance
 	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool false if a Mapper could not perform a modification of value due to errors. The bind process should be
@@ -47,9 +47,9 @@ class BindGroup {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(BindSource $bindSource, BindContext $bindContext, MagicContext $magicContext): bool {
-		$bindables = $this->bindableResolver->resolve($bindSource, $bindContext);
-		$bindBoundary = new BindBoundary($bindSource, $bindContext, $bindables);
+	function exec(BindInstance $bindInstance, BindContext $bindContext, MagicContext $magicContext): bool {
+		$bindables = $this->bindableResolver->resolve($bindInstance, $bindContext);
+		$bindBoundary = new BindBoundary($bindInstance, $bindContext, $bindables);
 
 		foreach ($this->mappers as $mapper) {
 			$bindables = $bindBoundary->getBindables();

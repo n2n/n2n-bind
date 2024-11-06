@@ -31,28 +31,30 @@ use n2n\bind\plan\BindData;
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\err\BindMismatchException;
+use n2n\bind\plan\BindSource;
+use n2n\bind\plan\BindInstance;
+use n2n\bind\err\IncompatibleBindInputException;
+use n2n\util\type\TypeUtils;
 
-class AttrsBindSource extends BindSourceAdapter {
+class AttrsBindSource implements BindSource {
 
-	function __construct(private AttributeReader $attributeReader) {
-		parent::__construct([]);
+	function __construct(private ?AttributeReader $attributeReader = null) {
 	}
 
-	public function createBindable(AttributePath $path, bool $mustExist): Bindable  {
-		try {
-			$value = $this->attributeReader->readAttribute($path);
-			$valueBindable = new ValueBindable($path, $value, true);
-		} catch (AttributesException $e) {
-			if ($mustExist) {
-				throw new UnresolvableBindableException('Could not resolve bindable: '
-						. $path->toAbsoluteString(), 0, $e);
-			}
-
-			$valueBindable = new ValueBindable($path, null, false);
+	function next(mixed $input): BindInstance {
+		if ($input === null || $this->attributeReader !== null) {
+			return new AttrsBindInstance($this->attributeReader ?? new DataMap());
 		}
 
-		$this->addBindable($valueBindable);
+		if (is_array($input)) {
+			$input = new DataMap($input);
+		}
 
-		return $valueBindable;
+		if ($input instanceof AttributeReader) {
+			return new AttrsBindInstance($input);
+		}
+
+		throw new IncompatibleBindInputException('AttrsBindSource requires input to be of type '
+				. AttributeReader::class . '. Given: ' . TypeUtils::getTypeInfo($input));
 	}
 }

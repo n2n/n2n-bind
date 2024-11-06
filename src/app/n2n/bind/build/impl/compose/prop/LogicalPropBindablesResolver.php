@@ -28,6 +28,7 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindInstance;
 
 class LogicalPropBindablesResolver implements BindablesResolver {
 
@@ -35,18 +36,18 @@ class LogicalPropBindablesResolver implements BindablesResolver {
 		ArgUtils::valArray($this->expressions, ['string', 'null']);
 	}
 
-	function resolve(BindSource $bindSource, BindContext $bindContext): array {
+	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
 		return [];
 	}
 
-	function resolveLogicalPaths(BindSource $bindSource, BindContext $bindContext): array {
-		$paths = [];
-		foreach ($this->expressions as $expression) {
-			$iPaths = $bindSource->resolvePaths($bindContext->getPath(), $expression);
-			ArgUtils::valArrayReturn($iPaths, $bindSource, 'resolvePaths', AttributePath::class);
-
-			array_push($paths, ...$iPaths);
-		}
-		return $paths;
-	}
+//	function resolveLogicalPaths(BindInstance $bindInstance, BindContext $bindContext): array {
+//		$paths = [];
+//		foreach ($this->expressions as $expression) {
+//			$iPaths = $bindInstance->resolvePaths($bindContext->getPath(), $expression);
+//			ArgUtils::valArrayReturn($iPaths, $bindInstance, 'resolvePaths', AttributePath::class);
+//
+//			array_push($paths, ...$iPaths);
+//		}
+//		return $paths;
+//	}
 }

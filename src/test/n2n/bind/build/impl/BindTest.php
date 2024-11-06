@@ -279,4 +279,24 @@ class BindTest extends TestCase {
 		$this->assertFalse($result->isValid());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testInput(): void {
+		$bindTask = Bind::attrs()
+				->prop('prop1', Mappers::valueClosure(fn ($v) => $v . '-updated'))
+				->toArray();
+
+		$this->assertEquals(['prop1' => 'value-updated'], $bindTask->exec(input: ['prop1' => 'value'])->get());
+		$this->assertEquals(['prop1' => 'value2-updated'], $bindTask->exec(input: ['prop1' => 'value2'])->get());
+
+		$bindTask = Bind::values()
+				->map(Mappers::valueClosure(fn ($v) => $v . '-updated'))
+				->toArray();
+
+		$this->assertEquals(['value-updated'], $bindTask->exec(input: ['value'])->get());
+	}
+
 }

@@ -8,11 +8,11 @@ use n2n\util\type\attrs\AttributePath;
 interface BindablesResolver {
 
 	/**
-	 * @param BindSource $bindSource
+	 * @param BindInstance $bindInstance
 	 * @param BindContext $bindContext
 	 * @return Bindable[]
 	 * @throws UnresolvableBindableException
 	 */
-	function resolve(BindSource $bindSource, BindContext $bindContext): array;
+	function resolve(BindInstance $bindInstance, BindContext $bindContext): array;
 
 }

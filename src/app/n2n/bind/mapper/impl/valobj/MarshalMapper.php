@@ -32,7 +32,7 @@ class MarshalMapper extends SingleMapperAdapter {
 		}
 
 		return $this->deterMapper($value)->map(
-				new BindBoundary($bindBoundary->unwarpBindSource(), $bindBoundary->getBindContext(), [$bindable]),
+				new BindBoundary($bindBoundary->unwarpBindInstance(), $bindBoundary->getBindContext(), [$bindable]),
 				$magicContext);
 	}
 

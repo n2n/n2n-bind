@@ -24,7 +24,7 @@ class SubMergeToObjectMapper extends SingleMapperAdapter {
 		$mmi->setReturnTypeConstraint(TypeConstraints::namedType('object', false));
 		$obj = $mmi->invoke();
 
-		$bindablesFilter = new BindablesFilter($bindBoundary->unwarpBindSource());
+		$bindablesFilter = new BindablesFilter($bindBoundary->unwarpBindInstance());
 		$descendantBindables = $bindablesFilter->descendantsOf($bindable->getPath());
 
 		$objectBindableWriteProcess = new ObjectBindableWriteProcess($descendantBindables);

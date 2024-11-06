@@ -28,6 +28,7 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindInstance;
 
 class PropBindablesResolver implements BindablesResolver {
 
@@ -39,10 +40,10 @@ class PropBindablesResolver implements BindablesResolver {
 	/**
 	 * @throws UnresolvableBindableException
 	 */
-	private function acquireBindable(BindSource $bindSource, AttributePath $attributePath): Bindable {
-		$bindable = $bindSource->getBindable($attributePath);
+	private function acquireBindable(BindInstance $bindInstance, AttributePath $attributePath): Bindable {
+		$bindable = $bindInstance->getBindable($attributePath);
 		if ($bindable === null) {
-			$bindable = $bindSource->createBindable($attributePath, $this->mustExist);
+			$bindable = $bindInstance->createBindable($attributePath, $this->mustExist);
 			$bindable->setLogical($this->logical);
 			return $bindable;
 		}
@@ -60,11 +61,11 @@ class PropBindablesResolver implements BindablesResolver {
 		return $bindable;
 	}
 
-	function resolve(BindSource $bindSource, BindContext $bindContext): array {
+	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
 		$bindables = [];
 		foreach ($this->expressions as $expression) {
-			foreach ($bindSource->resolvePaths($bindContext->getPath(), $expression) as $path) {
-				$bindables[] = $this->acquireBindable($bindSource, $path);
+			foreach ($bindInstance->resolvePaths($bindContext->getPath(), $expression) as $path) {
+				$bindables[] = $this->acquireBindable($bindInstance, $path);
 			}
 		}
 		return $bindables;

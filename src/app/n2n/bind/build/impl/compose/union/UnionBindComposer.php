@@ -45,6 +45,7 @@ use n2n\bind\build\impl\target\RefBindTarget;
 use n2n\bind\build\impl\target\ClosureBindTarget;
 use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
+use n2n\util\magic\impl\MagicContexts;
 
 class UnionBindComposer {
 
@@ -83,7 +84,7 @@ class UnionBindComposer {
 	 * @param array $array
 	 * @return UnionBindComposer
 	 */
-	function toArray(array &$array): UnionBindComposer {
+	function toArray(array &$array = []): UnionBindComposer {
 		return $this->to(new RefBindTarget($array, true));
 	}
 
@@ -122,7 +123,9 @@ class UnionBindComposer {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext): TaskResult {
-		return $this->bindTask->exec($magicContext);
+	function exec(MagicContext $magicContext = null, mixed $input = null): TaskResult {
+		$magicContext ??= MagicContexts::simple([]);
+
+		return $this->bindTask->exec($magicContext, $input);
 	}	
 }

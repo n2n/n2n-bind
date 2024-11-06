@@ -23,22 +23,24 @@ namespace n2n\bind\build\impl;
 
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\attrs\AttributeReader;
-use n2n\bind\build\impl\source\AttrsBindSource;
+use n2n\bind\build\impl\source\AttrsBindInstance;
 use n2n\util\type\attrs\AttributePath;
-use n2n\bind\build\impl\source\StaticBindSource;
+use n2n\bind\build\impl\source\StaticBindInstance;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\bind\plan\BindSource;
 use n2n\bind\build\impl\compose\prop\PropBindTask;
 use n2n\bind\build\impl\compose\union\UnionBindComposer;
+use n2n\bind\build\impl\source\StaticBindSource;
+use n2n\bind\build\impl\source\AttrsBindSource;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|BindSource $source): PropBindTask {
+	static function attrs(AttributeReader|array|BindSource $source = null): PropBindTask {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		}
 
-		if ($source instanceof AttributeReader) {
+		if ($source instanceof AttributeReader || $source === null) {
 			$source = new AttrsBindSource($source);
 		}
 

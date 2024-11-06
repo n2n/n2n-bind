@@ -19,33 +19,40 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\build\impl\compose\union;
+namespace n2n\bind\build\impl\source;
 
-use n2n\bind\plan\BindablesResolver;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\plan\Bindable;
-use n2n\bind\plan\BindSource;
+use n2n\util\type\attrs\AttributeReader;
 use n2n\util\type\attrs\AttributePath;
-use n2n\bind\plan\BindContext;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\type\attrs\AttributesException;
+use n2n\bind\plan\Bindable;
+use n2n\bind\plan\impl\ValueBindable;
+use n2n\bind\plan\BindData;
+use n2n\util\type\attrs\DataMap;
+use n2n\util\type\TypeConstraints;
+use n2n\bind\err\BindMismatchException;
 
-class UnionBindablesResolver implements BindablesResolver {
+class AttrsBindInstance extends BindInstanceAdapter {
 
-	function __construct(private BindSource $bindSource) {
+	function __construct(private AttributeReader $attributeReader) {
+		parent::__construct([]);
 	}
 
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
-		$contextAttributePath = $bindContext->getPath();
-		if ($contextAttributePath->isEmpty()) {
-			return $bindInstance->getBindables();
+	public function createBindable(AttributePath $path, bool $mustExist): Bindable  {
+		try {
+			$value = $this->attributeReader->readAttribute($path);
+			$valueBindable = new ValueBindable($path, $value, true);
+		} catch (AttributesException $e) {
+			if ($mustExist) {
+				throw new UnresolvableBindableException('Could not resolve bindable: '
+						. $path->toAbsoluteString(), 0, $e);
+			}
+
+			$valueBindable = new ValueBindable($path, null, false);
 		}
 
-		throw new UnresolvableBindableException('UnionBindablesResolver does not support context: '
-				. $contextAttributePath);
+		$this->addBindable($valueBindable);
+
+		return $valueBindable;
 	}
-
-//	function resolveLogicalPaths(BindInstance $bindInstance, BindContext $bindContext): array {
-//		return [];
-//	}
-
 }

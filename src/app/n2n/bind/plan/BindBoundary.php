@@ -16,11 +16,11 @@ class BindBoundary {
 	private array $paths = [];
 
 	/**
-	 * @param BindSource $bindSource
+	 * @param BindSource $bindInstance
 	 * @param BindContext $bindContext
 	 * @param Bindable[] $bindables
 	 */
-	function __construct(private BindSource $bindSource, private BindContext $bindContext, array $bindables) {
+	function __construct(private BindInstance $bindInstance, private BindContext $bindContext, array $bindables) {
 		foreach ($bindables as $bindable) {
 			$this->addBindable($bindable);
 		}
@@ -67,16 +67,16 @@ class BindBoundary {
 	function acquireBindableByRelativeName(string $relativeName): Bindable {
 		$name = $this->bindContext->getPath()->ext(AttributePath::create($relativeName));
 
-		$bindable = $this->bindSource->getBindable($name) ??
-				IllegalStateException::try(fn () => $this->bindSource->createBindable($name, false));
+		$bindable = $this->bindInstance->getBindable($name) ??
+				IllegalStateException::try(fn () => $this->bindInstance->createBindable($name, false));
 
 		$this->addBindable($bindable);
 
 		return $bindable;
 	}
 
-	function unwarpBindSource(): BindSource {
-		return $this->bindSource;
+	function unwarpBindInstance(): BindInstance {
+		return $this->bindInstance;
 	}
 
 	function getBindContext(): BindContext {

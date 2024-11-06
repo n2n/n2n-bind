@@ -30,8 +30,9 @@ use n2n\util\ex\IllegalStateException;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\ArgUtils;
 use n2n\bind\build\impl\Bind;
+use n2n\bind\plan\BindInstance;
 
-abstract class BindSourceAdapter implements BindSource {
+abstract class BindInstanceAdapter implements BindInstance {
 	/**
 	 * @var Bindable[]
 	 */
