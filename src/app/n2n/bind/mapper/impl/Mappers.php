@@ -203,7 +203,7 @@ class Mappers {
 		return new DateTimeImmutableMapper($mandatory, $min, $max);
 	}
 
-	static function n2nLocale(bool $mandatory = false, array $allowedValues = null): N2nLocaleMapper {
+	static function n2nLocale(bool $mandatory = false, ?array $allowedValues = null): N2nLocaleMapper {
 		return new N2nLocaleMapper($mandatory, $allowedValues);
 	}
 

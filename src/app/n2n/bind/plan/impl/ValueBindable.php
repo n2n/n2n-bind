@@ -27,7 +27,7 @@ class ValueBindable extends BindableAdapter {
 	private mixed $origValue;
 	private bool $origDoesExist;
 
-	function __construct(AttributePath $name, private mixed $value, bool $doesExist, string $label = null) {
+	function __construct(AttributePath $name, private mixed $value, bool $doesExist, ?string $label = null) {
 		parent::__construct($name, $label, $doesExist);
 
 		$this->origValue = $this->value;

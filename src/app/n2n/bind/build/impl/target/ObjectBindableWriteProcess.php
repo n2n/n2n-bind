@@ -86,7 +86,7 @@ class ObjectBindableWriteProcess {
 	 * @throws BindTargetException
 	 */
 	private function analyzeProperty(object $obj, AttributePath $path, bool $settingRequired,
-			bool $gettingRequired, AttributePath $fullAttributePath = null): AccessProxy {
+			bool $gettingRequired, ?AttributePath $fullAttributePath = null): AccessProxy {
 		$pathStr = $path->__toString();
 
 		try {
@@ -102,7 +102,7 @@ class ObjectBindableWriteProcess {
 	}
 
 	private function createCouldNotResolveBindableException(AttributePath $path,
-			AttributePath $fullAttributePath = null, \Throwable $previous = null, string $reason = null): BindTargetException {
+			?AttributePath $fullAttributePath = null, ?\Throwable $previous = null, ?string $reason = null): BindTargetException {
 		return new BindTargetException('Can not resolve bindable \'' . ($fullAttributePath ?? $path)
 				. ($fullAttributePath === null ? '' : '\', error at \'' . $path) . '\'.'
 				. ($reason === null ? '' : ' Reason: ' . $reason), previous: $previous);

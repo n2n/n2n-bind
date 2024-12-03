@@ -63,7 +63,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * {@inheritDoc}
 	 * @see \n2n\util\type\attrs\AttributeReader::readAttribute()
 	 */
-	function readAttribute(AttributePath $path, TypeConstraint $typeConstraint = null, bool $mandatory = true, 
+	function readAttribute(AttributePath $path, ?TypeConstraint $typeConstraint = null, bool $mandatory = true,
 			mixed $defaultValue = null): mixed {
 		return $this->dataMap->readAttribute($path, $typeConstraint, $mandatory, $defaultValue);
 	}
@@ -395,7 +395,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	public function reqBindDataMap($path, bool $nullAllowed = false, int $errStatus = null): ?BindData {
+	public function reqBindDataMap($path, bool $nullAllowed = false, ?int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->reqArray($path, null, $nullAllowed))) {
 			return new BindData(new DataMap($array));
 		}
@@ -410,7 +410,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * @param int|null $errStatus
 	 * @return BindData|null
 	 */
-	public function optBindDataMap($path, mixed $defaultValue = null, bool $nullAllowed = true, int $errStatus = null): ?BindData {
+	public function optBindDataMap($path, mixed $defaultValue = null, bool $nullAllowed = true, ?int $errStatus = null): ?BindData {
 		if (null !== ($array = $this->optArray($path, null, $defaultValue, $nullAllowed))) {
 			return new BindData(new DataMap($array));
 		}

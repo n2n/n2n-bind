@@ -83,7 +83,7 @@ class BindBoundary {
 		return $this->bindContext;
 	}
 
-	function createBindMismatch(string $reason = null, \Throwable $previous = null): BindMismatchException {
+	function createBindMismatch(?string $reason = null, ?\Throwable $previous = null): BindMismatchException {
 		$message = 'Bindables could not be mapped: ' . join(', ', array_keys($this->paths));
 		if ($reason !== null || $previous !== null) {
 			$message .= ' Reason: ' . $reason ?? $previous->getMessage();

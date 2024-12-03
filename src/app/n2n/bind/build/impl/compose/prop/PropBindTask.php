@@ -88,7 +88,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(MagicContext $magicContext = null, mixed $input = null): TaskResult {
+	function exec(?MagicContext $magicContext = null, mixed $input = null): TaskResult {
 		$magicContext ??= MagicContexts::simple([]);
 
 		$bindResult = $this->bindTask->exec($magicContext, $input);
