@@ -35,7 +35,7 @@ use n2n\bind\build\impl\source\AttrsBindSource;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|BindSource $source = null): PropBindTask {
+	static function attrs(AttributeReader|array|BindSource|null $source = null): PropBindTask {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		}
