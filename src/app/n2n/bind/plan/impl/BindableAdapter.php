@@ -31,7 +31,7 @@ abstract class BindableAdapter extends ValidatableAdapter implements Bindable {
 	private bool $dirty = false;
 	private bool $logical = false;
 
-	function __construct(AttributePath $name, string|Lstr $label = null, private bool $exist = true) {
+	function __construct(AttributePath $name, string|Lstr|null $label = null, private bool $exist = true) {
 		parent::__construct($name, $label);
 
 		$this->origExist = $this->exist;
