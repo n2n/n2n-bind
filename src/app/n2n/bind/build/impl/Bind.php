@@ -48,6 +48,10 @@ class Bind {
 		return self::propBindSource($source);
 	}
 
+	static function obj(?object $obj = null): PropBindTask {
+		return self::propBindSource(new ObjectBindSource($obj));
+	}
+
 	static function propBindSource(BindSource $source): PropBindTask {
 		return new PropBindTask($source);
 	}
@@ -58,13 +62,5 @@ class Bind {
 
 	static function unionBindSource(BindSource $source): UnionBindComposer {
 		return new UnionBindComposer($source);
-	}
-
-	static function obj(?object $obj = null): PropBindTask {
-		if ($obj === null) {
-			throw new \InvalidArgumentException("Object for binding must not be null.");
-		}
-		$source = new ObjectBindSource($obj);
-		return self::propBindSource($source);
 	}
 }

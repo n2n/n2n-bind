@@ -5,6 +5,9 @@ use ReflectionClass;
 use n2n\reflection\property\PropertyAccessProxy;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\ex\ExUtils;
+use n2n\reflection\property\InaccessiblePropertyException;
+use n2n\reflection\property\InvalidPropertyAccessMethodException;
+use n2n\reflection\property\UnknownPropertyException;
 
 class ObjectBindAccessProxyCache {
 	public const MAX_CACHED_CLASSES_NUM = 1000;
@@ -21,7 +24,9 @@ class ObjectBindAccessProxyCache {
 	 * @param ReflectionClass|string $class A ReflectionClass instance or a fully qualified class name.
 	 * @param string $propertyName The property name.
 	 * @return PropertyAccessProxy
-	 * @throws UnresolvableBindableException If the property cannot be resolved.
+	 * @throws InaccessiblePropertyException
+	 * @throws InvalidPropertyAccessMethodException
+	 * @throws UnknownPropertyException
 	 */
 	public function getPropertyAccessProxy(ReflectionClass|string $class, string $propertyName): PropertyAccessProxy {
 		[$className, $refClass] = $this->resolveClass($class);
@@ -58,7 +63,7 @@ class ObjectBindAccessProxyCache {
 	private function pruneCacheIfNeeded(): void {
 		$cacheCount = count($this->cache);
 		if ($cacheCount >= self::MAX_CACHED_CLASSES_NUM) {
-			$numToKeep = (int)(self::MAX_CACHED_CLASSES_NUM / 2);
+			$numToKeep = (int) (self::MAX_CACHED_CLASSES_NUM / 2);
 			$this->cache = array_slice($this->cache, -$numToKeep, null, true);
 		}
 	}
