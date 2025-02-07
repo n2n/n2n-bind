@@ -298,5 +298,4 @@ class BindTest extends TestCase {
 
 		$this->assertEquals(['value-updated'], $bindTask->exec(input: ['value'])->get());
 	}
-
 }

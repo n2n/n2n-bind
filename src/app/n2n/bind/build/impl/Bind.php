@@ -32,6 +32,7 @@ use n2n\bind\build\impl\compose\prop\PropBindTask;
 use n2n\bind\build\impl\compose\union\UnionBindComposer;
 use n2n\bind\build\impl\source\StaticBindSource;
 use n2n\bind\build\impl\source\AttrsBindSource;
+use n2n\bind\build\impl\source\object\ObjectBindSource;
 
 class Bind {
 
@@ -59,4 +60,11 @@ class Bind {
 		return new UnionBindComposer($source);
 	}
 
+	static function obj(?object $obj = null): PropBindTask {
+		if ($obj === null) {
+			throw new \InvalidArgumentException("Object for binding must not be null.");
+		}
+		$source = new ObjectBindSource($obj);
+		return self::propBindSource($source);
+	}
 }
