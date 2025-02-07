@@ -71,9 +71,8 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 
 		$this->assertNotSame($proxyFirst, $proxyLast, "Different properties should yield distinct proxy instances.");
 
-
 		$this->assertEquals('John', $proxyFirst->getValue($dummy));
-		$this->assertEquals('Doe', $proxyFirst->getValue($dummy));
+		$this->assertEquals('Doe', $proxyLast->getValue($dummy));
 	}
 
 	/**
