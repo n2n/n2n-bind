@@ -189,6 +189,36 @@ class ObjectBindSourceTest extends TestCase{
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
+	function testSourceObjWithPath(): void {
+		$source = new TestObject();
+		$source->firstname = 'Testerich';
+		$source->lastname = 'von Testen';
+		$source->obj2 = new TestObject();
+		$source->obj2->firstname = 'obj2Firstname';
+		$source->obj2->lastname = 'obj2Lastname';
+
+		$bindTask = Bind::obj($source)
+				->dynProps(['firstname', 'lastname'], false, Mappers::valueClosure(fn ($v) => $v . '-updated'))
+				->dynProps(['obj2/firstname', 'obj2/lastname'], false, Mappers::valueClosure(fn ($v) => $v . '-updated'))
+				->toArray()
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($bindTask->isValid());
+
+		$resultArr = $bindTask->get();
+		$this->assertEquals('Testerich-updated', $resultArr['firstname']);
+		$this->assertEquals('von Testen-updated', $resultArr['lastname']);
+		$this->assertEquals('obj2Firstname-updated', $resultArr['obj2/firstname']);
+		$this->assertEquals('obj2Lastname-updated', $resultArr['obj2/lastname']);
+		$this->assertFalse(isset($resultArr['hobbies']));
+		$this->assertFalse(isset($resultArr['favouriteNumber']));
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testSourceObjExtension(): void {
 		$this->markTestSkipped('Skipped test: Parent class not supported by PropertiesAnalyzer');
 
@@ -220,6 +250,7 @@ class TestObject {
 	public string $lastname;
 	public int $favouriteNumber;
 	public array $hobbies;
+	public TestObject $obj2;
 }
 
 class TestObjExtension extends TestObject {

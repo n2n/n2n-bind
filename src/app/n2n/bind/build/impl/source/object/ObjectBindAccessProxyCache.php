@@ -3,8 +3,6 @@ namespace n2n\bind\build\impl\source\object;
 
 use ReflectionClass;
 use n2n\reflection\property\PropertyAccessProxy;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\util\ex\ExUtils;
 use n2n\reflection\property\InaccessiblePropertyException;
 use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
@@ -16,55 +14,40 @@ class ObjectBindAccessProxyCache {
 	 * Keys are classNames
 	 * @var array<string, ObjectBindAccessProxyCacheItem>
 	 */
-	private array $cache = [];
+	private array $cacheItems = [];
 
 	/**
 	 * Returns a PropertyAccessProxy for the given property.
 	 *
-	 * @param ReflectionClass|string $class A ReflectionClass instance or a fully qualified class name.
+	 * @param ReflectionClass $class A ReflectionClass instance or a fully qualified class name.
 	 * @param string $propertyName The property name.
 	 * @return PropertyAccessProxy
 	 * @throws InaccessiblePropertyException
 	 * @throws InvalidPropertyAccessMethodException
 	 * @throws UnknownPropertyException
+	 * @throws \ReflectionException
 	 */
-	public function getPropertyAccessProxy(ReflectionClass|string $class, string $propertyName): PropertyAccessProxy {
-		[$className, $refClass] = $this->resolveClass($class);
+	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName): PropertyAccessProxy {
+		$refClass = $class;
+		$className = $refClass->getName();
 
-		if (!isset($this->cache[$className])) {
-			$this->cache[$className] = new ObjectBindAccessProxyCacheItem($refClass);
+		if (!isset($this->cacheItems[$className])) {
+			$this->cacheItems[$className] = new ObjectBindAccessProxyCacheItem($refClass);
 		}
 
-		$proxy = $this->cache[$className]->getProxy($propertyName);
+		$proxy = $this->cacheItems[$className]->getProxy($propertyName);
 		$this->pruneCacheIfNeeded();
 		return $proxy;
-	}
-
-	/**
-	 * Resolves the class name and ReflectionClass instance.
-	 *
-	 * @param ReflectionClass|string $class
-	 * @return array{0: string, 1: ReflectionClass}
-	 */
-	private function resolveClass(ReflectionClass|string $class): array {
-		if (is_string($class)) {
-			$className = $class;
-			$refClass = ExUtils::try(fn() => new ReflectionClass($class));
-		} else {
-			$refClass = $class;
-			$className = $refClass->getName();
-		}
-		return [$className, $refClass];
 	}
 
 	/**
 	 * Prunes the cache if it exceeds the maximum allowed number of classes.
 	 */
 	private function pruneCacheIfNeeded(): void {
-		$cacheCount = count($this->cache);
+		$cacheCount = count($this->cacheItems);
 		if ($cacheCount >= self::MAX_CACHED_CLASSES_NUM) {
 			$numToKeep = (int) (self::MAX_CACHED_CLASSES_NUM / 2);
-			$this->cache = array_slice($this->cache, -$numToKeep, null, true);
+			$this->cacheItems = array_slice($this->cacheItems, -$numToKeep, null, true);
 		}
 	}
 }

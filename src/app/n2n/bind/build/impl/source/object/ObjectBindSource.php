@@ -3,9 +3,6 @@ namespace n2n\bind\build\impl\source\object;
 
 use n2n\bind\plan\BindInstance;
 use n2n\bind\plan\BindSource;
-use n2n\bind\build\impl\source\AttrsBindInstance;
-use n2n\util\type\attrs\DataMap;
-use n2n\util\type\attrs\AttributeReader;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\util\type\TypeUtils;
 
@@ -31,6 +28,4 @@ class ObjectBindSource implements BindSource {
 		throw new IncompatibleBindInputException('ObjectBindSource requires input to be of type object. Given: '
 				. TypeUtils::getTypeInfo($input));
 	}
-
-
 }

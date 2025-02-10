@@ -23,12 +23,11 @@ namespace n2n\bind\build\impl\source\object;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use n2n\bind\build\impl\source\object\ObjectBindAccessProxyCache;
-use n2n\bind\err\UnresolvableBindableException;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\reflection\property\InaccessiblePropertyException;
 use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\PropertyAccessException;
+use n2n\util\ex\ExUtils;
 
 class ObjectBindAccessProxyCacheTest extends TestCase {
 
@@ -39,12 +38,9 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 * @throws InvalidPropertyAccessMethodException
 	 */
 	public function testCacheReturnsSameProxyForSameProperty(): void {
-		$dummy = new class {
-			public string $firstname = 'John';
-			public string $lastname = 'Doe';
-		};
+		$dummy = $this->createUniqueDummy();
 
-		$refClass = new ReflectionClass($dummy);
+		$refClass = ExUtils::try(fn () => new ReflectionClass($dummy));
 		$cache = new ObjectBindAccessProxyCache();
 
 		$proxy1 = $cache->getPropertyAccessProxy($refClass, 'firstname');
@@ -58,12 +54,8 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 * @throws PropertyAccessException
 	 */
 	public function testCacheReturnsDistinctProxiesForDifferentProperties(): void {
-		$dummy = new class {
-			public string $firstname = 'John';
-			public string $lastname = 'Doe';
-		};
-
-		$refClass = new ReflectionClass($dummy);
+		$dummy = $this->createUniqueDummy();
+		$refClass = ExUtils::try(fn () => new ReflectionClass($dummy));
 		$cache = new ObjectBindAccessProxyCache();
 
 		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname');
@@ -71,8 +63,8 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 
 		$this->assertNotSame($proxyFirst, $proxyLast, "Different properties should yield distinct proxy instances.");
 
-		$this->assertEquals('John', $proxyFirst->getValue($dummy));
-		$this->assertEquals('Doe', $proxyLast->getValue($dummy));
+		$this->assertEquals('Testerich', $proxyFirst->getValue($dummy));
+		$this->assertEquals('von Testen', $proxyLast->getValue($dummy));
 	}
 
 	/**
@@ -80,30 +72,20 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 * @throws \ReflectionException
 	 */
 	public function testCacheSharedForSameClass(): void {
-		$dummy = new class {
-			public string $firstname = 'John';
-			public string $lastname = 'Doe';
-		};
-
-		$refClass = new ReflectionClass($dummy);
+		$refClass = new ReflectionClass($this->createUniqueDummy());
 		$cache = new ObjectBindAccessProxyCache();
 
 		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname');
 		$proxyLast  = $cache->getPropertyAccessProxy($refClass, 'lastname');
 
-		// Use reflection to inspect the internal cache.
-		$cacheProp = new \ReflectionProperty($cache, 'cache');
-		$cacheProp->setAccessible(true);
+		$cacheProp = new \ReflectionProperty($cache, 'cacheItems');
 		$cacheData = $cacheProp->getValue($cache);
 
 		$className = $refClass->getName();
 		$this->assertArrayHasKey($className, $cacheData, "The cache should contain an entry for {$className}.");
 
-		// $cacheData[$className] is an instance of ObjectBindAccessProxyCacheItem.
 		$cacheItem = $cacheData[$className];
-
 		$proxiesProp = new \ReflectionProperty($cacheItem, 'proxies');
-		$proxiesProp->setAccessible(true);
 		$proxies = $proxiesProp->getValue($cacheItem);
 
 		$this->assertArrayHasKey('firstname', $proxies, "Cache item should contain key 'firstname'.");
@@ -119,31 +101,29 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 		$cache = new ObjectBindAccessProxyCache();
 		$maxClassesNum = ObjectBindAccessProxyCache::MAX_CACHED_CLASSES_NUM;
 
-		// Fill the cache with dummy classes using anonymous classes.
 		for ($i = 0; $i < $maxClassesNum + 50; $i++) {
-			$dummy = new class {
-				public string $dummyProp = "dummy";
-			};
-
-			$ref = new ReflectionClass($dummy);
-			try {
-				$cache->getPropertyAccessProxy($ref, 'dummyProp');
-			} catch (\Exception $e) {
-				$this->fail("Unexpected exception while caching dummyProp: " . $e->getMessage());
-			}
+			$dummy = $this->createUniqueDummy();
+			$ref = ExUtils::try(fn () => new ReflectionClass($dummy));
+			$cache->getPropertyAccessProxy($ref, 'firstname');
 		}
 
-		// Check the size of the internal cache.
-		$cacheProp = new \ReflectionProperty($cache, 'cache');
-		$cacheProp->setAccessible(true);
+		$cacheProp = ExUtils::try(fn () => new \ReflectionProperty($cache, 'cacheItems'));
 		$cachedData = $cacheProp->getValue($cache);
 
-		$this->markTestSkipped('because not yet working');
+		$this->assertEquals(($maxClassesNum / 2) + 50, count($cachedData),
+				"Cache size should be lass than MAX_CACHED_CLASSES_NUM/2.");
+	}
 
-		$this->assertGreaterThanOrEqual($maxClassesNum / 2, count($cachedData),
-				"Cache size should not be lass than MAX_CACHED_CLASSES_NUM/2.");
-		$this->assertLessThanOrEqual($maxClassesNum, count($cachedData),
-				"Cache size should not exceed MAX_CACHED_CLASSES_NUM after pruning.");
+	private function createUniqueDummy(): object {
+		$className = 'UniqueDummy' . uniqid();
+		$code = 'class ' . $className . ' {
+			public string $firstname = \'Testerich\';
+			public string $lastname = \'von Testen\';
+			public function __construct() {
+			}
+		}';
+		eval($code);
+		return new $className();
 	}
 
 	/**
@@ -151,16 +131,8 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 */
 	public function testUnknownPropertyThrowsException(): void {
 		$this->expectException(UnknownPropertyException::class);
-
-		$dummy = new class {
-			public string $firstname = 'John';
-			public string $lastname = 'Doe';
-		};
-
-		$refClass = new ReflectionClass($dummy);
+		$refClass = new ReflectionClass(new class {});
 		$cache = new ObjectBindAccessProxyCache();
-
-		// Request a property that does not exist.
 		$cache->getPropertyAccessProxy($refClass, 'nonexistent');
 	}
 }
