@@ -13,6 +13,9 @@ use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\bind\err\BindException;
 use n2n\util\type\attrs\AttributeReader;
+use n2n\util\type\TypeUtils;
+use n2n\util\type\TypeConstraints;
+use ArrayAccess;
 
 class ObjectBindInstance extends BindInstanceAdapter {
 	/**
@@ -23,15 +26,14 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	}
 
 	/**
-	 * @throws BindException
 	 * @throws UnresolvableBindableException
 	 */
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
-		if ($path->isEmpty()) {
-			$valueBindable = new ValueBindable($path, $this->object, doesExist: true);
-			$this->addBindable($valueBindable);
-			return $valueBindable;
-		}
+//		if ($path->isEmpty()) {
+//			$valueBindable = new ValueBindable($path, $this->object, doesExist: true);
+//			$this->addBindable($valueBindable);
+//			return $valueBindable;
+//		}
 
 		try {
 			$value = $this->getValueByPath($path, $this->object);
@@ -41,7 +43,8 @@ class ObjectBindInstance extends BindInstanceAdapter {
 		} catch (UnknownPropertyException|InaccessiblePropertyException|InvalidPropertyAccessMethodException
 				|\ReflectionException $e) {
 			if ($mustExist) {
-				throw new UnresolvableBindableException('Could not resolve bindable: ' . $path->toAbsoluteString(), 0, $e);
+				throw new UnresolvableBindableException('Could not resolve bindable: '
+						. $path->toAbsoluteString(), 0, $e);
 			}
 			$valueBindable = new ValueBindable($path, null, false);
 		}
@@ -106,8 +109,8 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	private function retrieveValueForSegment(string $segment, object|array $data): mixed {
 		if (is_array($data)) {
 			return $this->getValueFromArray($segment, $data);
-		} elseif ($data instanceof AttributeReader) {
-			return $this->getValueFromAttributeReader($segment, $data);
+		} elseif ($data instanceof \ArrayAccess) {
+			return $this->getValueFromArrayAccess($segment, $data);
 		} elseif (is_object($data)) {
 			return $this->getValueFromObject($segment, $data);
 		}
@@ -134,11 +137,19 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 * Retrieves a value from an AttributeReader (or DataMap) using its req() method.
 	 *
 	 * @param string $segment The key.
-	 * @param AttributeReader $reader The reader.
+	 * @param AttributeReader $arrayAccess The reader.
 	 * @return mixed The value for the given key.
 	 */
-	private function getValueFromAttributeReader(string $segment, AttributeReader $reader): mixed {
-		return $reader->req(new AttributePath([$segment]));
+	private function getValueFromArrayAccess(string $segment, ArrayAccess $arrayAccess, bool $traversableRequired): mixed {
+		$value = $arrayAccess->offsetGet($segment);
+
+		if (!$traversableRequired || $this->isTraversableValue($value)) {
+			return $value;
+		}
+
+		throw new ValueNotTraversableException('Key of ' . get_class($arrayAccess) . ' contains untraversable value of type: '
+				. TypeUtils::getTypeInfo($value) . ', type of object|array|ArrayAccess required';
+		return $arrayAccess->req(new AttributePath([$segment]));
 	}
 
 	/**
@@ -153,9 +164,16 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 * @throws PropertyAccessException
 	 * @throws UnknownPropertyException
 	 */
-	private function getValueFromObject(string $segment, object $object): mixed {
+	private function getValueFromObject(string $segment, object $object, bool $traversableRequired): mixed {
 		$refClass = new \ReflectionClass($object);
 		$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment);
+
+		if ($traversableRequired) {
+			$valueProxy = $valueProxy->createRestricted(TypeConstraints::type(['object', 'array', ArrayAccess::class]));
+		}
+
+		throw ValueNotTraversableException();
+
 		return $valueProxy->getValue($object);
 	}
 
