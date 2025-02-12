@@ -20,8 +20,8 @@ interface Mapper  {
 	 *
 	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
-	 * @return MapResult .
-	 * @throws BindMismatchException same as returning false but with an exception message.
+	 * @return MapResult
+	 * @throws BindMismatchException if the input value is not compatible with the Mapper
 	 * @throws UnresolvableBindableException
 	 */
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult;
