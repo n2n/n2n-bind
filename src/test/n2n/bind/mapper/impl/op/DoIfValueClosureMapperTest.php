@@ -105,5 +105,4 @@ class DoIfValueClosureMapperTest extends TestCase {
 		$this->assertEquals(['prop' => 'holeradio'], $result->get());
 	}
 
-
 }
