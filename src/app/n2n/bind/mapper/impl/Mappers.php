@@ -50,7 +50,7 @@ use n2n\bind\mapper\impl\valobj\MarshalMapper;
 use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
 use n2n\bind\mapper\impl\op\AbortIfMapper;
 use n2n\bind\mapper\impl\op\AbortIfCondition;
-use n2n\util\ex\NotYetImplementedException;
+use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
 
 class Mappers {
 
@@ -201,6 +201,10 @@ class Mappers {
 
 	public static function dateTimeImmutable(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeImmutableMapper {
 		return new DateTimeImmutableMapper($mandatory, $min, $max);
+	}
+
+	static function dateTimeSql(): DateTimeSqlMapper {
+		return new DateTimeSqlMapper();
 	}
 
 	static function n2nLocale(bool $mandatory = false, ?array $allowedValues = null): N2nLocaleMapper {

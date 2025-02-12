@@ -110,6 +110,11 @@ class ObjectBindSourceTest extends TestCase{
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testObjOnSuccessCall(): void {
 		$source = new TestObject();
 		$source->firstname = 'valid';
