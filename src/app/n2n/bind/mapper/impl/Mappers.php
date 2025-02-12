@@ -195,6 +195,13 @@ class Mappers {
 		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
 	}
 
+
+	/**
+	 * @param bool $mandatory
+	 * @param \DateTimeInterface|null $min
+	 * @param \DateTimeInterface|null $max
+	 * @return DateTimeMapper
+	 */
 	public static function dateTime(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
 	}
