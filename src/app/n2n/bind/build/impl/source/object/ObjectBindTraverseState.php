@@ -3,7 +3,7 @@ namespace n2n\bind\build\impl\source\object;
 
 use n2n\util\type\attrs\AttributePath;
 
-class ObjectBindTraverseContext {
+class ObjectBindTraverseState {
 	private array $traversedSegments = [];
 	private array $remainingSegments;
 
@@ -30,8 +30,8 @@ class ObjectBindTraverseContext {
 	/**
 	 * Returns the already traversed segments as a string joined with '/'.
 	 */
-	public function getTraversedPath(): string {
-		return implode('/', $this->traversedSegments);
+	public function getTraversedPath(): AttributePath {
+		return new AttributePath($this->traversedSegments);
 	}
 
 	/**

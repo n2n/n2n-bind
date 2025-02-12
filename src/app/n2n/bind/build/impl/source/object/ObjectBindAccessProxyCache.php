@@ -25,7 +25,6 @@ class ObjectBindAccessProxyCache {
 	 * @throws InaccessiblePropertyException
 	 * @throws InvalidPropertyAccessMethodException
 	 * @throws UnknownPropertyException
-	 * @throws \ReflectionException
 	 */
 	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName): PropertyAccessProxy {
 		$refClass = $class;

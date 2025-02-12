@@ -27,6 +27,11 @@ use n2n\bind\plan\impl\ValueBindable;
 use n2n\util\type\attrs\AttributePath;
 use n2n\reflection\property\PropertyAccessException;
 use ArrayAccess;
+use n2n\reflection\property\InaccessiblePropertyException;
+use n2n\reflection\property\InvalidPropertyAccessMethodException;
+use n2n\reflection\property\UnknownPropertyException;
+use n2n\util\type\TypeUtils;
+use n2n\util\ex\ExUtils;
 
 class ObjectBindInstance extends BindInstanceAdapter {
 	/**
@@ -40,7 +45,9 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 * @throws ValueNotTraversableException
 	 */
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
-		$value = $this->getValueByPath($path, $this->object, $mustExist);
+		$pathContext = new ObjectBindTraverseState($path, $mustExist);
+		$value = $this->resolveValue($pathContext, $this->object);
+
 		$valueBindable = new ValueBindable($path, $value, true);
 		$this->addBindable($valueBindable);
 
@@ -48,50 +55,33 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	}
 
 	/**
-	 * Creates a fresh AttributePathContext from the full path and can provide context in case of Exception.
-	 *
-	 * @throws ValueNotTraversableException
-	 */
-	private function getValueByPath(AttributePath $path, object|array $data, bool $mustExist): mixed {
-		$pathContext = new ObjectBindTraverseContext($path, $mustExist);
-		return $this->getValueByPathContext($pathContext, $data);
-	}
-
-	/**
 	 * Recursively traverses the data using the provided AttributePathContext.
 	 *
 	 * @throws ValueNotTraversableException If a segment cannot be found or a nested value is not traversable.
 	 */
-	private function getValueByPathContext(ObjectBindTraverseContext $pathContext, object|array $data): mixed {
-		$segment = $pathContext->shiftSegment();
+	private function resolveValue(ObjectBindTraverseState $pathState, mixed $value): mixed {
+		$segment = $pathState->shiftSegment();
 		if ($segment === null) {
-			return $data;
-		}
-
-		$value = $this->retrieveValueForSegment($segment, $data, $pathContext);
-		if (count($pathContext->getRemainingPath()->toArray()) === 0) {
 			return $value;
 		}
-		if (!$this->isTraversableValue($value)) {
-			$this->throwUntraversableTypeException($value, $pathContext);
-		}
 
-		return $this->getValueByPathContext($pathContext, $value);
+		return $this->resolveValue($pathState,
+				$this->retrieveValueForSegment($segment, $value, $pathState));
 	}
 
 	/**
 	 * Retrieves the value corresponding to a segment from the given data.
 	 *
 	 * @param string $segment The current segment.
-	 * @param object|array $data The data to search.
-	 * @param ObjectBindTraverseContext $pathContext
+	 * @param mixed $value The data to search.
+	 * @param ObjectBindTraverseState $pathContext
 	 * @return mixed The value for the given segment.
 	 * @throws ValueNotTraversableException
 	 */
-	private function retrieveValueForSegment(string $segment, object|array $data, ObjectBindTraverseContext $pathContext): mixed {
-		if (is_array($data)) {
-			if (array_key_exists($segment, $data)) {
-				return $data[$segment];
+	private function retrieveValueForSegment(string $segment, mixed $value, ObjectBindTraverseState $pathContext): mixed {
+		if (is_array($value)) {
+			if (array_key_exists($segment, $value)) {
+				return $value[$segment];
 			}
 
 			if (!$pathContext->mustExist()) {
@@ -99,64 +89,48 @@ class ObjectBindInstance extends BindInstanceAdapter {
 			}
 
 			throw new ValueNotTraversableException($this->formatKeyErrorMessage($pathContext, $segment, 'array'));
-		} elseif ($data instanceof \ArrayAccess) {
-			if ($data->offsetExists($segment)) {
-				return $data->offsetGet($segment);
+		}
+
+		if ($value instanceof \ArrayAccess) {
+			if ($value->offsetExists($segment)) {
+				return $value->offsetGet($segment);
 			}
 
 			if (!$pathContext->mustExist()) {
 				return null;
 			}
 
-			throw new ValueNotTraversableException($this->formatKeyErrorMessage($pathContext, $segment, '\ArrayAccess'));
-		} elseif (is_object($data)) {
-			$refClass = new \ReflectionClass($data);
+			throw new ValueNotTraversableException($this->formatKeyErrorMessage($pathContext, $segment,
+					get_class($value)));
+		}
+
+		if (is_object($value)) {
+			$refClass = ExUtils::try(fn () => new \ReflectionClass($value));
 			try {
 				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment);
-				return $valueProxy->getValue($data);
-			} catch (\ReflectionException|PropertyAccessException $e) {
+				return $valueProxy->getValue($value);
+			} catch (PropertyAccessException|\ReflectionException $e) {
 				if (!$pathContext->mustExist()) {
 					return null;
 				}
 
-				throw new ValueNotTraversableException('"' . $pathContext->getTraversedPath() . '"'
-						. ' not traversable: ' . $e->getMessage(), null, $e);
+				throw new ValueNotTraversableException('Can not resolve path "'
+						. $pathContext->getTraversedPath() . '". Reason: ' . $e->getMessage(), previous: $e);
 			}
 		}
 
-		$this->throwUntraversableTypeException($data, $pathContext);
-	}
-
-	/**
-	 * Checks whether the given value is traversable.
-	 *
-	 * A value is considered traversable if it is an array, an object, or an instance of ArrayAccess.
-	 *
-	 * @param mixed $value
-	 * @return bool
-	 */
-	private function isTraversableValue(mixed $value): bool {
-		return is_array($value) || is_object($value) || ($value instanceof ArrayAccess);
-	}
-
-	/**
-	 * @throws ValueNotTraversableException
-	 */
-	private function throwUntraversableTypeException(mixed $untraversableData, ObjectBindTraverseContext $pathContext): void {
-		throw new ValueNotTraversableException($pathContext->getTraversedPath()
-				. '/ not traversable. Allowed types are: object, array or \ArrayAccess. Given: '
-				. gettype($untraversableData) . '.');
+		throw new ValueNotTraversableException('Can not resolve path "' . $pathContext->getTraversedPath()
+				. '. Path "' . $pathContext->getTraversedPath()->slice(0, -1) . '" resolved a value of type '
+				. TypeUtils::getTypeInfo($value)
+				. ' which is not traversable. Traversable types are: object, array or \ArrayAccess.');
 	}
 
 	/**
 	 * Formats an error message for missing keys in arrays or ArrayAccess objects.
 	 */
-	private function formatKeyErrorMessage(ObjectBindTraverseContext $pathContext, string $segment, string $type): string {
-		$traversedPathParts = explode('/', $pathContext->getTraversedPath());
-		array_pop($traversedPathParts);
-		$validTraversedPath = implode('/', $traversedPathParts);
-
-		return '"' . $pathContext->getTraversedPath() . '" not traversable: Key "' . $segment . '" does not exist in ' . $type . ' "' . $validTraversedPath . '/"';
+	private function formatKeyErrorMessage(ObjectBindTraverseState $pathContext, string $segment, string $type): string {
+		return 'Can not resolve path "' . $pathContext->getTraversedPath() . '". Key "' . $segment . '" does not exist in '
+				. $type . ' resolved by "' . $pathContext->getTraversedPath()->slice(0, -1) . '"';
 	}
 }
 

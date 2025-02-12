@@ -29,7 +29,6 @@ class ObjectBindAccessProxyCacheItem {
 	 * @throws InaccessiblePropertyException
 	 * @throws InvalidPropertyAccessMethodException
 	 * @throws UnknownPropertyException
-	 * @throws \ReflectionException
 	 */
 	public function getProxy(string $propertyName): PropertyAccessProxy {
 		if (isset($this->proxies[$propertyName])) {
