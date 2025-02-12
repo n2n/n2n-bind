@@ -327,6 +327,11 @@ class Mappers {
 		return new AbortIfMapper(AbortIfCondition::DIRTY);
 	}
 
+	static function doIfNull(bool $abort = false, bool $skipNextMappers = false,
+			?bool $chLogical = null): DoIfValueClosureMapper {
+		return self::doIfValueClosure(fn ($v) => $v === null, $abort, $skipNextMappers, $chLogical);
+	}
+
 	static function doIfValueClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
 			?bool $chLogical = null): DoIfValueClosureMapper {
 		return new DoIfValueClosureMapper($closure, $abort, $skipNextMappers, $chLogical);

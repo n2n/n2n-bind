@@ -39,6 +39,40 @@ class DoIfValueClosureMapperTest extends TestCase {
 
 	/**
 	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDoAbortIfNull() {
+		$result = Bind::attrs(['prop' => null])
+				->prop('prop',
+						Mappers::doIfNull(abort: true),
+						Mappers::valueClosure(function () {
+							$this->fail('Mapper should not be called.');
+						}))
+				->toArray()->exec();
+
+		$this->assertFalse($result->isValid());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDoAbortIfNullConditionFalse() {
+		$result = Bind::attrs(['prop' => 'holeradio'])
+				->prop('prop',
+						Mappers::doIfNull(abort: true),
+						Mappers::valueClosure(function (string $v) {
+							return $v . '-1';
+						}))
+				->toArray()->exec();
+
+		$this->assertEquals(['prop' => 'holeradio-1'], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
