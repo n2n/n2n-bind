@@ -8,7 +8,7 @@ use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
 
 class ObjectBindAccessProxyCache {
-	public const MAX_CACHED_CLASSES_NUM = 1000;
+	public const MAX_CACHED_CLASSES_NUM = 200;
 
 	/**
 	 * Keys are classNames

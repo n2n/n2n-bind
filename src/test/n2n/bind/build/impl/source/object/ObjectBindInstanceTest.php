@@ -23,6 +23,9 @@ namespace n2n\bind\build\impl\source\object;
 
 use PHPUnit\Framework\TestCase;
 use n2n\util\type\attrs\AttributePath;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\BindException;
 
 class ObjectBindInstanceTest extends TestCase {
 
@@ -57,6 +60,7 @@ class ObjectBindInstanceTest extends TestCase {
 
 	/**
 	 * Test that an empty attribute path returns a bindable containing the whole object.
+	 * @throws BindException
 	 */
 	public function testCreateBindableWithEmptyPath(): void {
 		$dummy = $this->createDummyObject();
@@ -72,6 +76,7 @@ class ObjectBindInstanceTest extends TestCase {
 
 	/**
 	 * Test that a simple property is bound correctly.
+	 * @throws BindException
 	 */
 	public function testCreateBindableSimpleProperty(): void {
 		$dummy = $this->createDummyObject();
@@ -87,6 +92,7 @@ class ObjectBindInstanceTest extends TestCase {
 
 	/**
 	 * Test that a nested property is resolved correctly.
+	 * @throws BindException
 	 */
 	public function testCreateBindableNestedProperty(): void {
 		$dummy = $this->createDummyObject();
@@ -103,6 +109,7 @@ class ObjectBindInstanceTest extends TestCase {
 	/**
 	 * Test that when a property does not exist and mustExist is true,
 	 * createBindable throws an exception.
+	 * @throws BindMismatchException
 	 */
 	public function testCreateBindableNonExistentMustExist(): void {
 		$dummy = $this->createDummyObject();
@@ -110,13 +117,14 @@ class ObjectBindInstanceTest extends TestCase {
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
 		$path = new AttributePath(['nonexistent']);
-		$this->expectException(ValueNotTraversableException::class);
+		$this->expectException(UnresolvableBindableException::class);
 		$instance->createBindable($path, true);
 	}
 
 	/**
 	 * Test that when a property does not exist and mustExist is false,
-	 * createBindable returns a bindable with a null value.
+	 * createBindable returns a bindable with a null value and {@link Bindable::doesExist()} equals to false.
+	 * @throws BindException
 	 */
 	public function testCreateBindableNonExistentNotMustExist(): void {
 		$dummy = $this->createDummyObject();
@@ -126,6 +134,7 @@ class ObjectBindInstanceTest extends TestCase {
 		$path = new AttributePath(['nonexistent']);
 		$bindable = $instance->createBindable($path, false);
 
+		$this->assertFalse($bindable->doesExist());
 		$this->assertNull($bindable->getValue());
 	}
 
@@ -133,6 +142,7 @@ class ObjectBindInstanceTest extends TestCase {
 	 * Test that nested property access fails if an intermediate property is not an object.
 	 *
 	 * In this test, we set the property "obj2" to a non-object value and then attempt to access a nested property.
+	 * @throws BindMismatchException
 	 */
 	public function testCreateBindableNestedPropertyWithNonObjectIntermediate(): void {
 		$dummy = $this->createDummyObject();
@@ -141,7 +151,7 @@ class ObjectBindInstanceTest extends TestCase {
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
 		$path = new AttributePath(['obj2', 'firstname']);
-		$this->expectException(ValueNotTraversableException::class);
+		$this->expectException(UnresolvableBindableException::class);
 
 		$instance->createBindable($path, true);
 	}
@@ -152,6 +162,8 @@ class ObjectBindInstanceTest extends TestCase {
 	 * Given an ArrayObject in the dummy object with structure:
 	 * [ 'childMap' => [ 'childProp' => 'hello' ] ],
 	 * a path of ['arrObj', 'childMap', 'childProp'] should resolve to "hello".
+	 *
+	 * @throws BindException
 	 */
 	public function testArrayObjectAccessesHello(): void {
 		$dummy = $this->createDummyObject();
@@ -168,6 +180,7 @@ class ObjectBindInstanceTest extends TestCase {
 	/**
 	 * Test that mixed data structures (objects, arrays, and ArrayObjects)
 	 * are traversed correctly.
+	 * @throws BindException
 	 */
 	public function testMixedStructures(): void {
 		$dummy = new DummyMix();
@@ -235,14 +248,17 @@ class ObjectBindInstanceTest extends TestCase {
 		try {
 			$instance->createBindable($path, true);
 			$this->fail('Expected ValueNotTraversableException to be thrown.');
-		} catch (ValueNotTraversableException $e) {
+		} catch (UnresolvableBindableException $e) {
 			$message = $e->getMessage();
-			$this->assertEquals('objArr/arr/ not traversable. Allowed types are: object, array or \ArrayAccess. Given: string.', $message);
+			$this->assertEquals(
+					'Can not resolve path "objArr/arr/child". Path "objArr/arr" resolved a value of type string which is not traversable. Traversable types are: object, array or \ArrayAccess.',
+					$message);
 		}
 	}
 
 	/**
 	 * Test that when a key is missing in an array, the exception message contains the full path.
+	 * @throws BindMismatchException
 	 */
 	public function testExceptionMessageForMissingKey(): void {
 		$dummy = new class {
@@ -255,15 +271,18 @@ class ObjectBindInstanceTest extends TestCase {
 		try {
 			$instance->createBindable($path, true);
 			$this->fail('Expected ValueNotTraversableException to be thrown.');
-		} catch (ValueNotTraversableException $e) {
+		} catch (UnresolvableBindableException $e) {
 			$message = $e->getMessage();
-			$this->assertEquals('"data/baz" not traversable: Key "baz" does not exist in array "data/"', $message);
+			$this->assertEquals(
+					'Can not resolve path "data/baz". Key "baz" does not exist in array resolved by path "data"',
+					$message);
 		}
 	}
 
 	/**
 	 * Test that when an intermediate property is not an object (and so cannot be traversed),
 	 * the exception message contains the full path.
+	 * @throws BindMismatchException
 	 */
 	public function testExceptionMessageForNonObjectIntermediate(): void {
 		$dummy = $this->createDummyObject();
@@ -276,14 +295,19 @@ class ObjectBindInstanceTest extends TestCase {
 		try {
 			$instance->createBindable($path, true);
 			$this->fail('Expected ValueNotTraversableException to be thrown.');
-		} catch (ValueNotTraversableException $e) {
+		} catch (UnresolvableBindableException $e) {
 			$message = $e->getMessage();
-			$this->assertEquals('obj2/ not traversable. Allowed types are: object, array or \ArrayAccess. Given: string.', $message);
+			$this->assertEquals(
+					'Can not resolve path "obj2/firstname". Path "obj2" resolved a value of type string which is not traversable. Traversable types are: object, array or \ArrayAccess.',
+					$message);
 		}
 	}
 
 	/**
 	 * Test that a deep nested attribute path (10 levels) is traversed correctly.
+	 *
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
 	 */
 	public function testDeepNestedPath(): void {
 		$dummy = new class {
@@ -348,6 +372,13 @@ class ObjectBindInstanceTest extends TestCase {
 
 		$this->assertTrue($bindable->doesExist());
 		$this->assertEquals('DeepValue', $bindable->getValue());
+
+		$path = new AttributePath(['level1', 'level2', 'levelX', 'level4', 'level5']);
+
+		$bindable = $instance->createBindable($path, false);
+
+		$this->assertFalse($bindable->doesExist());
+		$this->assertNull($bindable->getValue());
 	}
 }
 

@@ -26,8 +26,16 @@ use n2n\util\magic\MagicContext;
 use n2n\util\ex\IllegalStateException;
 use PHPUnit\Framework\TestCase;
 use n2n\bind\build\impl\Bind;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
 
 class ObjectBindSourceTest extends TestCase{
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testObj() {
 		$source = new TestObject();
 		$source->firstname = 'Tester' . "\x06" . 'ich ';
@@ -86,11 +94,16 @@ class ObjectBindSourceTest extends TestCase{
 		$result->get();
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testObjUnresolvableBindable() {
 		$source = new TestObject();
 		$source->huii = 'hoii';
 
-		$this->expectException(ValueNotTraversableException::class);
+		$this->expectException(UnresolvableBindableException::class);
 		Bind::obj($source)
 				->toObj(new TestObject())
 				->prop('holeradio', Mappers::cleanString(true, 11, 255))

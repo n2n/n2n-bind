@@ -51,6 +51,9 @@ abstract class MapperAdapter implements Mapper {
 		}
 	}
 
+	/**
+	 * @throws BindMismatchException
+	 */
 	protected function createMismatchException(Bindable $bindable, ?string $reason = null, ?\Throwable $previous = null) {
 		throw new BindMismatchException('Bindable ' . $bindable->getPath() . ' is not compatible with '
 				. get_class($this) . ($reason === null ? '' : 'Reason: ' . $reason), 0, $previous);

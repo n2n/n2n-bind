@@ -51,7 +51,10 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 
 	/**
 	 * Test that different properties yield distinct proxy objects.
+	 * @throws InaccessiblePropertyException
+	 * @throws InvalidPropertyAccessMethodException
 	 * @throws PropertyAccessException
+	 * @throws UnknownPropertyException
 	 */
 	public function testCacheReturnsDistinctProxiesForDifferentProperties(): void {
 		$dummy = $this->createUniqueDummy();
@@ -96,6 +99,9 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 
 	/**
 	 * Test that when many classes are cached, the cache is pruned in bulk.
+	 * @throws InaccessiblePropertyException
+	 * @throws InvalidPropertyAccessMethodException
+	 * @throws UnknownPropertyException
 	 */
 	public function testPruneCacheInBulk(): void {
 		$cache = new ObjectBindAccessProxyCache();
@@ -110,7 +116,7 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 		$cacheProp = ExUtils::try(fn () => new \ReflectionProperty($cache, 'cacheItems'));
 		$cachedData = $cacheProp->getValue($cache);
 
-		$this->assertEquals(($maxClassesNum / 2) + 50, count($cachedData),
+		$this->assertCount(($maxClassesNum / 2) + 50, $cachedData,
 				"Cache size should be lass than MAX_CACHED_CLASSES_NUM/2.");
 	}
 
@@ -128,6 +134,9 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 
 	/**
 	 * Test that requesting a non-existent property throws an exception.
+	 * @throws InaccessiblePropertyException
+	 * @throws InvalidPropertyAccessMethodException
+	 * @throws UnknownPropertyException
 	 */
 	public function testUnknownPropertyThrowsException(): void {
 		$this->expectException(UnknownPropertyException::class);

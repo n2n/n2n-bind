@@ -32,6 +32,8 @@ use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\util\type\TypeUtils;
 use n2n\util\ex\ExUtils;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
 
 class ObjectBindInstance extends BindInstanceAdapter {
 	/**
@@ -41,14 +43,19 @@ class ObjectBindInstance extends BindInstanceAdapter {
 		parent::__construct();
 	}
 
-	/**
-	 * @throws ValueNotTraversableException
-	 */
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
 		$pathContext = new ObjectBindTraverseState($path, $mustExist);
-		$value = $this->resolveValue($pathContext, $this->object);
+		try {
+			$retrievedValue = $this->resolveValue($pathContext, $this->object);
+		} catch (ValueNotTraversableException $e) {
+			if ($mustExist) {
+				throw new UnresolvableBindableException($e->getMessage(), previous: $e);
+			}
 
-		$valueBindable = new ValueBindable($path, $value, true);
+			throw new BindMismatchException($e->getMessage(), previous: $e);
+		}
+
+		$valueBindable = new ValueBindable($path, $retrievedValue->value, $retrievedValue->exists);
 		$this->addBindable($valueBindable);
 
 		return $valueBindable;
@@ -59,14 +66,18 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 *
 	 * @throws ValueNotTraversableException If a segment cannot be found or a nested value is not traversable.
 	 */
-	private function resolveValue(ObjectBindTraverseState $pathState, mixed $value): mixed {
+	private function resolveValue(ObjectBindTraverseState $pathState, mixed $value): RetrievedValue {
 		$segment = $pathState->shiftSegment();
 		if ($segment === null) {
-			return $value;
+			return new RetrievedValue($value, true);
 		}
 
-		return $this->resolveValue($pathState,
-				$this->retrieveValueForSegment($segment, $value, $pathState));
+		$retrievedValue = $this->retrieveValueForSegment($segment, $value, $pathState);
+		if (!$retrievedValue->exists) {
+			return $retrievedValue;
+		}
+
+		return $this->resolveValue($pathState, $retrievedValue->value);
 	}
 
 	/**
@@ -78,14 +89,14 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 * @return mixed The value for the given segment.
 	 * @throws ValueNotTraversableException
 	 */
-	private function retrieveValueForSegment(string $segment, mixed $value, ObjectBindTraverseState $pathContext): mixed {
+	private function retrieveValueForSegment(string $segment, mixed $value, ObjectBindTraverseState $pathContext): RetrievedValue {
 		if (is_array($value)) {
 			if (array_key_exists($segment, $value)) {
-				return $value[$segment];
+				return new RetrievedValue($value[$segment], true);
 			}
 
 			if (!$pathContext->mustExist()) {
-				return null;
+				return new RetrievedValue(null, false);
 			}
 
 			throw new ValueNotTraversableException($this->formatKeyErrorMessage($pathContext, $segment, 'array'));
@@ -93,11 +104,11 @@ class ObjectBindInstance extends BindInstanceAdapter {
 
 		if ($value instanceof \ArrayAccess) {
 			if ($value->offsetExists($segment)) {
-				return $value->offsetGet($segment);
+				return new RetrievedValue($value->offsetGet($segment), true);
 			}
 
 			if (!$pathContext->mustExist()) {
-				return null;
+				return new RetrievedValue(null, false);
 			}
 
 			throw new ValueNotTraversableException($this->formatKeyErrorMessage($pathContext, $segment,
@@ -108,19 +119,19 @@ class ObjectBindInstance extends BindInstanceAdapter {
 			$refClass = ExUtils::try(fn () => new \ReflectionClass($value));
 			try {
 				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment);
-				return $valueProxy->getValue($value);
-			} catch (PropertyAccessException|\ReflectionException $e) {
+				return new RetrievedValue($valueProxy->getValue($value), true);
+			} catch (UnknownPropertyException $e) {
 				if (!$pathContext->mustExist()) {
-					return null;
+					return new RetrievedValue(null, false);
 				}
-
+			} catch (PropertyAccessException|\ReflectionException $e) {
 				throw new ValueNotTraversableException('Can not resolve path "'
 						. $pathContext->getTraversedPath() . '". Reason: ' . $e->getMessage(), previous: $e);
 			}
 		}
 
 		throw new ValueNotTraversableException('Can not resolve path "' . $pathContext->getTraversedPath()
-				. '. Path "' . $pathContext->getTraversedPath()->slice(0, -1) . '" resolved a value of type '
+				. '". Path "' . $pathContext->getTraversedPath()->slice(0, -1) . '" resolved a value of type '
 				. TypeUtils::getTypeInfo($value)
 				. ' which is not traversable. Traversable types are: object, array or \ArrayAccess.');
 	}
@@ -130,7 +141,12 @@ class ObjectBindInstance extends BindInstanceAdapter {
 	 */
 	private function formatKeyErrorMessage(ObjectBindTraverseState $pathContext, string $segment, string $type): string {
 		return 'Can not resolve path "' . $pathContext->getTraversedPath() . '". Key "' . $segment . '" does not exist in '
-				. $type . ' resolved by "' . $pathContext->getTraversedPath()->slice(0, -1) . '"';
+				. $type . ' resolved by path "' . $pathContext->getTraversedPath()->slice(0, -1) . '"';
 	}
 }
 
+class RetrievedValue {
+
+	function __construct(public readonly mixed $value, public readonly bool $exists) {
+	}
+}
