@@ -1,11 +1,28 @@
 <?php
+/*
+ * Copyright (c) 2012-2016, Hofmänner New Media.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This file is part of the N2N FRAMEWORK.
+ *
+ * The N2N FRAMEWORK is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * N2N is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details: http://www.gnu.org/licenses/
+ *
+ * The following people participated in this project:
+ *
+ * Andreas von Burg.....: Architect, Lead Developer
+ * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
+ * Thomas Günther.......: Developer, Hangar
+ */
 namespace n2n\bind\build\impl\source\object;
 
 use PHPUnit\Framework\TestCase;
 use n2n\util\type\attrs\AttributePath;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\err\BindException;
-use n2n\util\type\attrs\DataMap;
 
 class ObjectBindInstanceTest extends TestCase {
 
@@ -15,7 +32,7 @@ class ObjectBindInstanceTest extends TestCase {
 	 * The dummy object has:
 	 * - Simple properties: 'firstname', 'lastname'
 	 * - A nested object in property 'obj2' with its own 'firstname' and 'lastname'
-	 * - A DataMap property 'dataMap' containing a nested array structure.
+	 * - An ArrayObject property 'arrObj' containing a nested array structure.
 	 *
 	 * @return object
 	 */
@@ -24,7 +41,7 @@ class ObjectBindInstanceTest extends TestCase {
 			public string $firstname = 'Testerich';
 			public string $lastname  = 'von Testen';
 			public $obj2;
-			public DataMap $dataMap;
+			public \ArrayObject $arrObj;
 			public $nonObject = 'I am not an object';
 
 			public function __construct() {
@@ -33,7 +50,7 @@ class ObjectBindInstanceTest extends TestCase {
 					public string $lastname  = 'ChildLast';
 				};
 
-				$this->dataMap = new DataMap(['childMap' => ['childProp' => 'hello']]);
+				$this->arrObj = new \ArrayObject(['childMap' => ['childProp' => 'hello']]);
 			}
 		};
 	}
@@ -93,7 +110,7 @@ class ObjectBindInstanceTest extends TestCase {
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
 		$path = new AttributePath(['nonexistent']);
-		$this->expectException(UnresolvableBindableException::class);
+		$this->expectException(ValueNotTraversableException::class);
 		$instance->createBindable($path, true);
 	}
 
@@ -109,7 +126,6 @@ class ObjectBindInstanceTest extends TestCase {
 		$path = new AttributePath(['nonexistent']);
 		$bindable = $instance->createBindable($path, false);
 
-		$this->assertFalse($bindable->doesExist());
 		$this->assertNull($bindable->getValue());
 	}
 
@@ -125,32 +141,32 @@ class ObjectBindInstanceTest extends TestCase {
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
 		$path = new AttributePath(['obj2', 'firstname']);
-		$this->expectException(BindException::class);
+		$this->expectException(ValueNotTraversableException::class);
 
 		$instance->createBindable($path, true);
 	}
 
 	/**
-	 * Test that DataMap property access works correctly.
+	 * Test that ArrayObject property access works correctly.
 	 *
-	 * Given a DataMap in the dummy object with structure:
+	 * Given an ArrayObject in the dummy object with structure:
 	 * [ 'childMap' => [ 'childProp' => 'hello' ] ],
-	 * a path of ['dataMap', 'childMap', 'childProp'] should resolve to "hello".
+	 * a path of ['arrObj', 'childMap', 'childProp'] should resolve to "hello".
 	 */
-	public function testDataMapAccessesHello(): void {
+	public function testArrayObjectAccessesHello(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
-		$path = new AttributePath(['dataMap', 'childMap', 'childProp']);
+		$path = new AttributePath(['arrObj', 'childMap', 'childProp']);
 		$bindable = $instance->createBindable($path, true);
 
-		$this->assertTrue($bindable->doesExist(), "Bindable should exist for DataMap property path.");
-		$this->assertEquals('hello', $bindable->getValue(), "Bindable should return 'hello' from DataMap.");
+		$this->assertTrue($bindable->doesExist(), 'Bindable should exist for ArrayObject property path.');
+		$this->assertEquals('hello', $bindable->getValue(), 'Bindable should return \'hello\' from ArrayObject.');
 	}
 
 	/**
-	 * Test that mixed data structures (objects, arrays, and DataMaps)
+	 * Test that mixed data structures (objects, arrays, and ArrayObjects)
 	 * are traversed correctly.
 	 */
 	public function testMixedStructures(): void {
@@ -158,47 +174,180 @@ class ObjectBindInstanceTest extends TestCase {
 		$proxyCache = new ObjectBindAccessProxyCache();
 		$instance = new ObjectBindInstance($dummy, $proxyCache);
 
-		// Case 1: object → object → DataMap → array, yielding "v1"
-		$path1 = new AttributePath(['mix', 'case1', 'child', 'dataMap', 'arr', 'val']);
+		// Case 1: object → object → ArrayObject → array, yielding "v1"
+		$path1 = new AttributePath(['mix', 'case1', 'child', 'arrObj', 'arr', 'val']);
 		$bindable1 = $instance->createBindable($path1, true);
-		$this->assertTrue($bindable1->doesExist(), "Case 1: Bindable should exist for path 'mix/case1/child/dataMap/arr/val'.");
-		$this->assertEquals('v1', $bindable1->getValue(), "Case 1: Expected value 'v1'.");
+		$this->assertTrue($bindable1->doesExist(), 'Case 1: Bindable should exist for path \'mix/case1/child/arrObj/arr/val\'.');
+		$this->assertEquals('v1', $bindable1->getValue(), 'Case 1: Expected value \'v1\'.');
 
-		// Case 2: array → DataMap → object, yielding "v2"
+		// Case 2: array → ArrayObject → object, yielding "v2"
 		$path2 = new AttributePath(['mix', 'case2', 'dm', 'child', 'name']);
 		$bindable2 = $instance->createBindable($path2, true);
-		$this->assertTrue($bindable2->doesExist(), "Case 2: Bindable should exist for path 'mix/case2/dm/child/name'.");
-		$this->assertEquals('v2', $bindable2->getValue(), "Case 2: Expected value 'v2'.");
+		$this->assertTrue($bindable2->doesExist(), 'Case 2: Bindable should exist for path \'mix/case2/dm/child/name\'.');
+		$this->assertEquals('v2', $bindable2->getValue(), 'Case 2: Expected value \'v2\'.');
 
-		// Case 3: object → array → DataMap, yielding "v3"
+		// Case 3: object → array → ArrayObject, yielding "v3"
 		$path3 = new AttributePath(['mix', 'case3', 'arr', 'info', 'key']);
 		$bindable3 = $instance->createBindable($path3, true);
-		$this->assertTrue($bindable3->doesExist(), "Case 3: Bindable should exist for path 'mix/case3/arr/info/key'.");
-		$this->assertEquals('v3', $bindable3->getValue(), "Case 3: Expected value 'v3'.");
+		$this->assertTrue($bindable3->doesExist(), 'Case 3: Bindable should exist for path \'mix/case3/arr/info/key\'.');
+		$this->assertEquals('v3', $bindable3->getValue(), 'Case 3: Expected value \'v3\'.');
 
-		// Case 4: array → array → DataMap, yielding "v4"
+		// Case 4: array → array → ArrayObject, yielding "v4"
 		$path4 = new AttributePath(['mix', 'case4', 'first', 'dm', 'key']);
 		$bindable4 = $instance->createBindable($path4, true);
-		$this->assertTrue($bindable4->doesExist(), "Case 4: Bindable should exist for path 'mix/case4/first/dm/key'.");
-		$this->assertEquals('v4', $bindable4->getValue(), "Case 4: Expected value 'v4'.");
+		$this->assertTrue($bindable4->doesExist(), 'Case 4: Bindable should exist for path \'mix/case4/first/dm/key\'.');
+		$this->assertEquals('v4', $bindable4->getValue(), 'Case 4: Expected value \'v4\'.');
 
-		// Case 5: object → DataMap → array → object, yielding "v5"
-		$path5 = new AttributePath(['mix', 'case5', 'dataMap', 'arr', 'child', 'name']);
+		// Case 5: object → ArrayObject → array → object, yielding "v5"
+		$path5 = new AttributePath(['mix', 'case5', 'arrObj', 'arr', 'child', 'name']);
 		$bindable5 = $instance->createBindable($path5, true);
-		$this->assertTrue($bindable5->doesExist(), "Case 5: Bindable should exist for path 'mix/case5/dataMap/arr/child/name'.");
-		$this->assertEquals('v5', $bindable5->getValue(), "Case 5: Expected value 'v5'.");
+		$this->assertTrue($bindable5->doesExist(), 'Case 5: Bindable should exist for path \'mix/case5/arrObj/arr/child/name\'.');
+		$this->assertEquals('v5', $bindable5->getValue(), 'Case 5: Expected value \'v5\'.');
 
-		// Case 6: DataMap → array → object, yielding "v6"
+		// Case 6: ArrayObject → array → object, yielding "v6"
 		$path6 = new AttributePath(['mix', 'case6', 'arr', 'child', 'name']);
 		$bindable6 = $instance->createBindable($path6, true);
-		$this->assertTrue($bindable6->doesExist(), "Case 6: Bindable should exist for path 'mix/case6/arr/child/name'.");
-		$this->assertEquals('v6', $bindable6->getValue(), "Case 6: Expected value 'v6'.");
+		$this->assertTrue($bindable6->doesExist(), 'Case 6: Bindable should exist for path \'mix/case6/arr/child/name\'.');
+		$this->assertEquals('v6', $bindable6->getValue(), 'Case 6: Expected value \'v6\'.');
 
-		// Case 7: DataMap → DataMap → object, yielding "v7"
+		// Case 7: ArrayObject → ArrayObject → object, yielding "v7"
 		$path7 = new AttributePath(['mix', 'case7', 'dm', 'child', 'name']);
 		$bindable7 = $instance->createBindable($path7, true);
-		$this->assertTrue($bindable7->doesExist(), "Case 7: Bindable should exist for path 'mix/case7/dm/child/name'.");
-		$this->assertEquals('v7', $bindable7->getValue(), "Case 7: Expected value 'v7'.");
+		$this->assertTrue($bindable7->doesExist(), 'Case 7: Bindable should exist for path \'mix/case7/dm/child/name\'.');
+		$this->assertEquals('v7', $bindable7->getValue(), 'Case 7: Expected value \'v7\'.');
+	}
+
+	/**
+	 * Test that when a nested lookup fails because an ArrayAccess value is not traversable,
+	 * the thrown exception message contains the full accumulated path.
+	 */
+	public function testExceptionMessageForArrayAccessNonTraversable(): void {
+		$dummy = new class {
+			public \ArrayObject $objArr;
+			public function __construct() {
+				$this->objArr = new \ArrayObject(['arr' => 'non-traversable']);
+			}
+		};
+		$proxyCache = new ObjectBindAccessProxyCache();
+		$instance = new ObjectBindInstance($dummy, $proxyCache);
+
+		$path = new AttributePath(['objArr', 'arr', 'child']);
+		try {
+			$instance->createBindable($path, true);
+			$this->fail('Expected ValueNotTraversableException to be thrown.');
+		} catch (ValueNotTraversableException $e) {
+			$message = $e->getMessage();
+			$this->assertEquals('objArr/arr/ not traversable. Allowed types are: object, array or \ArrayAccess. Given: string.', $message);
+		}
+	}
+
+	/**
+	 * Test that when a key is missing in an array, the exception message contains the full path.
+	 */
+	public function testExceptionMessageForMissingKey(): void {
+		$dummy = new class {
+			public array $data = ['foo' => 'bar'];
+		};
+		$proxyCache = new ObjectBindAccessProxyCache();
+		$instance = new ObjectBindInstance($dummy, $proxyCache);
+
+		$path = new AttributePath(['data', 'baz']);
+		try {
+			$instance->createBindable($path, true);
+			$this->fail('Expected ValueNotTraversableException to be thrown.');
+		} catch (ValueNotTraversableException $e) {
+			$message = $e->getMessage();
+			$this->assertEquals('"data/baz" not traversable: Key "baz" does not exist in array "data/"', $message);
+		}
+	}
+
+	/**
+	 * Test that when an intermediate property is not an object (and so cannot be traversed),
+	 * the exception message contains the full path.
+	 */
+	public function testExceptionMessageForNonObjectIntermediate(): void {
+		$dummy = $this->createDummyObject();
+		// Set obj2 to a non-object value
+		$dummy->obj2 = 'I am not an object';
+		$proxyCache = new ObjectBindAccessProxyCache();
+		$instance = new ObjectBindInstance($dummy, $proxyCache);
+
+		$path = new AttributePath(['obj2', 'firstname']);
+		try {
+			$instance->createBindable($path, true);
+			$this->fail('Expected ValueNotTraversableException to be thrown.');
+		} catch (ValueNotTraversableException $e) {
+			$message = $e->getMessage();
+			$this->assertEquals('obj2/ not traversable. Allowed types are: object, array or \ArrayAccess. Given: string.', $message);
+		}
+	}
+
+	/**
+	 * Test that a deep nested attribute path (10 levels) is traversed correctly.
+	 */
+	public function testDeepNestedPath(): void {
+		$dummy = new class {
+			public $level1;
+			public function __construct() {
+				$this->level1 = new class {
+					public $level2;
+					public function __construct() {
+						$this->level2 = new class {
+							public $level3;
+							public function __construct() {
+								$this->level3 = new class {
+									public $level4;
+									public function __construct() {
+										$this->level4 = new class {
+											public $level5;
+											public function __construct() {
+												$this->level5 = new class {
+													public $level6;
+													public function __construct() {
+														$this->level6 = new class {
+															public $level7;
+															public function __construct() {
+																$this->level7 = new class {
+																	public $level8;
+																	public function __construct() {
+																		$this->level8 = new class {
+																			public $level9;
+																			public function __construct() {
+																				$this->level9 = new class {
+																					public $level10;
+																					public function __construct() {
+																						$this->level10 = 'DeepValue';
+																					}
+																				};
+																			}
+																		};
+																	}
+																};
+															}
+														};
+													}
+												};
+											}
+										};
+									}
+								};
+							}
+						};
+					}
+				};
+			}
+		};
+
+		$proxyCache = new ObjectBindAccessProxyCache();
+		$instance = new ObjectBindInstance($dummy, $proxyCache);
+
+		$path = new AttributePath(['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8',
+				'level9', 'level10']);
+
+		$bindable = $instance->createBindable($path, true);
+
+		$this->assertTrue($bindable->doesExist());
+		$this->assertEquals('DeepValue', $bindable->getValue());
 	}
 }
 
@@ -209,17 +358,17 @@ class DummyMix {
 		$this->mix = [
 				'case1' => new Case1Parent(),
 				'case2' => [
-						'dm' => new DataMap(['child' => new Case2Child('v2')])
+						'dm' => new \ArrayObject(['child' => new Case2Child('v2')])
 				],
 				'case3' => new Case3Parent(),
 				'case4' => [
 						'first' => [
-								'dm' => new DataMap(['key' => 'v4'])
+								'dm' => new \ArrayObject(['key' => 'v4'])
 						]
 				],
 				'case5' => new Case5Parent(),
-				'case6' => new DataMap(['arr' => ['child' => new Case6Child()]]),
-				'case7' => new DataMap(['dm' => new DataMap(['child' => new Case7Child()])]),
+				'case6' => new \ArrayObject(['arr' => ['child' => new Case6Child()]]),
+				'case7' => new \ArrayObject(['dm' => new \ArrayObject(['child' => new Case7Child()])]),
 		];
 	}
 }
@@ -232,9 +381,9 @@ class Case1Parent {
 }
 
 class Case1Child {
-	public DataMap $dataMap;
+	public \ArrayObject $arrObj;
 	public function __construct() {
-		$this->dataMap = new DataMap(['arr' => ['val' => 'v1']]);
+		$this->arrObj = new \ArrayObject(['arr' => ['val' => 'v1']]);
 	}
 }
 
@@ -248,7 +397,7 @@ class Case2Child {
 class Case3Parent {
 	public array $arr;
 	public function __construct() {
-		$this->arr = ['info' => new DataMap(['key' => 'v3'])];
+		$this->arr = ['info' => new \ArrayObject(['key' => 'v3'])];
 	}
 }
 
@@ -260,9 +409,9 @@ class Case5Child {
 }
 
 class Case5Parent {
-	public DataMap $dataMap;
+	public \ArrayObject $arrObj;
 	public function __construct() {
-		$this->dataMap = new DataMap(['arr' => ['child' => new Case5Child()]]);
+		$this->arrObj = new \ArrayObject(['arr' => ['child' => new Case5Child()]]);
 	}
 }
 

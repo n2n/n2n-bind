@@ -23,17 +23,11 @@ namespace n2n\bind\build\impl\source\object;
 
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
-use n2n\bind\err\BindTargetException;
-use n2n\bind\err\BindMismatchException;
-use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\ex\IllegalStateException;
 use PHPUnit\Framework\TestCase;
 use n2n\bind\build\impl\Bind;
 
 class ObjectBindSourceTest extends TestCase{
-	/**
-	 * @throws \Exception
-	 */
 	function testObj() {
 		$source = new TestObject();
 		$source->firstname = 'Tester' . "\x06" . 'ich ';
@@ -62,11 +56,6 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertEquals($target, $result->get());
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testObjValFail() {
 		$source = new TestObject();
 		$source->firstname = str_repeat('A', 256);
@@ -97,26 +86,17 @@ class ObjectBindSourceTest extends TestCase{
 		$result->get();
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 */
 	function testObjUnresolvableBindable() {
 		$source = new TestObject();
 		$source->huii = 'hoii';
 
-		$this->expectException(UnresolvableBindableException::class);
+		$this->expectException(ValueNotTraversableException::class);
 		Bind::obj($source)
 				->toObj(new TestObject())
 				->prop('holeradio', Mappers::cleanString(true, 11, 255))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testObjOnSuccessCall(): void {
 		$source = new TestObject();
 		$source->firstname = 'valid';
@@ -137,11 +117,6 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertTrue($result->isValid());
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testObjOnSuccessNoCallOrError(): void {
 		$source = new TestObject();
 		$source->firstname = str_repeat('A', 256);
@@ -158,11 +133,6 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertFalse($result->isValid());
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testSourceObjToArray(): void {
 		$source = new TestObject();
 		$source->firstname = 'Testerich';
@@ -184,11 +154,6 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertFalse(isset($resultArr['favouriteNumber']));
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testSourceObjWithPath(): void {
 		$source = new TestObject();
 		$source->firstname = 'Testerich';
@@ -214,11 +179,6 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertFalse(isset($resultArr['favouriteNumber']));
 	}
 
-	/**
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 * @throws UnresolvableBindableException
-	 */
 	function testSourceObjExtension(): void {
 		$this->markTestSkipped('Skipped test: Parent class not supported by PropertiesAnalyzer');
 
