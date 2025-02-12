@@ -13,7 +13,7 @@ use n2n\util\magic\impl\MagicMethodInvoker;
 class DoIfValueClosureMapper extends SingleMapperAdapter {
 
 	public function __construct(private \Closure $closure, private bool $abort = false,
-			private bool $skipNextMapper = false, private ?bool $chLogical = null) {
+			private bool $skipNextMappers = false, private ?bool $chLogical = null) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
@@ -34,6 +34,6 @@ class DoIfValueClosureMapper extends SingleMapperAdapter {
 			$bindable->setLogical($this->chLogical);
 		}
 
-		return new MapResult(!$this->abort, $this->skipNextMapper);
+		return new MapResult(!$this->abort, $this->skipNextMappers);
 	}
 }

@@ -49,7 +49,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 						Mappers::doIfValueClosure(function (string $v) {
 							$this->assertEquals('holeradio-1', $v);
 							return true;
-						}, skipNextMapper: true),
+						}, skipNextMappers: true),
 						Mappers::valueClosure(function () {
 							$this->fail('Mapper should be skipped');
 						}))
@@ -70,7 +70,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 						Mappers::doIfValueClosure(function (string $v) {
 							$this->assertEquals('holeradio-1', $v);
 							return true;
-						}, skipNextMapper: true),
+						}, skipNextMappers: true),
 						Mappers::valueClosure(fn (string $v) => $v . '-2'))
 				->toArray()->exec();
 
