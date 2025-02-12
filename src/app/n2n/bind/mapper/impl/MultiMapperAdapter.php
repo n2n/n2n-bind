@@ -29,6 +29,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\MapperUtils;
+use n2n\bind\mapper\MapResult;
 
 abstract class MultiMapperAdapter extends MapperAdapter {
 
@@ -40,11 +41,11 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 		$this->spreadDirtyState = $spreadDirtyState;
 	}
 
-	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$allBindables = $bindBoundary->getBindables();
 
 		if ($this->spreadDirtyState && MapperUtils::spreadDirtyState($allBindables)) {
-			return true;
+			return new MapResult();
 		}
 
 		$existingBindables = array_filter($allBindables, fn (Bindable $b) => $b->doesExist());
@@ -52,20 +53,20 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 		if (($this->multiMapMode === MultiMapMode::ANY_BINDABLE_MUST_EXIST && empty($existingBindables))
 				|| ($this->multiMapMode === MultiMapMode::EVERY_BINDABLE_MUST_EXIST
 						&& count($existingBindables) < count($allBindables))) {
-			return true;
+			return new MapResult();
 		}
 
-		return $this->mapMulti($existingBindables, $bindBoundary, $magicContext);
+		return MapResult::fromArg($this->mapMulti($existingBindables, $bindBoundary, $magicContext));
 	}
 
 	/**
 	 * @param Bindable[] $bindables
 	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
-	 * @return bool
+	 * @return MapResult|bool
 	 * @throws BindMismatchException {@see Mapper::map()}
 	 * @throws UnresolvableBindableException
 	 */
-	protected abstract function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool;
+	protected abstract function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult|bool;
 	
 }

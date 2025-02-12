@@ -8,6 +8,7 @@ use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindPlan;
 use n2n\bind\plan\impl\BindableBindContext;
 use n2n\bind\build\impl\compose\prop\PropBindComposer;
+use n2n\bind\mapper\MapResult;
 
 class SubPropsMapper extends PropBindComposer implements Mapper {
 
@@ -16,15 +17,15 @@ class SubPropsMapper extends PropBindComposer implements Mapper {
 		parent::__construct(new BindPlan());
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		foreach ($bindBoundary->getBindables() as $bindable) {
 			$bindContext = new BindableBindContext($bindable);
 
 			if (!$this->bindPlan->exec($bindBoundary->unwarpBindInstance(), $bindContext, $magicContext)) {
-				return false;
+				return new MapResult(false);
 			}
 		}
 
-		return true;
+		return new MapResult(true);
 	}
 }

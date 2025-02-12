@@ -37,6 +37,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\ex\IllegalStateException;
 use n2n\bind\mapper\Mapper;
 use n2n\validation\plan\ErrorMap;
+use n2n\bind\mapper\MapResult;
 
 class BindTest extends TestCase {
 
@@ -238,7 +239,7 @@ class BindTest extends TestCase {
 
 
 		$onceMapper = $this->createMock(Mapper::class);
-		$onceMapper->expects($this->once())->method('map')->willReturn(true);
+		$onceMapper->expects($this->once())->method('map')->willReturn(new MapResult(true));
 
 		$dataMap = new DataMap();
 		$result = Bind::attrs(['prop1' => null, 'prop2' => 'valid'])->toAttrs($dataMap)
@@ -268,7 +269,7 @@ class BindTest extends TestCase {
 		$this->assertFalse($result->isValid());
 
 		$onceMapper = $this->createMock(Mapper::class);
-		$onceMapper->expects($this->once())->method('map')->willReturn(true);
+		$onceMapper->expects($this->once())->method('map')->willReturn(new MapResult(true));
 
 		$dataMap = new DataMap();
 		$result = Bind::values(null, 'valid')->toAttrs($dataMap)

@@ -7,6 +7,7 @@ use n2n\bind\plan\BindContext;
 use n2n\bind\plan\Bindable;
 use n2n\validation\validator\Validator;
 use n2n\util\magic\MagicContext;
+use n2n\util\type\ArgUtils;
 
 class MapperUtils {
 
@@ -55,4 +56,31 @@ class MapperUtils {
 
 		return true;
 	}
+
+//	/**
+//	 * @param Bindable[] $bindables
+//	 * @param mixed $returnValue
+//	 * @return mixed
+//	 */
+//	static function handleBindableCallbackReturn(array $bindables, mixed $returnValue): MapResult {
+//		if (!($returnValue instanceof MapResult)) {
+//			return new CallbackResult($returnValue, new MapResult(false, false));
+//		}
+//
+//		ArgUtils::valArray($bindables, Bindable::class);
+//
+//		$chLogical = $returnValue->getChLogical();
+//		if ($chLogical !== null) {
+//			foreach ($bindables as $bindable) {
+//				$bindable->setLogical($chLogical);
+//			}
+//		}
+//
+//
+//		return new MapResult($returnValue->getValue());
+//	}
 }
+
+//class CallbackResult {
+//
+//}

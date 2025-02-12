@@ -51,6 +51,7 @@ use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
 use n2n\bind\mapper\impl\op\AbortIfMapper;
 use n2n\bind\mapper\impl\op\AbortIfCondition;
 use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
+use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
 
 class Mappers {
 
@@ -324,6 +325,11 @@ class Mappers {
 	 */
 	static function abortIfDirty(): AbortIfMapper {
 		return new AbortIfMapper(AbortIfCondition::DIRTY);
+	}
+
+	static function doIfValueClosure(\Closure $closure, bool $abort = false, bool $skipNextMapper = false,
+			?bool $chLogical = null): DoIfValueClosureMapper {
+		return new DoIfValueClosureMapper($closure, $abort, $skipNextMapper, $chLogical);
 	}
 
 }

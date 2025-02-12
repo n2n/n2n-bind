@@ -54,8 +54,12 @@ class BindGroup {
 		foreach ($this->mappers as $mapper) {
 			$bindables = $bindBoundary->getBindables();
 			try {
-				if (!$mapper->map($bindBoundary, $magicContext)) {
+				$mapResult = $mapper->map($bindBoundary, $magicContext);
+				if (!$mapResult->isOk()) {
 					return false;
+				}
+				if ($mapResult->isSkipNext()) {
+					return true;
 				}
 			} catch (BindMismatchException $e) {
 				throw new BindMismatchException('Mapper ' . get_class($mapper) . ' rejected bindables group '

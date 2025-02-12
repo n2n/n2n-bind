@@ -20,11 +20,10 @@ interface Mapper  {
 	 *
 	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
-	 * @return bool false if a Mapper could not perform a modification of value due to errors of the passed bindables.
-	 *    The bind process will be aborted in this case.
+	 * @return MapResult .
 	 * @throws BindMismatchException same as returning false but with an exception message.
 	 * @throws UnresolvableBindableException
 	 */
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool;
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult;
 
 }

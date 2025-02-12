@@ -13,6 +13,7 @@ use n2n\util\type\TypeConstraints;
 use n2n\reflection\ReflectionRuntimeException;
 use n2n\bind\mapper\impl\valobj\err\ValueObjectMapperExtractionException;
 use n2n\bind\err\BindMismatchException;
+use n2n\bind\mapper\MapResult;
 
 class MarshalMapper extends SingleMapperAdapter {
 
@@ -24,11 +25,11 @@ class MarshalMapper extends SingleMapperAdapter {
 	function __construct() {
 	}
 
-	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$value = $this->readSafeValue($bindable, TypeConstraints::namedType('object', true));
 
 		if ($value === null) {
-			return true;
+			return new MapResult(true);
 		}
 
 		return $this->deterMapper($value)->map(

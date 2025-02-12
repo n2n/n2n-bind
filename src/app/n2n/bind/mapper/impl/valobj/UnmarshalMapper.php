@@ -11,6 +11,7 @@ use n2n\bind\mapper\impl\valobj\err\ValueObjectMapperCorruptedException;
 use n2n\bind\mapper\impl\MapperAdapter;
 use n2n\reflection\ReflectionRuntimeException;
 use n2n\bind\mapper\impl\valobj\err\ValueObjectMapperExtractionException;
+use n2n\bind\mapper\MapResult;
 
 class UnmarshalMapper extends MapperAdapter {
 
@@ -27,9 +28,10 @@ class UnmarshalMapper extends MapperAdapter {
 		}
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		if (!$this->mapper->map($bindBoundary, $magicContext)) {
-			return false;
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
+		$mapResult = $this->mapper->map($bindBoundary, $magicContext);
+		if (!$mapResult->isOk()) {
+			return $mapResult;
 		}
 
 		foreach ($bindBoundary->getBindables() as $bindable) {
@@ -45,7 +47,7 @@ class UnmarshalMapper extends MapperAdapter {
 					. TypeUtils::getTypeInfo($value));
 		}
 
-		return true;
+		return $mapResult;
 	}
 
 }

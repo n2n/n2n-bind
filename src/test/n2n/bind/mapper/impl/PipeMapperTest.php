@@ -14,6 +14,7 @@ use PHPUnit\Util\Xml\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\mapper\MapResult;
 
 class PipeMapperTest extends TestCase {
 	/**
@@ -148,7 +149,7 @@ class PipeMapperTest extends TestCase {
 		$tdm = new DataMap();
 
 		$mapperMock = $this->createMock(Mapper::class);
-		$mapperMock->expects($this->once())->method('map')->willReturn(true);
+		$mapperMock->expects($this->once())->method('map')->willReturn(new MapResult(true));
 
 		Bind::attrs($dataMap)->toAttrs($tdm)
 				->optProps(['clo1', 'clo2', 'clo3'],

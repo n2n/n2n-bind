@@ -10,6 +10,7 @@ use n2n\util\type\TypeConstraints;
 use n2n\reflection\magic\MagicMethodInvoker;
 use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\BindData;
+use n2n\bind\mapper\MapResult;
 
 class ValueClosureMapper extends SingleMapperAdapter {
 
@@ -19,10 +20,10 @@ class ValueClosureMapper extends SingleMapperAdapter {
 		$this->closure = $closure;
 	}
 
-	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$value = $bindable->getValue();
 		if ($this->nullSkipped && $value === null) {
-			return true;
+			return new MapResult();
 		}
 
 		$invoker = new MagicMethodInvoker($magicContext);
@@ -38,6 +39,6 @@ class ValueClosureMapper extends SingleMapperAdapter {
 
 		$bindable->setValue($returnValue);
 
-		return true;
+		return new MapResult();
 	}
 }

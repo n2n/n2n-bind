@@ -14,6 +14,7 @@ use n2n\bind\mapper\impl\Mappers;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\Mapper;
+use n2n\bind\mapper\MapResult;
 
 class ObjectBindTargetTest extends TestCase {
 	/**
@@ -220,7 +221,7 @@ class ObjectBindTargetTest extends TestCase {
 		$this->expectException(BindTargetException::class);
 
 		$mapperMock =  $this->createMock(Mapper::class);
-		$mapperMock->expects($this->once())->method('map')->willReturn(true);
+		$mapperMock->expects($this->once())->method('map')->willReturn(new MapResult(true));
 
 		Bind::attrs($dataMap)->toObj($targetMock)
 				->root($mapperMock)

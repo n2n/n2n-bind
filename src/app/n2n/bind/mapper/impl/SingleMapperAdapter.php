@@ -28,31 +28,35 @@ use n2n\bind\plan\BindBoundary;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\mapper\MapResult;
 
 abstract class SingleMapperAdapter extends MapperAdapter {
 
-	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
+		$mapResult = new MapResult();
+
 		foreach ($bindBoundary->getBindables() as $bindable) {
 			if (!$bindable->doesExist() || $bindable->isDirty()) {
 				continue;
 			}
 
-			if (!$this->mapSingle($bindable, $bindBoundary, $magicContext)) {
-				return false;
+			$mapResult = $mapResult->merge(MapResult::fromArg($this->mapSingle($bindable, $bindBoundary, $magicContext)));
+			if (!$mapResult->isOk()) {
+				return $mapResult;
 			}
 		}
 
-		return true;
+		return $mapResult;
 	}
 
 	/**
 	 * @param Bindable $bindable
 	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
-	 * @return bool
+	 * @return MapResult
 	 * @throws BindMismatchException {@see Mapper::map()}
 	 * @throws UnresolvableBindableException
 	 */
-	protected abstract function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool;
+	protected abstract function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult|bool;
 	
 }

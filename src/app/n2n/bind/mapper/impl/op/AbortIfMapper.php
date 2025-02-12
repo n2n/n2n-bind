@@ -5,6 +5,7 @@ namespace n2n\bind\mapper\impl\op;
 use n2n\util\magic\MagicContext;
 use n2n\bind\plan\BindBoundary;
 use n2n\bind\mapper\Mapper;
+use n2n\bind\mapper\MapResult;
 
 class AbortIfMapper implements Mapper  {
 
@@ -12,22 +13,22 @@ class AbortIfMapper implements Mapper  {
 
 	}
 
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		foreach ($bindBoundary->getBindables() as $bindable) {
 			if (!$bindable->doesExist()) {
 				continue;
 			}
 
 			if ($this->abortIfCondition === AbortIfCondition::INVALID && !$bindable->isValid()) {
-				return false;
+				return new MapResult(false);
 			}
 
 			if ($this->abortIfCondition === AbortIfCondition::DIRTY && $bindable->isDirty()) {
-				return false;
+				return new MapResult(false);
 			}
 		}
 
-		return true;
+		return new MapResult(true);
 	}
 }
 
