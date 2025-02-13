@@ -43,7 +43,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
-	public function testDateTimeAfterMin(): void {
+	public function testDateTimeAfterMax(): void {
 		$this->sdm->set('date', new \DateTime('2010-01-03'));
 		$result = $this->performMapping();
 
@@ -92,7 +92,7 @@ class DateTimeMapperTest extends TestCase {
 		$this->assertNull($this->tdm->opt('date'));
 	}
 
-	public function testDateTimeImmutableAfterMin(): void {
+	public function testDateTimeImmutableAfterMax(): void {
 		$this->sdm->set('date', new \DateTimeImmutable('2010-01-03'));
 		$result = $this->performMappingImmutable();
 
