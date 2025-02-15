@@ -42,11 +42,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 		return $this;
 	}
 
-	/**
-	 * @param AttributeWriter $attributeWriter
-	 * @return PropBindTask
-	 */
-	function toAttrs(AttributeWriter $attributeWriter): static {
+	function toAttrs(AttributeWriter|\Closure $attributeWriter): static {
 		return $this->to(new AttrsBindTarget($attributeWriter));
 	}
 

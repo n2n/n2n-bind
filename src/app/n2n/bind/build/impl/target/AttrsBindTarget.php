@@ -31,11 +31,19 @@ use n2n\bind\plan\Bindable;
 
 class AttrsBindTarget implements BindTarget {
 
-	function __construct(private AttributeWriter $attributeWriter) {
+	function __construct(private AttributeWriter|\Closure $attributeWriter) {
 	}
 
 	function write(array $bindables): AttributeWriter {
 		ArgUtils::valArray($bindables, Bindable::class);
+
+		$attributeWriter = null;
+		if ($this->attributeWriter instanceof AttributeWriter) {
+			$attributeWriter = $this->attributeWriter;
+		} else {
+			$attributeWriter = $this->attributeWriter->__invoke();
+			ArgUtils::valTypeReturn($attributeWriter, AttributeWriter::class, null, $this->attributeWriter);
+		}
 
 		foreach ($bindables as $bindable) {
 			if (!$bindable->doesExist() || $bindable->isLogical()) {
@@ -43,13 +51,13 @@ class AttrsBindTarget implements BindTarget {
 			}
 
 			try {
-				$this->attributeWriter->writeAttribute($bindable->getPath(), $bindable->getValue());
+				$attributeWriter->writeAttribute($bindable->getPath(), $bindable->getValue());
 			} catch (AttributesException $e) {
 				throw new BindTargetException('Could not write bindable \'' . $bindable->getPath(), 0, $e);
 
 			}
 		}
 
-		return $this->attributeWriter;
+		return $attributeWriter;
 	}
 }

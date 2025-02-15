@@ -76,7 +76,7 @@ class UnionBindComposer {
 		return $this;
 	}
 
-	function toAttrs(AttributeWriter $attributeWriter): UnionBindComposer {
+	function toAttrs(AttributeWriter|\Closure $attributeWriter): UnionBindComposer {
 		return $this->to(new AttrsBindTarget($attributeWriter));
 	}
 
