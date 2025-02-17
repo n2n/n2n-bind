@@ -29,7 +29,6 @@ class DoIfValueClosureMapper extends SingleMapperAdapter {
 			return new MapResult();
 		}
 
-		$bindable->setValue($returnValue);
 		if ($this->chLogical !== null) {
 			$bindable->setLogical($this->chLogical);
 		}

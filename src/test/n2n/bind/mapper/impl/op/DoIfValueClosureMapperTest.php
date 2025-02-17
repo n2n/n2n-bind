@@ -85,7 +85,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 						}))
 				->toArray()->exec();
 
-		$this->assertEquals(['prop' => 'holeradio-1'], $result->get());
+		$this->assertSame(['prop' => 'holeradio-1'], $result->get());
 	}
 
 	/**
@@ -106,7 +106,8 @@ class DoIfValueClosureMapperTest extends TestCase {
 						}))
 				->toArray()->exec();
 
-		$this->assertEquals(['prop' => 'holeradio-1'], $result->get());
+
+		$this->assertSame(['prop' => 'holeradio-1'], $result->get());
 	}
 
 	/**
@@ -125,7 +126,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 						Mappers::valueClosure(fn (string $v) => $v . '-2'))
 				->toArray()->exec();
 
-		$this->assertEquals(['prop' => 'holeradio-1-2'], $result->get());
+		$this->assertSame(['prop' => 'holeradio-1'], $result->get());
 	}
 
 	/**
@@ -139,7 +140,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 				->logicalProp('prop2', Mappers::doIfValueClosure(fn () => true, chLogical: false))
 				->toArray()->exec();
 
-		$this->assertEquals(['prop2' => 'holeradio!'], $result->get());
+		$this->assertSame(['prop2' => 'holeradio!'], $result->get());
 	}
 
 	/**
@@ -153,7 +154,7 @@ class DoIfValueClosureMapperTest extends TestCase {
 				->logicalProp('prop2', Mappers::doIfValueClosure(fn () => false, chLogical: false))
 				->toArray()->exec();
 
-		$this->assertEquals(['prop' => 'holeradio'], $result->get());
+		$this->assertSame(['prop' => 'holeradio'], $result->get());
 	}
 
 }
