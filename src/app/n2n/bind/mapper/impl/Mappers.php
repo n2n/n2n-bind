@@ -52,6 +52,7 @@ use n2n\bind\mapper\impl\op\AbortIfMapper;
 use n2n\bind\mapper\impl\op\AbortIfCondition;
 use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
 use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
+use n2n\bind\mapper\impl\date\DateSqlMapper;
 
 class Mappers {
 
@@ -213,6 +214,10 @@ class Mappers {
 
 	static function dateTimeSql(): DateTimeSqlMapper {
 		return new DateTimeSqlMapper();
+	}
+
+	static function dateSql(): DateSqlMapper {
+		return new DateSqlMapper();
 	}
 
 	static function n2nLocale(bool $mandatory = false, ?array $allowedValues = null): N2nLocaleMapper {
