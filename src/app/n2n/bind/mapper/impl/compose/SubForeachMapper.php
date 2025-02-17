@@ -1,0 +1,36 @@
+<?php
+
+namespace n2n\bind\mapper\impl\compose;
+
+use n2n\bind\mapper\impl\SingleMapperAdapter;
+use n2n\bind\plan\Bindable;
+use n2n\util\magic\MagicContext;
+use n2n\bind\mapper\MapResult;
+use n2n\bind\plan\BindBoundary;
+use n2n\util\type\TypeConstraints;
+use Traversable;
+use n2n\bind\mapper\Mapper;
+use n2n\bind\plan\impl\BindableBindContext;
+use n2n\bind\mapper\impl\PipeMapper;
+
+class SubForeachMapper extends SingleMapperAdapter {
+
+	/**
+	 * @param Mapper[] $mappers
+	 */
+	function __construct(private array $mappers) {
+	}
+
+	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult|bool {
+		$value = $this->readSafeValue($bindable, TypeConstraints::type(['array', Traversable::class]));
+		$path = $bindable->getPath();
+
+
+		$bindBoundary = new BindBoundary($bindBoundary->unwarpBindInstance(), new BindableBindContext($bindable), []);
+		foreach ($value as $fieldKey => $fieldValue) {
+			$bindBoundary->acquireBindableByRelativeName($fieldKey);
+		}
+
+		return (new PipeMapper($this->mappers))->map($bindBoundary, $magicContext);
+	}
+}
