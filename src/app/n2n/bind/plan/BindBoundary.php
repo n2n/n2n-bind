@@ -16,7 +16,7 @@ class BindBoundary {
 	private array $paths = [];
 
 	/**
-	 * @param BindSource $bindInstance
+	 * @param BindInstance $bindInstance
 	 * @param BindContext $bindContext
 	 * @param Bindable[] $bindables
 	 */

@@ -53,6 +53,7 @@ use n2n\bind\mapper\impl\op\AbortIfCondition;
 use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
 use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
 use n2n\bind\mapper\impl\date\DateSqlMapper;
+use n2n\bind\mapper\impl\compose\SubForeachMapper;
 
 class Mappers {
 
@@ -255,6 +256,10 @@ class Mappers {
 	 */
 	static function subProps(): SubPropsMapper {
 		return new SubPropsMapper();
+	}
+
+	static function subForeach(Mapper|Validator ...$mappers): SubForeachMapper {
+		return new SubForeachMapper(ValidatorMapper::convertValidators($mappers));
 	}
 
 	/**

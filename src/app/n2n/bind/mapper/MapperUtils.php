@@ -57,6 +57,10 @@ class MapperUtils {
 		return true;
 	}
 
+	static function pipe(array $mappers, ) {
+
+	}
+
 //	/**
 //	 * @param Bindable[] $bindables
 //	 * @param mixed $returnValue
