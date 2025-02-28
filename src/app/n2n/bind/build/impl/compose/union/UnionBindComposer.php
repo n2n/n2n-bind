@@ -92,7 +92,7 @@ class UnionBindComposer {
 	 * @param $value
 	 * @return UnionBindComposer
 	 */
-	function toValue(&$value): UnionBindComposer {
+	function toValue(&$value = null): UnionBindComposer {
 		return $this->to(new RefBindTarget($value, false));
 	}
 
