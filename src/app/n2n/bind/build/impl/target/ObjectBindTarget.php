@@ -22,24 +22,30 @@
 namespace n2n\bind\build\impl\target;
 
 use n2n\bind\plan\BindTarget;
-use n2n\util\type\ArgUtils;
-use n2n\bind\plan\Bindable;
-use n2n\reflection\property\PropertiesAnalyzer;
 use n2n\bind\err\BindTargetException;
 
 class ObjectBindTarget implements BindTarget {
-	private object $obj;
+	private object $objOrFactory;
 
-	function __construct(object $obj) {
-		$this->obj = $obj;
+	function __construct(object $objOrFactory) {
+		$this->objOrFactory = $objOrFactory;
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
 	function write(array $bindables): object {
+		if ($this->objOrFactory instanceof \Closure) {
+			$obj = ($this->objOrFactory)();
+			if (!is_object($obj)) {
+				throw new BindTargetException('Closure must return value of type object. Given value type: '
+						. gettype($obj));
+			}
+		} else {
+			$obj = $this->objOrFactory;
+		}
 		$objectBindableWriteProcess = new ObjectBindableWriteProcess($bindables);
-		$objectBindableWriteProcess->process($this->obj);
-		return $this->obj;
+		$objectBindableWriteProcess->process($obj);
+		return $obj;
 	}
 }

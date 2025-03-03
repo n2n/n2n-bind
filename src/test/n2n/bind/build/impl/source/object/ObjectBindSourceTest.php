@@ -29,6 +29,7 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
+use AllowDynamicProperties;
 
 class ObjectBindSourceTest extends TestCase{
 	/**
@@ -197,32 +198,35 @@ class ObjectBindSourceTest extends TestCase{
 		$this->assertFalse(isset($resultArr['favouriteNumber']));
 	}
 
-	function testSourceObjExtension(): void {
-		$this->markTestSkipped('Skipped test: Parent class not supported by PropertiesAnalyzer');
+//	function testSourceObjExtension(): void {
+//		$this->markTestSkipped('Skipped test: Parent class not supported by PropertiesAnalyzer');
+//
+//		$source = new TestObject();
+//		$source->firstname = 'Testerich';
+//		$source->lastname = 'von Testen';
+//
+//		$target = new TestObjExtension();
+//		$bindTask = Bind::obj($source)
+//				->dynProp('firstname', false, Mappers::valueClosure(fn ($v) => $v . '-updated'))
+//				->prop('lastname', Mappers::cleanString(true), Mappers::valueClosure(fn ($v) => $v . '-updated'))
+//				->toObj($target)
+//				->exec($this->createMock(MagicContext::class));
+//
+//		$this->assertTrue($bindTask->isValid());
+//
+//		$resultArr = $bindTask->get();
+//
+//		$this->assertEquals('Testerich-updated', $resultArr['firstname']);
+//		$this->assertEquals('von Testen-updated', $resultArr['lastname']);
+//		$this->assertFalse(isset($resultArr['hobbies']));
+//		$this->assertFalse(isset($resultArr['favouriteNumber']));
+//		$this->assertFalse(isset($resultArr['newProp']));
+//	}
 
-		$source = new TestObject();
-		$source->firstname = 'Testerich';
-		$source->lastname = 'von Testen';
 
-		$target = new TestObjExtension();
-		$bindTask = Bind::obj($source)
-				->dynProp('firstname', false, Mappers::valueClosure(fn ($v) => $v . '-updated'))
-				->prop('lastname', Mappers::cleanString(true), Mappers::valueClosure(fn ($v) => $v . '-updated'))
-				->toObj($target)
-				->exec($this->createMock(MagicContext::class));
-
-		$this->assertTrue($bindTask->isValid());
-
-		$resultArr = $bindTask->get();
-
-		$this->assertEquals('Testerich-updated', $resultArr['firstname']);
-		$this->assertEquals('von Testen-updated', $resultArr['lastname']);
-		$this->assertFalse(isset($resultArr['hobbies']));
-		$this->assertFalse(isset($resultArr['favouriteNumber']));
-		$this->assertFalse(isset($resultArr['newProp']));
-	}
 }
 
+#[AllowDynamicProperties]
 class TestObject {
 	public string $firstname;
 	public string $lastname;

@@ -6,9 +6,7 @@ use n2n\bind\plan\BindPlan;
 use n2n\bind\plan\BindTarget;
 use n2n\bind\plan\BindTask;
 use n2n\util\magic\MagicTask;
-use n2n\bind\plan\BindResult;
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\impl\SimpleBindResult;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\plan\BindSource;
 use n2n\bind\err\BindMismatchException;
@@ -63,11 +61,11 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	}
 
 	/**
-	 * @param object $obj
+	 * @param object $objOrFactory
 	 * @return PropBindTask
 	 */
-	function toObj(object $obj): static {
-		return $this->to(new ObjectBindTarget($obj));
+	function toObj(object $objOrFactory): static {
+		return $this->to(new ObjectBindTarget($objOrFactory));
 	}
 
 	/**

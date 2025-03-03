@@ -224,6 +224,55 @@ class ObjectBindTargetTest extends TestCase {
 				->root($mapperMock)
 				->exec($this->createMock(MagicContext::class));
 	}
+
+	public function testWriteWithClosure() {
+		$arrToWrite = ['int' => 42, 'string' => 'closureTest', 'arr' => ['a', 'b']];
+
+		$result = Bind::attrs(['string' => 'closureTest', 'int' => 42, 'array' => $arrToWrite])
+				->toObj(fn() => new BindTestClassA())
+				->props(['string', 'int', 'array'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$targetObj = $result->get();
+		$this->assertInstanceOf(BindTestClassA::class, $targetObj);
+		$this->assertEquals('closureTest', $targetObj->getString());
+		$this->assertEquals(42, $targetObj->getInt());
+		$this->assertEquals($arrToWrite, $targetObj->getArray());
+	}
+
+	public function testClosureNonObject() {
+		$this->expectException(BindTargetException::class);
+		$this->expectExceptionMessage('Closure must return value of type object. Given value type: string');
+		Bind::attrs(['string' => 'test'])
+				->toObj(fn() => 'not an object')
+				->props(['string'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	public function testMultipleExecWithClosure() {
+		$closure = function() {
+			return new BindTestClassA();
+		};
+		$result1 = Bind::attrs(['string' => 'first', 'int' => 1])
+				->toObj($closure)
+				->props(['string', 'int'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$target1 = $result1->get();
+		$this->assertInstanceOf(BindTestClassA::class, $target1);
+		$this->assertEquals('first', $target1->getString());
+		$this->assertEquals(1, $target1->getInt());
+
+		$result2 = Bind::attrs(['string' => 'second', 'int' => 2])
+				->toObj($closure)
+				->props(['string', 'int'])
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$target2 = $result2->get();
+		$this->assertInstanceOf(BindTestClassA::class, $target2);
+		$this->assertEquals('second', $target2->getString());
+		$this->assertEquals(2, $target2->getInt());
+
+		$this->assertNotSame($target1, $target2);
+	}
 }
 
 class ObjTargetMock {
