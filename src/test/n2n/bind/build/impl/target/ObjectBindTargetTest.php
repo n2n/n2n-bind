@@ -35,6 +35,11 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals($objToWrite, $obj->getA());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testWriteWithRepeatingNameParts() {
 		$obj = new BindTestClassA();
 		$arrToWrite = ['int' => 1, 'string' => 'hello', 'arr' => []];
@@ -57,6 +62,11 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals('asdf', $obj->b->value);
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testWriteSomeProps() {
 		$obj = new BindTestClassA();
 
@@ -67,6 +77,10 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals('test', $obj->getString());
 	}
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testExceptionUnknownProperty() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(doesntExist: '')
@@ -74,6 +88,10 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	public function testExceptionPropertyNotAccessible() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(unaccessible: '')
@@ -81,6 +99,10 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	public function testExceptionIncompatibleTypes() {
 		$this->expectException(BindTargetException::class);
 		Bind::values(obj: '123')
@@ -88,6 +110,11 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testEmptyObject() {
 		$a = new BindTestClassA();
 		Bind::values(...['string' => 'test'])
@@ -97,6 +124,11 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals('test', $a->getString());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testNestedProperties() {
 		$obj = new BindTestClassA();
 		$nestedObj = new BindTestClassA();
@@ -109,6 +141,10 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals($nestedObj, $obj->getA()->getA());
 	}
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testNestedPropertyDoesNotExist() {
 		$this->expectException(BindTargetException::class);
 		$obj = new BindTestClassA();
@@ -119,6 +155,10 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	public function testNonArrayProvidedWhenArrayExpected() {
 		$this->expectException(BindTargetException::class);
 		$obj = new BindTestClassA();
@@ -131,6 +171,7 @@ class ObjectBindTargetTest extends TestCase {
 
 	/**
 	 * @throws MagicTaskExecutionException
+	 * @throws BindTargetException
 	 */
 	function testObjectChildWrite(): void {
 		$obj = new BindTestClassA();
@@ -156,6 +197,11 @@ class ObjectBindTargetTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testObjectNullCreateChildWrite(): void {
 		$obj = new BindTestClassA();
 
@@ -167,6 +213,11 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals('huii!', $obj->getBbbb()->value);
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testObjectChildGet(): void {
 		$a = new BindTestClassA();
 
@@ -180,6 +231,10 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals('holeradio', $a->getBb()->getValue2());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testInaccessibleObjProp(): void {
 		$this->expectException(BindTargetException::class);
 
@@ -240,9 +295,14 @@ class ObjectBindTargetTest extends TestCase {
 		$this->assertEquals($arrToWrite, $targetObj->getArray());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testClosureNonObject() {
-		$this->expectException(BindTargetException::class);
-		$this->expectExceptionMessage('Closure must return value of type object. Given value type: string');
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageMatches('/return value must be of type object/');
 		Bind::attrs(['string' => 'test'])
 				->toObj(fn() => 'not an object')
 				->props(['string'])

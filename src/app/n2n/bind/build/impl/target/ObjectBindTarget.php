@@ -23,26 +23,23 @@ namespace n2n\bind\build\impl\target;
 
 use n2n\bind\plan\BindTarget;
 use n2n\bind\err\BindTargetException;
+use n2n\util\type\ArgUtils;
+use n2n\util\type\attrs\AttributeWriter;
 
 class ObjectBindTarget implements BindTarget {
-	private object $objOrFactory;
 
-	function __construct(object $objOrFactory) {
-		$this->objOrFactory = $objOrFactory;
+	function __construct(private object $objOrCallback) {
 	}
 
 	/**
 	 * @throws BindTargetException
 	 */
 	function write(array $bindables): object {
-		if ($this->objOrFactory instanceof \Closure) {
-			$obj = ($this->objOrFactory)();
-			if (!is_object($obj)) {
-				throw new BindTargetException('Closure must return value of type object. Given value type: '
-						. gettype($obj));
-			}
+		if ($this->objOrCallback instanceof \Closure) {
+			$obj = $this->objOrCallback->__invoke();
+			ArgUtils::valTypeReturn($obj, 'object', null, $this->objOrCallback);
 		} else {
-			$obj = $this->objOrFactory;
+			$obj = $this->objOrCallback;
 		}
 		$objectBindableWriteProcess = new ObjectBindableWriteProcess($bindables);
 		$objectBindableWriteProcess->process($obj);

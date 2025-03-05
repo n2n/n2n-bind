@@ -61,11 +61,11 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	}
 
 	/**
-	 * @param object $objOrFactory
+	 * @param object $objOrCallback can also be a Closure
 	 * @return PropBindTask
 	 */
-	function toObj(object $objOrFactory): static {
-		return $this->to(new ObjectBindTarget($objOrFactory));
+	function toObj(object $objOrCallback): static {
+		return $this->to(new ObjectBindTarget($objOrCallback));
 	}
 
 	/**
