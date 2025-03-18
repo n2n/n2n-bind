@@ -29,6 +29,7 @@ class PropsClosureMapper extends MultiMapperAdapter {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setMethod(IllegalStateException::try(fn () => new \ReflectionFunction($this->closure)));
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
+		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::type(['array', BindData::class]));
 
 		$bindablesMap = [];
