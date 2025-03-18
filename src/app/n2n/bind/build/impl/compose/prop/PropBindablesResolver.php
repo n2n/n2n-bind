@@ -61,7 +61,8 @@ class PropBindablesResolver implements BindablesResolver {
 		return $bindable;
 	}
 
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
+	function resolve(BindContext $bindContext): array {
+		$bindInstance = $bindContext->unwarpBindInstance();
 		$bindables = [];
 		foreach ($this->expressions as $expression) {
 			foreach ($bindInstance->resolvePaths($bindContext->getPath(), $expression) as $path) {

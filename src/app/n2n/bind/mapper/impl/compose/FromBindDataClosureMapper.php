@@ -30,7 +30,6 @@ class FromBindDataClosureMapper extends SingleMapperAdapter {
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
 		$invoker->setClosure($this->closure);
 
-		$bindSource = $bindBoundary->unwarpBindInstance();
 		$bindContext = $bindBoundary->getBindContext();
 
 		try {
@@ -43,7 +42,7 @@ class FromBindDataClosureMapper extends SingleMapperAdapter {
 
 		$mapper = $invoker->invoke();
 		assert($mapper instanceof Mapper);
-		if (!$mapper->map(new BindBoundary($bindSource, $bindContext, [$bindable]), $magicContext)) {
+		if (!$mapper->map(new BindBoundary($bindContext, [$bindable]), $magicContext)) {
 			return false;
 		}
 

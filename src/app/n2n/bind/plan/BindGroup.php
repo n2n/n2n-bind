@@ -47,9 +47,9 @@ class BindGroup {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(BindInstance $bindInstance, BindContext $bindContext, MagicContext $magicContext): bool {
-		$bindables = $this->bindableResolver->resolve($bindInstance, $bindContext);
-		$bindBoundary = new BindBoundary($bindInstance, $bindContext, $bindables);
+	function exec(BindContext $bindContext, MagicContext $magicContext): bool {
+		$bindables = $this->bindableResolver->resolve($bindContext);
+		$bindBoundary = new BindBoundary($bindContext, $bindables);
 
 		foreach ($this->mappers as $mapper) {
 			$bindables = $bindBoundary->getBindables();

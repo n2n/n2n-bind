@@ -34,10 +34,10 @@ class UnionBindablesResolver implements BindablesResolver {
 	function __construct(private BindSource $bindSource) {
 	}
 
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
+	function resolve(BindContext $bindContext): array {
 		$contextAttributePath = $bindContext->getPath();
 		if ($contextAttributePath->isEmpty()) {
-			return $bindInstance->getBindables();
+			return $bindContext->unwarpBindInstance()->getBindables();
 		}
 
 		throw new UnresolvableBindableException('UnionBindablesResolver does not support context: '

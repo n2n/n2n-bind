@@ -32,4 +32,6 @@ interface BindContext extends ValidationContext  {
 	function getValue(AttributePath|string|null $relativePath = null, bool $mustExist = true): mixed;
 
 	function getValueByAbsolutePath(AttributePath|string|null $absolutePath = null, bool $mustExist = true): mixed;
+
+	function unwarpBindInstance(): BindInstance;
 }

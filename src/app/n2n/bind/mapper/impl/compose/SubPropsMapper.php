@@ -19,9 +19,9 @@ class SubPropsMapper extends PropBindComposer implements Mapper {
 
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		foreach ($bindBoundary->getBindables() as $bindable) {
-			$bindContext = new BindableBindContext($bindable);
+			$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance());
 
-			if (!$this->bindPlan->exec($bindBoundary->unwarpBindInstance(), $bindContext, $magicContext)) {
+			if (!$this->bindPlan->exec($bindContext, $magicContext)) {
 				return new MapResult(false);
 			}
 		}

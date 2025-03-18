@@ -78,8 +78,7 @@ class BindTask {
 		}
 
 		foreach ($this->bindPlans as $bindPlan) {
-			if (!$bindPlan->exec($bindInstance, new RootBindContext($bindInstance),
-					$magicContext)) {
+			if (!$bindPlan->exec(new RootBindContext($bindInstance), $magicContext)) {
 				return TaskResults::invalid($bindInstance->createErrorMap());
 			}
 

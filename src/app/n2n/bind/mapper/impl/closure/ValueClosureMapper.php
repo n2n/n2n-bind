@@ -29,6 +29,7 @@ class ValueClosureMapper extends SingleMapperAdapter {
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setClassParamObject(Bindable::class, $bindable);
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
+		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
 
 		$returnValue = $invoker->invoke(null, $this->closure, [$value]);

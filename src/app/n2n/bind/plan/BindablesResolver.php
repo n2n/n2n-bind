@@ -9,12 +9,11 @@ use n2n\bind\err\BindMismatchException;
 interface BindablesResolver {
 
 	/**
-	 * @param BindInstance $bindInstance
 	 * @param BindContext $bindContext
 	 * @return Bindable[]
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array;
+	function resolve(BindContext $bindContext): array;
 
 }

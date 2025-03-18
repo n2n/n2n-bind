@@ -24,7 +24,7 @@ abstract class BindContextAdapter implements BindContext {
 	 * @throws UnresolvableBindableException
 	 */
 	function getValueByAbsolutePath(AttributePath|string|null $absolutePath = null, bool $mustExist = true): mixed {
-		$attributePath = $this->getPath()->ext(AttributePath::build($absolutePath));
+		$attributePath = AttributePath::build($absolutePath) ?? new AttributePath([]);
 
 		$bindable = $this->bindInstance->getBindable($attributePath);
 		if ($bindable !== null) {
@@ -34,6 +34,10 @@ abstract class BindContextAdapter implements BindContext {
 		$bindable = $this->bindInstance->createBindable($attributePath, $mustExist);
 		$bindable->setLogical(true);
 		return $bindable?->getValue();
+	}
+
+	function unwarpBindInstance(): BindInstance {
+		return $this->bindInstance;
 	}
 
 }

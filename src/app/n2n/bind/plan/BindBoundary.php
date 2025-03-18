@@ -15,15 +15,18 @@ class BindBoundary {
 
 	private array $paths = [];
 
+	private BindInstance $bindInstance;
+
 	/**
-	 * @param BindInstance $bindInstance
 	 * @param BindContext $bindContext
 	 * @param Bindable[] $bindables
 	 */
-	function __construct(private BindInstance $bindInstance, private BindContext $bindContext, array $bindables) {
+	function __construct(private BindContext $bindContext, array $bindables) {
 		foreach ($bindables as $bindable) {
 			$this->addBindable($bindable);
 		}
+
+		$this->bindInstance = $this->bindContext->unwarpBindInstance();
 	}
 
 	private function addBindable(Bindable $bindable): void {

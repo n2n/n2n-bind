@@ -36,7 +36,7 @@ class LogicalPropBindablesResolver implements BindablesResolver {
 		ArgUtils::valArray($this->expressions, ['string', 'null']);
 	}
 
-	function resolve(BindInstance $bindInstance, BindContext $bindContext): array {
+	function resolve(BindContext $bindContext): array {
 		return [];
 	}
 
