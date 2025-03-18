@@ -12,7 +12,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\attrs\DataMap;
 
-class BindBoundaryTest extends TestCase {
+class BindContextTest extends TestCase {
 
 	/**
 	 * @throws BindTargetException
@@ -32,6 +32,14 @@ class BindBoundaryTest extends TestCase {
 					$this->assertFalse($bindInstance->getBindable(new AttributePath(['key1']))->isLogical());
 					$this->assertTrue($bindInstance->getBindable(new AttributePath(['key2']))->isLogical());
 
+					$this->assertNull($bindContext->getValue('does-not-exist', false));
+					try {
+						$bindContext->getValue('does-not-exist', true);
+						$this->fail(UnresolvableBindableException::class . ' expected.');
+					} catch (UnresolvableBindableException $e) {
+						$this->assertTrue(true);
+					}
+
 					return $value . '-mapped';
 				}))
 				->toArray()
@@ -46,7 +54,7 @@ class BindBoundaryTest extends TestCase {
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
-	function testGetAbsoluteValue()	{
+	function testGetValueByAbsolutePath()	{
 		$result = Bind::attrs(['key' => ['key1' => 'value1', 'key2' => 'value2']])
 				->logicalProp('key', Mappers::subProps()
 						->prop('key1', Mappers::valueClosure(function ($value, BindContext $bindContext) {
@@ -63,6 +71,14 @@ class BindBoundaryTest extends TestCase {
 							$this->assertTrue($bindInstance->getBindable(new AttributePath(['key']))->isLogical());
 							$this->assertFalse($bindInstance->getBindable(new AttributePath(['key', 'key1']))->isLogical());
 							$this->assertTrue($bindInstance->getBindable(new AttributePath(['key', 'key2']))->isLogical());
+
+							$this->assertNull($bindContext->getValueByAbsolutePath('does-not-exist', false));
+							try {
+								$bindContext->getValue('does-not-exist', true);
+								$this->fail(UnresolvableBindableException::class . ' expected.');
+							} catch (UnresolvableBindableException $e) {
+								$this->assertTrue(true);
+							}
 
 							return $value . '-mapped';
 						})))
