@@ -28,4 +28,8 @@ use n2n\util\type\attrs\AttributePath;
 interface BindContext extends ValidationContext  {
 
 	function getPath(): AttributePath;
+
+	function getValue(AttributePath|string|null $relativePath = null, bool $mustExist = true): mixed;
+
+	function getValueByAbsolutePath(AttributePath|string|null $absolutePath = null, bool $mustExist = true): mixed;
 }

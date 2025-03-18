@@ -7,10 +7,13 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\l10n\Message;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindInstance;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindContextAdapter;
 
-class RootBindContext implements BindContext {
+class RootBindContext extends BindContextAdapter {
 
-	function __construct(private BindInstance $bindInstance) {
+	function __construct(private readonly BindInstance $bindInstance) {
+		parent::__construct($this->bindInstance);
 	}
 
 	function addGeneralError(Message $message): void {
@@ -20,4 +23,6 @@ class RootBindContext implements BindContext {
 	function getPath(): AttributePath {
 		return new AttributePath([]);
 	}
+
+
 }
