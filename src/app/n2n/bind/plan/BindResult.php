@@ -23,14 +23,13 @@ namespace n2n\bind\plan;
 
 use n2n\util\magic\TaskResult;
 use n2n\validation\plan\ErrorMap;
+use n2n\validation\plan\ValidationResult;
 
 /**
  * @template T
  * @template-implements TaskResult<T>
  */
-interface BindResult extends TaskResult  {
-
-	function getErrorMap(): ErrorMap;
+interface BindResult extends ValidationResult  {
 
 	/**
 	 * @return T
