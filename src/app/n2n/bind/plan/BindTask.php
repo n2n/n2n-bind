@@ -22,15 +22,12 @@
 namespace n2n\bind\plan;
 
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\impl\SimpleBindResult;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\plan\impl\RootBindContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
-use n2n\util\magic\impl\TaskResults;
-use n2n\util\magic\TaskResult;
-use n2n\util\magic\impl\MagicContexts;
 use n2n\bind\err\IncompatibleBindInputException;
+use n2n\bind\plan\impl\BindResults;
 
 class BindTask {
 
@@ -70,7 +67,7 @@ class BindTask {
 	 * @throws UnresolvableBindableException
 	 * /
 	 */
-	function exec(MagicContext $magicContext, mixed $input): TaskResult {
+	function exec(MagicContext $magicContext, mixed $input): BindResult {
 		try {
 			$bindInstance = $this->bindSource->next($input);
 		} catch (IncompatibleBindInputException $e) {
@@ -79,17 +76,17 @@ class BindTask {
 
 		foreach ($this->bindPlans as $bindPlan) {
 			if (!$bindPlan->exec(new RootBindContext($bindInstance), $magicContext)) {
-				return TaskResults::invalid($bindInstance->createErrorMap());
+				return BindResults::invalid($bindInstance->createErrorMap());
 			}
 
 			$errorMap = $bindInstance->createErrorMap();
 			if (!$errorMap->isEmpty()) {
-				return TaskResults::invalid($errorMap);
+				return BindResults::invalid($errorMap);
 			}
 		}
 
 		$resultValue = $this->bindTarget?->write($bindInstance->getBindables());
 
-		return TaskResults::valid($resultValue);
+		return BindResults::valid($resultValue);
 	}
 }
