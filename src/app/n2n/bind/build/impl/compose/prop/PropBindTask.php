@@ -18,6 +18,7 @@ use n2n\bind\build\impl\target\RefBindTarget;
 use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
 use n2n\util\magic\impl\MagicContexts;
+use n2n\bind\plan\BindResult;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
 	private BindTask $bindTask;
@@ -82,7 +83,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	function exec(?MagicContext $magicContext = null, mixed $input = null): TaskResult {
+	function exec(?MagicContext $magicContext = null, mixed $input = null): BindResult {
 		$magicContext ??= MagicContexts::simple([]);
 
 		$bindResult = $this->bindTask->exec($magicContext, $input);
