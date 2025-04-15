@@ -54,6 +54,7 @@ use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
 use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
 use n2n\bind\mapper\impl\date\DateSqlMapper;
 use n2n\bind\mapper\impl\compose\SubForeachMapper;
+use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
 
 class Mappers {
 
@@ -352,4 +353,7 @@ class Mappers {
 		return new DoIfValueClosureMapper($closure, $abort, $skipNextMappers, $chLogical);
 	}
 
+	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {
+		return new FactoryClosureMapper($closure);
+	}
 }
