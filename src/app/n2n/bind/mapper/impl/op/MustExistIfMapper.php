@@ -9,6 +9,7 @@ use n2n\bind\mapper\Mapper;
 use n2n\util\magic\impl\MagicMethodInvoker;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\plan\BindContext;
 
 class MustExistIfMapper implements Mapper {
 
@@ -25,6 +26,7 @@ class MustExistIfMapper implements Mapper {
 
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
+		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::bool());
 		$invoker->setClosure($this->closureOrBool);
 
