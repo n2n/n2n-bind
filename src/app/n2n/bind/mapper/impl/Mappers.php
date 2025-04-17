@@ -55,6 +55,7 @@ use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
 use n2n\bind\mapper\impl\date\DateSqlMapper;
 use n2n\bind\mapper\impl\compose\SubForeachMapper;
 use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
+use n2n\bind\mapper\impl\op\MustExistIfMapper;
 
 class Mappers {
 
@@ -355,5 +356,9 @@ class Mappers {
 
 	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {
 		return new FactoryClosureMapper($closure);
+	}
+
+	static function mustExistIf(\Closure|bool $closureOrBool): MustExistIfMapper {
+		return new MustExistIfMapper($closureOrBool);
 	}
 }
