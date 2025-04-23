@@ -228,8 +228,8 @@ class Mappers {
 	}
 
 	static function pathPart(?Closure $uniqueTester, ?string $generationIfNullBaseName, bool $mandatory = false,
-			?int $min = 3, ?int $max = 150): PathPartMapper {
-		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $min, $max, $mandatory);
+			?int $minlength = 3, ?int $maxlength = 150): PathPartMapper {
+		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory);
 	}
 
 	static function pipe(Mapper|Validator ...$mappers): PipeMapper {

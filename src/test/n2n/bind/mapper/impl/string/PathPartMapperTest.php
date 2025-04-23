@@ -24,7 +24,7 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart3', 'pathPart4'],
-						Mappers::pathPart(null, null, min: null))
+						Mappers::pathPart(null, null, minlength: null))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -103,13 +103,13 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('pathPart1',
-						Mappers::pathPart(null, 'blubb', min: 4, max: 12))
+						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart2',
-						Mappers::pathPart(null, 'blubb', min: 4, max: 12))
+						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart3',
-						Mappers::pathPart(null, 'bl ubb', min: 4, max: 12))
+						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
 				->prop('pathPart4',
-						Mappers::pathPart(null, 'bl ubb', min: 4, max: 12))
+						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -132,19 +132,19 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart1',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['blubb-2', 'blubb-5']);
-						}), 'blubb', min: 4, max: 12))
+						}), 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart2',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['blubb', 'blubb-2', 'blubb-5']);
-						}), 'blubb', min: 4, max: 12))
+						}), 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart3',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['blubb', 'blubb-2', 'blubb-3', 'blubb-5']);
-						}), 'blubb', min: 4, max: 12))
+						}), 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['blubb', 'blubb-2', 'blubb-3', 'blubb-4', 'blubb-5']);
-						}), 'blubb', min: 4, max: 12))
+						}), 'blubb', minlength: 4, maxlength: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -167,27 +167,27 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart1',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'Blubb', min: 4, max: 12))
+						}), 'Blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart2',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'a§%sdf', min: 4, max: 12))
+						}), 'a§%sdf', minlength: 4, maxlength: 12))
 				->prop('pathPart3',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'aWayToLongString', min: 4, max: 12))
+						}), 'aWayToLongString', minlength: 4, maxlength: 12))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', min: 4, max: 12))
+						}), '§§§§', minlength: 4, maxlength: 12))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'xy', min: 4, max: 12))
+						}), 'xy', minlength: 4, maxlength: 12))
 				->prop('pathPart6',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['awaytolongst', 'somepath']);
-						}), 'aWayToLongString', min: 4, max: 12))
+						}), 'aWayToLongString', minlength: 4, maxlength: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -211,27 +211,27 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart1',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'Blubb', min: 8, max: 255))
+						}), 'Blubb', minlength: 8, maxlength: 255))
 				->prop('pathPart2',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'a§%sdf', min: 8, max: 255))
+						}), 'a§%sdf', minlength: 8, maxlength: 255))
 				->prop('pathPart3',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'aWayToLongString', min: 8, max: 255))
+						}), 'aWayToLongString', minlength: 8, maxlength: 255))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', min: 8, max: 255))
+						}), '§§§§', minlength: 8, maxlength: 255))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'xy', min: 8, max: 255))
+						}), 'xy', minlength: 8, maxlength: 255))
 				->prop('pathPart6',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['awaytolongstring', 'somepath']);
-						}), 'aWayToLongString', min: 8, max: 255))
+						}), 'aWayToLongString', minlength: 8, maxlength: 255))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -255,27 +255,27 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart1',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'Blubb', min: 8, max: 10)->setFillStr('hoi'))
+						}), 'Blubb', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->prop('pathPart2',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'a§%sdf', min: 8, max: 10)->setFillStr('hoi'))
+						}), 'a§%sdf', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->prop('pathPart3',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'aWayToLongString', min: 8, max: 10)->setFillStr('hoi'))
+						}), 'aWayToLongString', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', min: 8, max: 10)->setFillStr('hoi'))
+						}), '§§§§', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'xy', min: 8, max: 10)->setFillStr('hoi'))
+						}), 'xy', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->prop('pathPart6',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['awaytolong', 'somepath']);
-						}), 'aWayToLongString', min: 8, max: 10)->setFillStr('hoi'))
+						}), 'aWayToLongString', minlength: 8, maxlength: 10)->setFillStr('hoi'))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -292,35 +292,35 @@ class PathPartMapperTest extends TestCase {
 		//error message is the same for all setFillStr violations, but fail for different reasons
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 8, max: 10)->setFillStr('Hoi');
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('Hoi');
 	}
 
 	function testSetFillStrViolationSpecialChar() {
 		//error message is the same for all setFillStr violations, but fail for different reasons
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 8, max: 10)->setFillStr('H§oi');
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('H§oi');
 	}
 
 	function testSetFillStrViolationToShort() {
 		//error message is the same for all setFillStr violations, but fail for different reasons
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 8, max: 10)->setFillStr('');
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('');
 	}
 
 	function testMinMaxViolation() {
 		//prevent epic fail
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/maxlength.*[greater|equals].*minlength/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 8, max: 6);
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 6);
 	}
 
 	function testMaxToShortForGenerationIfNullBaseNameViolation() {
 		//make sure we have at least a char where a minus sign and a num 2-9999 is added to make unique pathPart
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/generation.*maxlength must be greater/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', min: 0, max: 5);
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 0, maxlength: 5);
 	}
 
 	/**
