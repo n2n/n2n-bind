@@ -141,4 +141,76 @@ class MustExistIfMapperTest extends TestCase {
 		$this->assertTrue($called2, 'Mapper should have be called.');
 		$this->assertTrue($result->isValid());
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testMustExistIfMapperFalseCallbackElseChExistToFalse(): void {
+		$called = false;
+		$called2 = false;
+		$result = Bind::attrs(['prop' => 'holeradio', 'prop2' => 'holeradio2'])
+				->optProp('prop',
+						Mappers::bindablesClosure(function (array $bindables) use (&$called) {
+							$this->assertCount(1, $bindables);
+							$this->assertTrue($bindables['prop']->doesExist());
+							$called = true;
+						}),
+						Mappers::mustExistIf(function() use (&$called) {
+							$called = true;
+							return false;
+						}, elseChExistToFalse: true),
+						Mappers::bindablesClosure(function (array $bindables) use (&$called2) {
+							$this->assertCount(1, $bindables);
+							$this->assertFalse($bindables['prop']->doesExist());
+							$called2 = true;
+						}),
+						Mappers::valueClosure(function() {
+							$this->fail('Mapper should have be called, because Bindable must no longer exist.');
+						}))
+				->optProp('prop2',
+						Mappers::mustExistIf(fn () => false),
+						Mappers::valueClosure(fn (string $v) => $v . '-mapped'))
+				->toArray()->exec();
+		$this->assertTrue($called, 'Mapper should have be called.');
+		$this->assertTrue($called2, 'Mapper 2 should have be called.');
+
+		$this->assertTrue($result->isValid());
+		$this->assertSame(['prop2' => 'holeradio2-mapped'], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testMustExistIfMapperFalseElseChExistToFalse(): void {
+		$called = false;
+		$called2 = false;
+		$result = Bind::attrs(['prop' => 'holeradio', 'prop2' => 'holeradio2'])
+				->optProp('prop',
+						Mappers::bindablesClosure(function (array $bindables) use (&$called) {
+							$this->assertCount(1, $bindables);
+							$this->assertTrue($bindables['prop']->doesExist());
+							$called = true;
+						}),
+						Mappers::mustExistIf(false, elseChExistToFalse: true),
+						Mappers::bindablesClosure(function (array $bindables) use (&$called2) {
+							$this->assertCount(1, $bindables);
+							$this->assertFalse($bindables['prop']->doesExist());
+							$called2 = true;
+						}),
+						Mappers::valueClosure(function() {
+							$this->fail('Mapper should have be called, because Bindable must no longer exist.');
+						}))
+				->optProp('prop2',
+						Mappers::mustExistIf(fn () => false),
+						Mappers::valueClosure(fn (string $v) => $v . '-mapped'))
+				->toArray()->exec();
+		$this->assertTrue($called, 'Mapper should have be called.');
+		$this->assertTrue($called2, 'Mapper 2 should have be called.');
+		$this->assertTrue($result->isValid());
+		$this->assertSame(['prop2' => 'holeradio2-mapped'], $result->get());
+	}
 }

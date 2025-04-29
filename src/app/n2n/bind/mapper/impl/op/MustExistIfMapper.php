@@ -13,13 +13,15 @@ use n2n\bind\plan\BindContext;
 
 class MustExistIfMapper implements Mapper {
 
-	public function __construct(private \Closure|bool $closureOrBool) {
+	public function __construct(private \Closure|bool $closureOrBool, private bool $elseChExistToFalse = false) {
 	}
 
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		if (is_bool($this->closureOrBool)) {
 			if ($this->closureOrBool) {
 				$this->mustExist($bindBoundary);
+			} else {
+				$this->else($bindBoundary);
 			}
 			return new MapResult();
 		}
@@ -32,6 +34,8 @@ class MustExistIfMapper implements Mapper {
 
 		if ($invoker->invoke()) {
 			$this->mustExist($bindBoundary);
+		} else {
+			$this->else($bindBoundary);
 		}
 
 		return new MapResult(true);
@@ -45,6 +49,16 @@ class MustExistIfMapper implements Mapper {
 			if (!$bindable->doesExist()) {
 				throw new UnresolvableBindableException('Bindable does not exist: ' . $bindable->getPath());
 			}
+		}
+	}
+
+	private function else(BindBoundary $bindBoundary): void {
+		if (!$this->elseChExistToFalse) {
+			return;
+		}
+
+		foreach ($bindBoundary->getBindables() as $bindable) {
+			$bindable->setExist(false);
 		}
 	}
 }

@@ -358,7 +358,7 @@ class Mappers {
 		return new FactoryClosureMapper($closure);
 	}
 
-	static function mustExistIf(\Closure|bool $closureOrBool): MustExistIfMapper {
-		return new MustExistIfMapper($closureOrBool);
+	static function mustExistIf(\Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {
+		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
 	}
 }
