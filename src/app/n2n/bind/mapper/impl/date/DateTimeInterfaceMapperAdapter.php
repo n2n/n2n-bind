@@ -28,14 +28,11 @@ abstract class DateTimeInterfaceMapperAdapter extends SingleMapperAdapter {
 
 		if ($value === null) {
 			$bindable->setValue(null);
-			return true;
-		}
-
-		if (is_string($value) && ($value = $this->convertStrToDateTime($value, $bindable)) === null) {
+		} else if (is_string($value) && ($value = $this->convertStrToDateTime($value, $bindable)) === null) {
 			return false;
+		} else {
+			$bindable->setValue($this->createValueFromDateTimeInterface($value));
 		}
-
-		$bindable->setValue($this->createValueFromDateTimeInterface($value));
 
 		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
 
