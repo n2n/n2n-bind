@@ -15,45 +15,59 @@ use n2n\validation\lang\ValidationMessages;
 use n2n\validation\validator\impl\Validators;
 use n2n\validation\validator\Validator;
 use n2n\bind\mapper\MapperUtils;
+use n2n\util\DateUtils;
+use n2n\l10n\L10nUtils;
+use n2n\l10n\N2nLocale;
 
 class TimeMapper extends SingleMapperAdapter {
 	public function __construct(private bool $mandatory, private ?Time $min = null,
 			private ?Time $max = null) {
 	}
+
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type([Time::class, 'string', 'null']));
 
-		if ($value !== null) {
-			$value = $this->createValueFromInput($value, $bindable);
+		if (is_string($value) && null === ($value = $this->convertStrToTime($value, $bindable))) {
+			return false;
 		}
+
 		$bindable->setValue($value);
-		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
+		MapperUtils::validate([$bindable],
+				$this->createValidators($magicContext->lookup(N2nLocale::class, false) ?? N2nLocale::getDefault()),
+				$bindBoundary->getBindContext(), $magicContext);
 
 		return true;
 	}
 
-	protected function createValueFromInput(string|Time $time, Bindable $bindable): ?Time {
-		if (StringUtils::isEmpty($time)) {
-			return null;
-		}
-		if ($time instanceof Time) {
-			return $time;
-		}
-		$dateTime = DateTime::createFromFormat('H:i:s', $time)
-				?: DateTime::createFromFormat('H:i', $time);
+//	protected function createValueFromInput(string|Time $time, Bindable $bindable): ?Time {
+//		if ($time instanceof Time) {
+//			return $time;
+//		}
+//
+//		$dateTime = DateTime::createFromFormat('H:i:s', $time)
+//				?: DateTime::createFromFormat('H:i', $time);
+//
+//		if (!$dateTime) {
+//			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
+//			return null;
+//		}
+//
+//		return new Time($dateTime->format('H:i:s'));
+//	}
 
-		if (!$dateTime) {
+	private function convertStrToTime(string $timeStr, Bindable $bindable): ?Time {
+		try {
+			return new Time($timeStr);
+		} catch (\InvalidArgumentException $e) {
 			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
 			return null;
 		}
-
-		return new Time($dateTime->format('H:i:s'));
 	}
 
 	/**
 	 * @return Validator[]
 	 */
-	protected function createValidators(): array {
+	protected function createValidators(N2nLocale $n2nLocale): array {
 		$validators = [];
 
 		if ($this->mandatory) {
@@ -61,13 +75,15 @@ class TimeMapper extends SingleMapperAdapter {
 		}
 
 		if ($this->min !== null) {
-			$validators[] = Validators::valueClosure(fn($time) => $time >= $this->min
-					? true : Message::create('Invalid: Value should be greater than '. $this->min->__toString()));
+			$validators[] = Validators::valueClosure(fn ($time) => $time >= $this->min
+					? true
+					: ValidationMessages::notEarlierThan(L10nUtils::formatTime($this->min->toDateTimeImmuntable(), $n2nLocale)));
 		}
 
 		if ($this->max !== null) {
 			$validators[] = Validators::valueClosure(fn($time) => $time <= $this->max
-					? true : Message::create('Invalid: Value should be lesser than '. $this->max->__toString()));
+					? true
+					: ValidationMessages::notLaterThan(L10nUtils::formatTime($this->max->toDateTimeImmuntable(), $n2nLocale)));
 		}
 
 		return $validators;
