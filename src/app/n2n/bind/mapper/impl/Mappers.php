@@ -56,6 +56,9 @@ use n2n\bind\mapper\impl\date\DateSqlMapper;
 use n2n\bind\mapper\impl\compose\SubForeachMapper;
 use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
 use n2n\bind\mapper\impl\op\MustExistIfMapper;
+use n2n\bind\mapper\impl\date\TimeMapper;
+use n2n\bind\mapper\impl\date\TimeSqlMapper;
+use n2n\util\calendar\Time;
 
 class Mappers {
 
@@ -360,5 +363,13 @@ class Mappers {
 
 	static function mustExistIf(\Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {
 		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
+	}
+
+	static function time(bool $mandatory = false, ?Time $min = null, Time $max = null): TimeMapper {
+		return new TimeMapper($mandatory, $min, $max);
+	}
+
+	static function timeSql(): TimeSqlMapper {
+		return new TimeSqlMapper();
 	}
 }
