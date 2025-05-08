@@ -67,7 +67,9 @@ abstract class DateTimeInterfaceMapperAdapter extends SingleMapperAdapter {
 		}
 
 		if ($this->min !== null) {
-			$validators[] = Validators::valueClosure(fn($dateTime) => $dateTime >= $this->min);
+			$validators[] = Validators::valueClosure(function($dateTime) {
+				return  $dateTime >= $this->min;
+			});
 		}
 
 		if ($this->max !== null) {
