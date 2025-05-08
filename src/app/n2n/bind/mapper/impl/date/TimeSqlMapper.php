@@ -14,7 +14,7 @@ class TimeSqlMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::namedType(Time::class, true));
 
 		if ($value !== null) {
-			$bindable->setValue($value->__toString());
+			$bindable->setValue($value->toSql());
 		}
 
 		return true;

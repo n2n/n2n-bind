@@ -8,16 +8,15 @@ use n2n\bind\plan\BindBoundary;
 use n2n\util\magic\MagicContext;
 use n2n\util\type\TypeConstraints;
 use n2n\util\calendar\Time;
-use n2n\util\StringUtils;
 use DateTime;
 use n2n\l10n\Message;
 use n2n\validation\lang\ValidationMessages;
 use n2n\validation\validator\impl\Validators;
 use n2n\validation\validator\Validator;
 use n2n\bind\mapper\MapperUtils;
-use n2n\util\DateUtils;
 use n2n\l10n\L10nUtils;
 use n2n\l10n\N2nLocale;
+use n2n\util\DateParseException;
 
 class TimeMapper extends SingleMapperAdapter {
 	public function __construct(private bool $mandatory, private ?Time $min = null,
@@ -39,26 +38,10 @@ class TimeMapper extends SingleMapperAdapter {
 		return true;
 	}
 
-//	protected function createValueFromInput(string|Time $time, Bindable $bindable): ?Time {
-//		if ($time instanceof Time) {
-//			return $time;
-//		}
-//
-//		$dateTime = DateTime::createFromFormat('H:i:s', $time)
-//				?: DateTime::createFromFormat('H:i', $time);
-//
-//		if (!$dateTime) {
-//			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
-//			return null;
-//		}
-//
-//		return new Time($dateTime->format('H:i:s'));
-//	}
-
 	private function convertStrToTime(string $timeStr, Bindable $bindable): ?Time {
 		try {
 			return new Time($timeStr);
-		} catch (\InvalidArgumentException $e) {
+		} catch (DateParseException $e) {
 			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
 			return null;
 		}
@@ -77,13 +60,13 @@ class TimeMapper extends SingleMapperAdapter {
 		if ($this->min !== null) {
 			$validators[] = Validators::valueClosure(fn ($time) => $time >= $this->min
 					? true
-					: ValidationMessages::notEarlierThan(L10nUtils::formatTime($this->min->toDateTimeImmuntable(), $n2nLocale)));
+					: ValidationMessages::notEarlierThan(L10nUtils::formatTime($this->min->toDateTimeImmutable(), $n2nLocale)));
 		}
 
 		if ($this->max !== null) {
 			$validators[] = Validators::valueClosure(fn($time) => $time <= $this->max
 					? true
-					: ValidationMessages::notLaterThan(L10nUtils::formatTime($this->max->toDateTimeImmuntable(), $n2nLocale)));
+					: ValidationMessages::notLaterThan(L10nUtils::formatTime($this->max->toDateTimeImmutable(), $n2nLocale)));
 		}
 
 		return $validators;

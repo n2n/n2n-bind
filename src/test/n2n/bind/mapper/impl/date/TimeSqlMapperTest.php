@@ -54,9 +54,13 @@ class TimeSqlMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertEquals($time->__toString(), $tdm->req('time'));
+		$this->assertEquals($time->toSql(), $tdm->req('time'));
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 */
 	public function testTimeSqlMapperInvalid(): void {
 		$this->expectException(BindMismatchException::class);
 		$time = new \DateTime('now');

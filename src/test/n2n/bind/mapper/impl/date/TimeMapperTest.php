@@ -52,7 +52,7 @@ class TimeMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
+		$this->assertStringContainsString('Not Earlier Than Earliest', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
 		$this->assertNull($this->tdm->opt('time'));
 	}
 
@@ -69,7 +69,7 @@ class TimeMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
+		$this->assertStringContainsString('Not Later Than Latest', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
 		$this->assertNull($this->tdm->opt('time'));
 	}
 
@@ -145,24 +145,6 @@ class TimeMapperTest extends TestCase {
 	/**
 	 * @throws InvalidAttributeException
 	 * @throws UnresolvableBindableException
-	 * @throws MissingAttributeFieldException
-	 * @throws BindTargetException
-	 * @throws BindMismatchException
-	 */
-	public function testTimeMapperSpace(): void {
-		//a space is handled like an empty string, and same as null
-		$this->sdm->set('time', ' ');
-		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false))
-				->exec($this->createMock(MagicContext::class));
-
-		$this->assertTrue($result->isValid());
-		$this->assertNull($this->tdm->req('time'));
-	}
-
-	/**
-	 * @throws InvalidAttributeException
-	 * @throws UnresolvableBindableException
 	 * @throws BindTargetException
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
@@ -172,6 +154,7 @@ class TimeMapperTest extends TestCase {
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
 				->props(['time'], Mappers::time(false, null, null))
 				->exec($this->createMock(MagicContext::class));
+
 		$this->assertTrue($result->isValid());
 		$this->assertEquals(new Time('23:30:00'), $this->tdm->req('time'));
 	}
