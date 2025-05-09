@@ -365,7 +365,7 @@ class Mappers {
 		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
 	}
 
-	static function time(bool $mandatory = false, ?Time $min = null, Time $max = null): TimeMapper {
+	static function time(bool $mandatory = false, ?Time $min = null, ?Time $max = null): TimeMapper {
 		return new TimeMapper($mandatory, $min, $max);
 	}
 
