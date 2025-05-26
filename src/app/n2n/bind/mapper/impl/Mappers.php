@@ -57,8 +57,9 @@ use n2n\bind\mapper\impl\compose\SubForeachMapper;
 use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
 use n2n\bind\mapper\impl\op\MustExistIfMapper;
 use n2n\bind\mapper\impl\date\TimeMapper;
-use n2n\bind\mapper\impl\date\TimeSqlMapper;
 use n2n\util\calendar\Time;
+use n2n\bind\mapper\impl\string\UrlMapper;
+use n2n\bind\mapper\impl\date\TimeSqlMapper;
 
 class Mappers {
 
@@ -116,6 +117,14 @@ class Mappers {
 	 */
 	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
+	}
+
+	/**
+	 * @param bool $mandatory
+	 * @return UrlMapper
+	 */
+	static function url(bool $mandatory = false): UrlMapper {
+		return new UrlMapper($mandatory);
 	}
 
 	/**
