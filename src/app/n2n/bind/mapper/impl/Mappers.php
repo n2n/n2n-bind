@@ -121,10 +121,12 @@ class Mappers {
 
 	/**
 	 * @param bool $mandatory
+	 * @param array|null $allowedSchemas
+	 * @param bool $schemaMandatory
 	 * @return UrlMapper
 	 */
-	static function url(bool $mandatory = false): UrlMapper {
-		return new UrlMapper($mandatory);
+	static function url(bool $mandatory = false, ?array $allowedSchemas = null, bool $schemaMandatory = false): UrlMapper {
+		return new UrlMapper($mandatory, $allowedSchemas, $schemaMandatory);
 	}
 
 	/**
