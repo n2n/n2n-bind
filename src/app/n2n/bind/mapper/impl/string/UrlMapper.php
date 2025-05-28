@@ -12,7 +12,7 @@ use n2n\bind\mapper\MapperUtils;
 
 class UrlMapper extends SingleMapperAdapter {
     public function __construct(private bool $mandatory = false, private ?array $allowedSchemes = null,
-			private bool $schemeRequired = false) {
+			private bool $schemeRequired = true) {
     }
 
     protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
