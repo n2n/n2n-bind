@@ -10,10 +10,12 @@ use n2n\util\type\TypeConstraints;
 use n2n\util\StringUtils;
 use n2n\bind\mapper\MapperUtils;
 use n2n\util\type\ArgUtils;
+use n2n\util\uri\Url;
+use n2n\validation\lang\ValidationMessages;
 
 class UrlMapper extends SingleMapperAdapter {
     public function __construct(private bool $mandatory = false, private ?array $allowedSchemes = null,
-			private bool $schemeRequired = true) {
+			private bool $schemeRequired = true, private int $maxLength = 255) {
 		ArgUtils::valArray($this->allowedSchemes, 'string', true);
     }
 
@@ -21,7 +23,14 @@ class UrlMapper extends SingleMapperAdapter {
         $value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
         if ($value !== null) {
-            $bindable->setValue(mb_strtolower(StringUtils::clean($value)));
+            $value = StringUtils::clean($value);
+
+			if (strlen($value) > $this->maxLength) {
+				$bindable->addError(ValidationMessages::maxlength($this->maxLength));
+			}
+
+            $url = Url::build($value);
+            $bindable->setValue($url);
         }
 
         MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
