@@ -7,6 +7,11 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use PHPUnit\Framework\TestCase;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
+use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\type\attrs\MissingAttributeFieldException;
 
 class UrlMapperTest extends TestCase {
     function testAttrs() {
@@ -23,7 +28,31 @@ class UrlMapperTest extends TestCase {
         $this->assertEquals('https://sub.example.com', $tdm->reqString('url3'));
     }
 
-    function testAttrsValFail() {
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
+	function testLongUrl() {
+        $sdm = new DataMap(['url1' => 'https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%253']);
+        $tdm = new DataMap();
+
+        $result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1'], Mappers::url(true))
+                ->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+        $this->assertTrue($result->isValid());
+
+        $this->assertEquals('https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%253', $tdm->reqString('url1'));
+    }
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testAttrsValFail() {
         $sdm = new DataMap(['url1' => 'invalid-url', 'url2' => 'http://', 'url3' => 'https://']);
         $tdm = new DataMap();
 
@@ -76,7 +105,14 @@ class UrlMapperTest extends TestCase {
         $this->assertCount(1, $errorMap->getChild('url3')->getMessages()); // ftp is not allowed
     }
 
-    function testSchemaMandatory() {
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
+	function testSchemaMandatory() {
         $sdm = new DataMap([
             'url1' => 'https://example.com',
             'url2' => 'example.com',
