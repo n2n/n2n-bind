@@ -46,8 +46,9 @@ use n2n\bind\build\impl\target\ClosureBindTarget;
 use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
 use n2n\util\magic\impl\MagicContexts;
+use n2n\util\magic\MagicTask;
 
-class UnionBindComposer {
+class UnionBindComposer implements MagicTask {
 
 	private BindTask $bindTask;
 
