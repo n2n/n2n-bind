@@ -41,7 +41,8 @@ class UrlMapperTest extends TestCase {
         $sdm = new DataMap(['url1' => 'invalid-url', 'url2' => 'http://', 'url3' => 'https://']);
         $tdm = new DataMap();
 
-        $result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1', 'url2', 'url3'], Mappers::url(true))
+        $result = Bind::attrs($sdm)->toAttrs($tdm)
+				->props(['url1', 'url2', 'url3'], Mappers::url(true))
                 ->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
         $this->assertFalse($result->isValid());

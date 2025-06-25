@@ -33,7 +33,7 @@ class UrlMapper extends SingleMapperAdapter {
         }
 
         MapperUtils::validate([$bindable],
-				$this->createValidators(($url?->hasScheme() ?? false) || $this->schemeRequired),
+				$this->createValidators(),
 				$bindBoundary->getBindContext(), $magicContext);
 
 		$bindable->setValue($url);
@@ -41,16 +41,14 @@ class UrlMapper extends SingleMapperAdapter {
         return true;
     }
 
-    private function createValidators(bool $urlValidatorRequired): array {
+    private function createValidators(): array {
         $validators = [];
 
         if ($this->mandatory) {
             $validators[] = Validators::mandatory();
         }
 
-		if ($urlValidatorRequired) {
-			$validators[] = Validators::url($this->schemeRequired, $this->allowedSchemes);
-		}
+		$validators[] = Validators::url($this->schemeRequired, $this->allowedSchemes);
 
 		if ($this->maxlength !== null) {
 			$validators[] = Validators::maxlength($this->maxlength);
