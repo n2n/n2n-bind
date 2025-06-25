@@ -15,37 +15,46 @@ use n2n\validation\lang\ValidationMessages;
 
 class UrlMapper extends SingleMapperAdapter {
     public function __construct(private bool $mandatory = false, private ?array $allowedSchemes = null,
-			private bool $schemeRequired = true, private int $maxLength = 255) {
+			private bool $schemeRequired = true, private ?int $maxlength = null) {
 		ArgUtils::valArray($this->allowedSchemes, 'string', true);
     }
 
     protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
         $value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
+		$url = null;
         if ($value !== null) {
-            $value = StringUtils::clean($value);
-
-			if (strlen($value) > $this->maxLength) {
-				$bindable->addError(ValidationMessages::maxlength($this->maxLength));
+			try {
+				$url = Url::create(StringUtils::clean($value));
+			} catch (\InvalidArgumentException $e) {
+				$bindable->addError(ValidationMessages::url());
 			}
-
-            $url = Url::build($value);
             $bindable->setValue($url);
         }
 
-        MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
+        MapperUtils::validate([$bindable],
+				$this->createValidators(($url?->hasScheme() ?? false) || $this->schemeRequired),
+				$bindBoundary->getBindContext(), $magicContext);
+
+		$bindable->setValue($url);
 
         return true;
     }
 
-    private function createValidators(): array {
+    private function createValidators(bool $urlValidatorRequired): array {
         $validators = [];
 
         if ($this->mandatory) {
             $validators[] = Validators::mandatory();
         }
 
-        $validators[] = Validators::url($this->schemeRequired, $this->allowedSchemes);
+		if ($urlValidatorRequired) {
+			$validators[] = Validators::url($this->schemeRequired, $this->allowedSchemes);
+		}
+
+		if ($this->maxlength !== null) {
+			$validators[] = Validators::maxlength($this->maxlength);
+		}
 
         return $validators;
     }

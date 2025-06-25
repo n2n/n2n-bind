@@ -33,25 +33,6 @@ class UrlMapperTest extends TestCase {
     }
 
 	/**
-	 * @throws InvalidAttributeException
-	 * @throws UnresolvableBindableException
-	 * @throws BindTargetException
-	 * @throws MissingAttributeFieldException
-	 * @throws BindMismatchException
-	 */
-	function testLongUrl() {
-        $sdm = new DataMap(['url1' => 'https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%253']);
-        $tdm = new DataMap();
-
-        $result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1'], Mappers::url(true))
-                ->exec($this->getMockBuilder(MagicContext::class)->getMock());
-
-        $this->assertTrue($result->isValid());
-
-        $this->assertEquals('https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%253', $tdm->reqString('url1'));
-    }
-
-	/**
 	 * @throws BindTargetException
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
@@ -73,6 +54,11 @@ class UrlMapperTest extends TestCase {
         $this->assertCount(1, $errorMap->getChild('url3')->getMessages());
     }
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testAttrsValSingleInvalid() {
 		$sdm = new DataMap(['url1' => 'http://test.com', 'url2' => 'https://test.com', 'url3' => 'https://']);
 		$tdm = new DataMap();
@@ -136,8 +122,8 @@ class UrlMapperTest extends TestCase {
         $this->assertCount(1, $errorMap->getChild('url3')->getMessages()); // no scheme
 
         $tdm = new DataMap();
-        $result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1', 'url2', 'url3'], 
-                Mappers::url(true, null, false))
+        $result = Bind::attrs($sdm)->toAttrs($tdm)
+				->props(['url1', 'url2', 'url3'], Mappers::url(true, null, false))
                 ->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -149,7 +135,14 @@ class UrlMapperTest extends TestCase {
         $this->assertEquals('www.example.com', (string) $tdm->req('url3'));
     }
 
-    function testLongUrl() {
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	function testLongUrl() {
         $longUrl = 'https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%253';
         $sdm = new DataMap(['url1' => $longUrl]);
         $tdm = new DataMap();
@@ -162,7 +155,39 @@ class UrlMapperTest extends TestCase {
         $this->assertEquals($longUrl, (string) $tdm->req('url1'));
     }
 
-    function testUrlTooLong() {
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
+	function testLongTruncatedUrl() {
+		$truncatedUrlStr = 'https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%2';
+		$resultingUrlStr = 'https://www.google.ch/maps/place/Sportanlage+Stadion+Deutweg+Winterthur/@47.4959508,8.7439466,17z/data=!3m1!4b1!4m6!3m5!1s0x479a999396b14655:0xee63d446a7b7bfd7!8m2!3d47.4959508!4d8.7465215!16s%2Fg%2F120_g2n7?entry=ttu&g_ep=EgoyMDI1MDYwMy4wIKXMDSoASAFQAw%252';
+		$sdm = new DataMap(['url1' => $truncatedUrlStr]);
+		$tdm = new DataMap();
+
+		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1'], Mappers::url(true, maxLength: 257))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals($resultingUrlStr, $tdm->req('url1')->__toString());
+
+		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['url1'], Mappers::url(true, maxLength: 256))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		$this->assertFalse($result->isValid());
+
+		$this->assertStringContainsString('maxlength',
+				(string) $result->getErrorMap()->getChild('url1')->getMessages()[0]);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testUrlTooLong() {
         $tooLongUrl = 'https://example.com/' . str_repeat('a', 2050);
         $sdm = new DataMap(['url1' => $tooLongUrl]);
         $tdm = new DataMap();
@@ -177,7 +202,12 @@ class UrlMapperTest extends TestCase {
         $this->assertCount(1, $errorMap->getChild('url1')->getMessages());
     }
 
-    function testCustomMaxLength() {
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	function testCustomMaxLength() {
         $sdm = new DataMap(['url1' => 'https://example.com/' . str_repeat('a', 2050)]);
         $tdm = new DataMap();
 
