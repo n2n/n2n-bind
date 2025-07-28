@@ -213,4 +213,30 @@ class MustExistIfMapperTest extends TestCase {
 		$this->assertTrue($result->isValid());
 		$this->assertSame(['prop2' => 'holeradio2-mapped'], $result->get());
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException|UnresolvableBindableException
+	 */
+	function testMustExistAllIfAnyExistSuccess(): void {
+		$result = Bind::attrs(['prop' => 'holeradio', 'prop2' => 'holeradio2'])
+				->optProps(['prop',	'prop2'], Mappers::mustExistAllIfAnyExist())
+				->toArray()->exec();
+
+		$this->assertTrue($result->isValid());
+		$this->assertSame(['prop' => 'holeradio', 'prop2' => 'holeradio2'], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testMustExistAllIfAnyExistFailure(): void {
+		$this->expectException(UnresolvableBindableException::class);
+
+		Bind::attrs(['prop' => 'holeradio', 'prop2' => 'holeradio2'])
+				->optProps(['prop',	'prop2', 'prop3'], Mappers::mustExistAllIfAnyExist())
+				->toArray()->exec();
+	}
 }

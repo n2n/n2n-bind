@@ -60,6 +60,9 @@ use n2n\bind\mapper\impl\date\TimeMapper;
 use n2n\util\calendar\Time;
 use n2n\bind\mapper\impl\string\UrlMapper;
 use n2n\bind\mapper\impl\date\TimeSqlMapper;
+use n2n\util\col\Map;
+use n2n\bind\plan\BindBoundary;
+use n2n\bind\plan\Bindable;
 
 class Mappers {
 
@@ -376,6 +379,11 @@ class Mappers {
 
 	static function mustExistIf(\Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {
 		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
+	}
+
+	static function mustExistAllIfAnyExist(): Mapper {
+		return new MustExistIfMapper(fn (BindBoundary $bindBoundary)
+				=> 0 < count(array_filter($bindBoundary->getBindables(), fn (Bindable $b) => $b->doesExist())));
 	}
 
 	static function time(bool $mandatory = false, ?Time $min = null, ?Time $max = null): TimeMapper {
