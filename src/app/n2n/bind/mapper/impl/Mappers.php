@@ -129,7 +129,7 @@ class Mappers {
 	 * @param int $maxLength
 	 * @return UrlMapper
 	 */
-	static function url(bool $mandatory = false, ?array $allowedSchemas = null, bool $schemeRequired = true,
+	static function url(bool $mandatory = false, ?array $allowedSchemas = ['https', 'http'], bool $schemeRequired = true,
 			int $maxLength = 2048): UrlMapper {
 		return new UrlMapper($mandatory, $allowedSchemas, $schemeRequired, $maxLength);
 	}

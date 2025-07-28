@@ -15,7 +15,7 @@ use n2n\validation\lang\ValidationMessages;
 
 class UrlMapper extends SingleMapperAdapter {
     public function __construct(private bool $mandatory = false, private ?array $allowedSchemes = null,
-			private bool $schemeRequired = true, private ?int $maxLength = null) {
+			private bool $schemeRequired = true, private ?int $maxlength = null) {
 		ArgUtils::valArray($this->allowedSchemes, 'string', true);
     }
 
@@ -48,8 +48,11 @@ class UrlMapper extends SingleMapperAdapter {
             $validators[] = Validators::mandatory();
         }
 
-        $allowedSchemes = $this->allowedSchemes ?? ['https', 'http', 'mailto', 'tel'];
-        $validators[] = Validators::url($this->schemeRequired, $allowedSchemes);
+		$validators[] = Validators::url($this->schemeRequired, $this->allowedSchemes);
+
+		if ($this->maxlength !== null) {
+			$validators[] = Validators::maxlength($this->maxlength);
+		}
 
         return $validators;
     }
