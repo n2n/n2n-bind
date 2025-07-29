@@ -36,9 +36,12 @@ use n2n\bind\build\impl\source\object\ObjectBindSource;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|BindSource|null $source = null): PropBindTask {
+	static function attrs(AttributeReader|array|BindSource|\JsonSerializable|null $source = null): PropBindTask {
 		if (is_array($source)) {
 			$source = new DataMap($source);
+		} elseif ($source instanceof \JsonSerializable) {
+			$date = $source->jsonSerialize();
+			$source = new DataMap(is_array($date) ? $date : [$date]);
 		}
 
 		if ($source instanceof AttributeReader || $source === null) {
