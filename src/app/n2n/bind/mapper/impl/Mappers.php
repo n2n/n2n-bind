@@ -63,6 +63,8 @@ use n2n\bind\mapper\impl\date\TimeSqlMapper;
 use n2n\util\col\Map;
 use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\Bindable;
+use n2n\util\calendar\Date;
+use n2n\bind\mapper\impl\date\DateMapper;
 
 class Mappers {
 
@@ -393,4 +395,9 @@ class Mappers {
 	static function timeSql(): TimeSqlMapper {
 		return new TimeSqlMapper();
 	}
+
+	static function date(bool $mandatory = false, ?Date $min = null, ?Date $max = null): DateMapper {
+		return new DateMapper($mandatory, $min, $max);
+	}
+
 }
