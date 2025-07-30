@@ -106,6 +106,10 @@ class BindTest extends TestCase {
 		$result->get();
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testUnresolvableBindable() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 		$tdm = new DataMap();
@@ -118,6 +122,11 @@ class BindTest extends TestCase {
 
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testOptProp() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 
@@ -141,6 +150,11 @@ class BindTest extends TestCase {
 		$this->assertEquals([], $tdm->toArray());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testDynProp() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 
@@ -164,6 +178,11 @@ class BindTest extends TestCase {
 		$this->assertEquals([], $tdm->toArray());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testValue() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 		$tdm = new DataMap();
