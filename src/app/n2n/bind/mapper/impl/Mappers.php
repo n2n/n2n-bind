@@ -93,7 +93,7 @@ class Mappers {
 	 * @param int|null $max
 	 * @return IntMapper
 	 */
-	static function int(bool $mandatory = false, ?int $min = -1000000, ?int $max = 1000000): IntMapper {
+	static function int(bool $mandatory = false, ?int $min = -100000, ?int $max = 100000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
 	}
 
@@ -104,7 +104,7 @@ class Mappers {
 	 * @param float|null $step
 	 * @return FloatMapper
 	 */
-	static function float(bool $mandatory = false, ?float $min = -1000000, ?float $max = 1000000, ?float $step = 0.01): FloatMapper {
+	static function float(bool $mandatory = false, ?float $min = -100000, ?float $max = 100000, ?float $step = 0.01): FloatMapper {
 		return new FloatMapper($mandatory, $min, $max, $step);
 	}
 
