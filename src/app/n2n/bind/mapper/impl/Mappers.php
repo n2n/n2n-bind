@@ -57,8 +57,14 @@ use n2n\bind\mapper\impl\compose\SubForeachMapper;
 use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
 use n2n\bind\mapper\impl\op\MustExistIfMapper;
 use n2n\bind\mapper\impl\date\TimeMapper;
-use n2n\bind\mapper\impl\date\TimeSqlMapper;
 use n2n\util\calendar\Time;
+use n2n\bind\mapper\impl\string\UrlMapper;
+use n2n\bind\mapper\impl\date\TimeSqlMapper;
+use n2n\util\col\Map;
+use n2n\bind\plan\BindBoundary;
+use n2n\bind\plan\Bindable;
+use n2n\util\calendar\Date;
+use n2n\bind\mapper\impl\date\DateMapper;
 
 class Mappers {
 
@@ -87,7 +93,7 @@ class Mappers {
 	 * @param int|null $max
 	 * @return IntMapper
 	 */
-	static function int(bool $mandatory = false, ?int $min = 0, ?int $max = 1000000): IntMapper {
+	static function int(bool $mandatory = false, ?int $min = -100000, ?int $max = 100000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
 	}
 
@@ -98,7 +104,7 @@ class Mappers {
 	 * @param float|null $step
 	 * @return FloatMapper
 	 */
-	static function float(bool $mandatory = false, ?float $min = 0, ?float $max = 1000000, ?float $step = 0.01): FloatMapper {
+	static function float(bool $mandatory = false, ?float $min = -100000, ?float $max = 100000, ?float $step = 0.01): FloatMapper {
 		return new FloatMapper($mandatory, $min, $max, $step);
 	}
 
@@ -116,6 +122,18 @@ class Mappers {
 	 */
 	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
+	}
+
+	/**
+	 * @param bool $mandatory
+	 * @param array|null $allowedSchemas
+	 * @param bool $schemeRequired
+	 * @param int $maxLength
+	 * @return UrlMapper
+	 */
+	static function url(bool $mandatory = false, ?array $allowedSchemas = ['https', 'http'], bool $schemeRequired = true,
+			int $maxLength = 2048): UrlMapper {
+		return new UrlMapper($mandatory, $allowedSchemas, $schemeRequired, $maxLength);
 	}
 
 	/**
@@ -373,6 +391,11 @@ class Mappers {
 		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
 	}
 
+	static function mustExistAllIfAnyExist(): Mapper {
+		return new MustExistIfMapper(fn (BindBoundary $bindBoundary)
+				=> 0 < count(array_filter($bindBoundary->getBindables(), fn (Bindable $b) => $b->doesExist())));
+	}
+
 	static function time(bool $mandatory = false, ?Time $min = null, ?Time $max = null): TimeMapper {
 		return new TimeMapper($mandatory, $min, $max);
 	}
@@ -380,4 +403,9 @@ class Mappers {
 	static function timeSql(): TimeSqlMapper {
 		return new TimeSqlMapper();
 	}
+
+	static function date(bool $mandatory = false, ?Date $min = null, ?Date $max = null): DateMapper {
+		return new DateMapper($mandatory, $min, $max);
+	}
+
 }

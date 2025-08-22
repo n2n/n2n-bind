@@ -13,6 +13,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
 use n2n\util\DateUtils;
+use n2n\util\calendar\Date;
 
 class DateSqlMapperTest extends TestCase {
 	protected function setUp(): void {
@@ -32,14 +33,15 @@ class DateSqlMapperTest extends TestCase {
 		$dateTime2->setTime(8,9,10);
 		$dateTimeImmutable1 = new \DateTimeImmutable('+7 days');
 		$dateTimeImmutable1->setTime(11,12,13);
+		$date = new Date('2010-10-10');
 
 
 		$sourceDataMap = new DataMap(['DateTime1' => $dateTime1, 'DateTime2' => $dateTime2,
-				'DateTimeImmutable1' => $dateTimeImmutable1, 'Null' => null]);
+				'DateTimeImmutable1' => $dateTimeImmutable1, 'Date' => $date, 'Null' => null]);
 		$toDataMap = new DataMap();
 
 		$result = Bind::attrs($sourceDataMap)->toAttrs($toDataMap)
-				->props(['DateTime1', 'DateTime2', 'DateTimeImmutable1', 'Null'], Mappers::dateSql())
+				->props(['DateTime1', 'DateTime2', 'DateTimeImmutable1', 'Date', 'Null'], Mappers::dateSql())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -47,6 +49,7 @@ class DateSqlMapperTest extends TestCase {
 		$this->assertEquals($dateTime1->format(DateUtils::SQL_DATE_FORMAT), $toDataMap->reqString('DateTime1'));
 		$this->assertEquals('2010-01-01', $toDataMap->reqString('DateTime2'));
 		$this->assertEquals($dateTimeImmutable1->format(DateUtils::SQL_DATE_FORMAT), $toDataMap->reqString('DateTimeImmutable1'));
+		$this->assertEquals('2010-10-10', $toDataMap->reqString('Date'));
 		$this->assertEquals(null, $toDataMap->reqString('Null', true));
 	}
 

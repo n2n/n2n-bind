@@ -12,14 +12,14 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
-use n2n\util\calendar\Time;
+use n2n\util\calendar\Date;
 
-class TimeMapperTest extends TestCase {
+class DateMapperTest extends TestCase {
 	private DataMap $sdm;
 	private DataMap $tdm;
 
 	protected function setUp(): void {
-		$this->sdm = new DataMap(['time' => new Time('14:30:00')]);
+		$this->sdm = new DataMap(['date' => new Date('2023-10-01')]);
 		$this->tdm = new DataMap();
 	}
 
@@ -29,15 +29,15 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
-	 * this will test {@link TimeMapper} without params
+	 * this will test {@link DateMapper} without params
 	 */
-	public function testTimeMapper(): void {
+	public function testDateMapper(): void {
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time())
+				->props(['date'], Mappers::date())
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertEquals($this->sdm->req('time'), $this->tdm->req('time'));
+		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
 	/**
@@ -47,13 +47,13 @@ class TimeMapperTest extends TestCase {
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeWithinBoundaries(): void {
+	public function testDateWithinBoundaries(): void {
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false, new Time('08:00:00'), new Time('22:45:00')))
+				->props(['date'], Mappers::date(false, new Date('2023-01-01'), new Date('2023-10-31')))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertEquals($this->sdm->req('time'), $this->tdm->req('time'));
+		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
 	/**
@@ -62,15 +62,15 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeBeforeMin(): void {
-		$this->sdm->set('time', new Time('06:00:00'));
+	public function testDateBeforeMin(): void {
+		$this->sdm->set('date', new Date('2023-11-11'));
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false, new Time('08:00:00'), null))
+				->props(['date'], Mappers::date(false, new Date('2023-12-12'), null))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertStringContainsString('Not Earlier Than Earliest', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
-		$this->assertNull($this->tdm->opt('time'));
+		$this->assertStringContainsString('Not Earlier Than Earliest', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
+		$this->assertNull($this->tdm->opt('date'));
 	}
 
 	/**
@@ -79,15 +79,15 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeAfterMax(): void {
-		$this->sdm->set('time', new Time('23:00:00'));
+	public function testDateAfterMax(): void {
+		$this->sdm->set('date', new Date('2023-12-12'));
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false, null, new Time('22:45:00')))
+				->props(['date'], Mappers::date(false, null, new Date('2023-11-11')))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertStringContainsString('Not Later Than Latest', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
-		$this->assertNull($this->tdm->opt('time'));
+		$this->assertStringContainsString('Not Later Than Latest', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
+		$this->assertNull($this->tdm->opt('date'));
 	}
 
 	/**
@@ -97,14 +97,14 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeEqualsMinMax(): void {
-		$this->sdm->set('time', new Time('14:30:00'));
+	public function testDateEqualsMinMax(): void {
+		$this->sdm->set('date', new Date('2023-10-01'));
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false, new Time('14:30:00'), new Time('14:30:00')))
+				->props(['date'], Mappers::date(false, new Date('2023-10-01'), new Date('2023-10-01')))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertEquals($this->sdm->req('time'), $this->tdm->req('time'));
+		$this->assertEquals($this->sdm->req('date'), $this->tdm->req('date'));
 	}
 
 	/**
@@ -114,15 +114,15 @@ class TimeMapperTest extends TestCase {
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeStringConversion(): void {
-		$this->sdm->set('time', '11:59');
+	public function testDateStringConversion(): void {
+		$this->sdm->set('date', '2023-10-01');
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time())
+				->props(['date'], Mappers::date())
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertInstanceOf(Time::class, $this->tdm->req('time'));
-		$this->assertEquals(new Time($this->sdm->req('time')), $this->tdm->req('time'));
+		$this->assertInstanceOf(Date::class, $this->tdm->req('date'));
+		$this->assertEquals(new Date($this->sdm->req('date')), $this->tdm->req('date'));
 	}
 
 	/**
@@ -131,15 +131,15 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeStringConversionInvalid(): void {
-		$this->sdm->set('time', '2010-01-02');
+	public function testDateStringConversionInvalid(): void {
+		$this->sdm->set('date', '10:10:10');
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->optProps(['time'], Mappers::time())
+				->optProps(['date'], Mappers::date())
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
-		$this->assertNull($this->tdm->opt('time'));
+		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
+		$this->assertNull($this->tdm->opt('date'));
 	}
 
 	/**
@@ -149,14 +149,14 @@ class TimeMapperTest extends TestCase {
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeMapperNull(): void {
-		$this->sdm->set('time', null);
+	public function testDateMapperNull(): void {
+		$this->sdm->set('date', null);
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false))
+				->props(['date'], Mappers::date(false))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertNull($this->tdm->req('time'));
+		$this->assertNull($this->tdm->req('date'));
 	}
 
 	/**
@@ -166,14 +166,14 @@ class TimeMapperTest extends TestCase {
 	 * @throws MissingAttributeFieldException
 	 * @throws BindMismatchException
 	 */
-	public function testTimeMapperBoundariesNull(): void {
-		$this->sdm->set('time', '23:30:00');
+	public function testDateMapperBoundariesNull(): void {
+		$this->sdm->set('date', '2023-10-10');
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(false, null, null))
+				->props(['date'], Mappers::date(false, null, null))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertTrue($result->isValid());
-		$this->assertEquals(new Time('23:30:00'), $this->tdm->req('time'));
+		$this->assertEquals(new Date('2023-10-10'), $this->tdm->req('date'));
 	}
 
 	/**
@@ -181,14 +181,14 @@ class TimeMapperTest extends TestCase {
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
-	public function testTimeMapperNullMandatory(): void {
-		$this->sdm->set('time', null);
+	public function testDateMapperNullMandatory(): void {
+		$this->sdm->set('date', null);
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
-				->props(['time'], Mappers::time(true, null, null))
+				->props(['date'], Mappers::date(true, null, null))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
 		$this->assertEmpty($this->tdm->toArray());
 	}
 }

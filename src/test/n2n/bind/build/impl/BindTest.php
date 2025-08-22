@@ -38,6 +38,7 @@ use n2n\util\ex\IllegalStateException;
 use n2n\bind\mapper\Mapper;
 use n2n\validation\plan\ErrorMap;
 use n2n\bind\mapper\MapResult;
+use JsonSerializable;
 
 class BindTest extends TestCase {
 
@@ -105,6 +106,10 @@ class BindTest extends TestCase {
 		$result->get();
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testUnresolvableBindable() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 		$tdm = new DataMap();
@@ -117,6 +122,11 @@ class BindTest extends TestCase {
 
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testOptProp() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 
@@ -140,6 +150,11 @@ class BindTest extends TestCase {
 		$this->assertEquals([], $tdm->toArray());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	function testDynProp() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 
@@ -163,6 +178,11 @@ class BindTest extends TestCase {
 		$this->assertEquals([], $tdm->toArray());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testValue() {
 		$sdm = new DataMap([ 'huii' => 'hoii' ]);
 		$tdm = new DataMap();
@@ -298,5 +318,41 @@ class BindTest extends TestCase {
 				->toArray();
 
 		$this->assertEquals(['value-updated'], $bindTask->exec(input: ['value'])->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testJsonSerializeArrayAttrs(): void {
+		$input = new class implements JsonSerializable {
+			public function jsonSerialize(): array {
+				return ['prop1' => 'value1'];
+			}
+		};
+
+		$result = Bind::attrs($input)->prop('prop1')->toArray()
+				->exec()->get();
+
+		$this->assertEquals(['prop1' => 'value1'], $result);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testJsonSerializeStringAttrs(): void {
+		$input = new class implements JsonSerializable {
+			public function jsonSerialize(): string {
+				return 'value1';
+			}
+		};
+
+		$result = Bind::attrs($input)->prop('0')->toArray()
+				->exec()->get();
+
+		$this->assertEquals(['value1'], $result);
 	}
 }
