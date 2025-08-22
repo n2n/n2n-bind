@@ -25,7 +25,7 @@ use n2n\bind\mapper\impl\string\CleanStringMapper;
 use n2n\bind\mapper\impl\numeric\IntMapper;
 use n2n\bind\mapper\impl\string\EmailMapper;
 use n2n\bind\mapper\impl\closure\PropsClosureMapper;
-use n2n\bind\mapper\impl\closure\ValueClosureMapper;
+use n2n\bind\mapper\impl\closure\SingleClosureMapper;
 use n2n\util\type\TypeConstraint;
 use n2n\bind\mapper\impl\type\TypeMapper;
 use n2n\bind\mapper\impl\closure\BindableClosureMapper;
@@ -161,18 +161,26 @@ class Mappers {
 
 	/**
 	 * @param Closure $closure
-	 * @return ValueClosureMapper
+	 * @return SingleClosureMapper
 	 */
-	public static function valueClosure(Closure $closure): ValueClosureMapper {
-		return new ValueClosureMapper($closure, false);
+	public static function valueClosure(Closure $closure): SingleClosureMapper {
+		return new SingleClosureMapper($closure, false);
 	}
 
 	/**
 	 * @param Closure $closure
-	 * @return ValueClosureMapper
+	 * @return SingleClosureMapper
 	 */
-	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
-		return new ValueClosureMapper($closure, true);
+	public static function bindableClosure(Closure $closure): SingleClosureMapper {
+		return new SingleClosureMapper($closure, false, false);
+	}
+
+	/**
+	 * @param Closure $closure
+	 * @return SingleClosureMapper
+	 */
+	public static function valueNotNullClosure(Closure $closure): SingleClosureMapper {
+		return new SingleClosureMapper($closure, true);
 	}
 
 	/**

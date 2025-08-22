@@ -62,6 +62,11 @@ class ValueObjectMapperExtractor {
 		$invoker->setReturnTypeConstraint(TypeConstraints::namedType(Mapper::class));
 		return $invoker->invoke();
 	}
+
+	static function isUnmarshalable(\ReflectionClass $class): bool {
+		return ReflectionContext::getAttributeSet($class)
+				->containsMethodAttributeName(Unmarshal::class);
+	}
 }
 
 class MapperExtractor {

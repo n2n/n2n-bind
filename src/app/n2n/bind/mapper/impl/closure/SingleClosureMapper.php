@@ -12,11 +12,11 @@ use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\BindData;
 use n2n\bind\mapper\MapResult;
 
-class ValueClosureMapper extends SingleMapperAdapter {
+class SingleClosureMapper extends SingleMapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure, private bool $nullSkipped) {
+	public function __construct(\Closure $closure, private bool $nullSkipped, private bool $valueAsFirstArg = true) {
 		$this->closure = $closure;
 	}
 
@@ -32,7 +32,8 @@ class ValueClosureMapper extends SingleMapperAdapter {
 		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
 
-		$returnValue = $invoker->invoke(null, $this->closure, [$value]);
+		$returnValue = $invoker->invoke(null, $this->closure,
+				($this->valueAsFirstArg ? [$value] : []));
 
 		if ($returnValue instanceof BindData) {
 			$returnValue = $returnValue->toDataMap()->toArray();
