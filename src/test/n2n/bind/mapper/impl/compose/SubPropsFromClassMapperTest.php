@@ -40,14 +40,14 @@ class SubPropsFromClassMapperTest extends TestCase {
 	 * @throws BindMismatchException
 	 */
 	function testBaseUndefinedAttrs() {
-		$srcAttrs = ['prop' => 'value1', 'nullableProp' => 'value2', 'mixedProp' => Undefined::i()];
+		$srcAttrs = ['prop' => 'value1', 'nullableProp' => 'value2', 'mixedProp' => array()];
 
 		$targetAttrs = Bind::attrs($srcAttrs)
 				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
 				->toArray()->exec()->get();
 
 		$this->assertSame(
-				['prop' => 'value1', 'nullableProp' => 'value2', 'undefNullableProp' => Undefined::i(), 'mixedProp' => Undefined::i()],
+				['prop' => 'value1', 'nullableProp' => 'value2', 'undefNullableProp' => Undefined::i(), 'mixedProp' => array()],
 				$targetAttrs);
 	}
 

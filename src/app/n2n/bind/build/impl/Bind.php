@@ -23,10 +23,6 @@ namespace n2n\bind\build\impl;
 
 use n2n\util\type\attrs\DataMap;
 use n2n\util\type\attrs\AttributeReader;
-use n2n\bind\build\impl\source\AttrsBindInstance;
-use n2n\util\type\attrs\AttributePath;
-use n2n\bind\build\impl\source\StaticBindInstance;
-use n2n\bind\plan\impl\ValueBindable;
 use n2n\bind\plan\BindSource;
 use n2n\bind\build\impl\compose\prop\PropBindTask;
 use n2n\bind\build\impl\compose\union\UnionBindComposer;
@@ -36,7 +32,8 @@ use n2n\bind\build\impl\source\object\ObjectBindSource;
 
 class Bind {
 
-	static function attrs(AttributeReader|array|BindSource|\JsonSerializable|null $source = null): PropBindTask {
+	static function attrs(AttributeReader|array|BindSource|\JsonSerializable|null $source = null,
+			bool $undefinedAsNonExisting = true): PropBindTask {
 		if (is_array($source)) {
 			$source = new DataMap($source);
 		} elseif ($source instanceof \JsonSerializable) {
@@ -45,14 +42,14 @@ class Bind {
 		}
 
 		if ($source instanceof AttributeReader || $source === null) {
-			$source = new AttrsBindSource($source);
+			$source = new AttrsBindSource($source, $undefinedAsNonExisting);
 		}
 
 		return self::propBindSource($source);
 	}
 
-	static function obj(?object $obj = null): PropBindTask {
-		return self::propBindSource(new ObjectBindSource($obj));
+	static function obj(?object $obj = null, bool $undefinedAsNonExisting = true): PropBindTask {
+		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting));
 	}
 
 	static function propBindSource(BindSource $source): PropBindTask {

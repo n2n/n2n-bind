@@ -28,6 +28,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\bind\plan\impl\BindResults;
+use n2n\bind\build\impl\source\BindInstance;
 
 class BindTask {
 

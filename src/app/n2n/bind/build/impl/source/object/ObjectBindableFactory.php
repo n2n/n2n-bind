@@ -21,7 +21,7 @@
  */
 namespace n2n\bind\build\impl\source\object;
 
-use n2n\bind\build\impl\source\BindInstanceAdapter;
+use n2n\bind\build\impl\source\BindableFactoryAdapter;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\util\type\attrs\AttributePath;
@@ -34,13 +34,13 @@ use n2n\util\type\TypeUtils;
 use n2n\util\ex\ExUtils;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
+use n2n\util\type\custom\Undefined;
 
-class ObjectBindInstance extends BindInstanceAdapter {
+class ObjectBindableFactory extends BindableFactoryAdapter {
 	/**
 	 * @param object $object The source object from which properties are read.
 	 */
 	public function __construct(private object $object, private ObjectBindAccessProxyCache $proxyCache) {
-		parent::__construct();
 	}
 
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
@@ -56,7 +56,6 @@ class ObjectBindInstance extends BindInstanceAdapter {
 		}
 
 		$valueBindable = new ValueBindable($path, $retrievedValue->value, $retrievedValue->exists);
-		$this->addBindable($valueBindable);
 
 		return $valueBindable;
 	}

@@ -21,37 +21,35 @@
  */
 namespace n2n\bind\build\impl\source;
 
+use n2n\util\type\attrs\AttributeReader;
 use n2n\util\type\attrs\AttributePath;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\util\type\attrs\AttributesException;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
-use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\plan\BindData;
 use n2n\util\type\attrs\DataMap;
+use n2n\util\type\TypeConstraints;
+use n2n\bind\err\BindMismatchException;
 
-class StaticBindInstance extends BindInstanceAdapter {
+class AttrsBindableFactory extends BindableFactoryAdapter {
 
-	function __construct(private array $values) {
-		$bindables = [];
-		foreach ($values as $key => $value) {
-			$bindables[] = new ValueBindable(new AttributePath([(string) $key]), $value, true);
-		}
-
-		parent::__construct($bindables);
+	function __construct(private AttributeReader $attributeReader) {
 	}
 
-	function createBindable(AttributePath $path, bool $mustExist): Bindable {
-		$bindable = $this->getBindable($path);
-		if ($bindable !== null) {
-			return $bindable;
+	public function createBindable(AttributePath $path, bool $mustExist): Bindable  {
+		try {
+			$value = $this->attributeReader->readAttribute($path);
+			$valueBindable = new ValueBindable($path, $value, true);
+		} catch (AttributesException $e) {
+			if ($mustExist) {
+				throw new UnresolvableBindableException('Could not resolve bindable: '
+						. $path->toAbsoluteString(), 0, $e);
+			}
+
+			$valueBindable = new ValueBindable($path, null, false);
 		}
 
-		if ($mustExist) {
-			throw new UnresolvableBindableException('Bindable not found: ' . $path);
-		}
-
-		$bindable = new ValueBindable($path, null, false);
-		$this->addBindable($bindable);
-
-		return $bindable;
+		return $valueBindable;
 	}
 }

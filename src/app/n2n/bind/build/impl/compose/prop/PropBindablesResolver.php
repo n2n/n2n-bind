@@ -28,7 +28,9 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
 use n2n\bind\err\UnresolvableBindableException;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\BindableFactory;
+use n2n\bind\build\impl\source\BindInstance;
+use n2n\bind\err\BindMismatchException;
 
 class PropBindablesResolver implements BindablesResolver {
 
@@ -39,6 +41,7 @@ class PropBindablesResolver implements BindablesResolver {
 
 	/**
 	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
 	 */
 	private function acquireBindable(BindInstance $bindInstance, AttributePath $attributePath): Bindable {
 		$bindable = $bindInstance->getBindable($attributePath);

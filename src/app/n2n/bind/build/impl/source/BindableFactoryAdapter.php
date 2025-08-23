@@ -19,22 +19,22 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\source;
 
-use n2n\validation\plan\ErrorMap;
-use n2n\bind\err\UnresolvableBindableException;
-use n2n\util\type\attrs\AttributePath;
 use n2n\l10n\Message;
-use n2n\bind\err\IncompatibleBindInputException;
-use n2n\bind\build\impl\source\BindInstance;
+use n2n\bind\plan\BindContext;
+use n2n\bind\plan\BindSource;
+use n2n\bind\plan\Bindable;
+use n2n\validation\plan\ErrorMap;
+use n2n\util\ex\IllegalStateException;
+use n2n\util\type\attrs\AttributePath;
+use n2n\util\type\ArgUtils;
+use n2n\bind\build\impl\Bind;
+use n2n\bind\plan\BindableFactory;
 
-interface BindSource {
+abstract class BindableFactoryAdapter implements BindableFactory {
 
-	/**
-	 * @param mixed $input
-	 * @return BindInstance
-	 * @throws IncompatibleBindInputException
-	 */
-	function next(mixed $input): BindInstance;
-
+	function createInitialBindables(): array {
+		return [];
+	}
 }

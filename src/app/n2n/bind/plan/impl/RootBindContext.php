@@ -6,9 +6,10 @@ use n2n\bind\plan\BindContext;
 use n2n\util\type\attrs\AttributePath;
 use n2n\l10n\Message;
 use n2n\bind\plan\BindSource;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\BindableFactory;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\plan\BindContextAdapter;
+use n2n\bind\build\impl\source\BindInstance;
 
 class RootBindContext extends BindContextAdapter {
 

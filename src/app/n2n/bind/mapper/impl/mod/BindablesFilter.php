@@ -5,7 +5,8 @@ namespace n2n\bind\mapper\impl\mod;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindSource;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\BindableFactory;
+use n2n\bind\build\impl\source\BindInstance;
 
 class BindablesFilter {
 

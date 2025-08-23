@@ -39,6 +39,10 @@ use n2n\bind\mapper\Mapper;
 use n2n\validation\plan\ErrorMap;
 use n2n\bind\mapper\MapResult;
 use JsonSerializable;
+use n2n\bind\build\impl\source\AttrsBindSource;
+use n2n\util\type\custom\Undefined;
+use n2n\bind\plan\Bindable;
+use n2n\util\magic\impl\MagicContexts;
 
 class BindTest extends TestCase {
 
@@ -354,5 +358,18 @@ class BindTest extends TestCase {
 				->exec()->get();
 
 		$this->assertEquals(['value1'], $result);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testUndefined() {
+		Bind::attrs(['prop1' => Undefined::i()])
+				->optProp('prop1', Mappers::bindableClosure(
+						fn (Bindable $b) => $this->assertFalse($b->doesExist()),
+						nonExistingSkipped: false))
+				->exec();
 	}
 }

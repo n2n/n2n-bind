@@ -39,7 +39,7 @@ class BindGroup {
 	}
 
 	/**
-	 * @param BindInstance $bindInstance
+	 * @param BindableFactory $bindInstance
 	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
 	 * @return bool false if a Mapper could not perform a modification of value due to errors. The bind process should be

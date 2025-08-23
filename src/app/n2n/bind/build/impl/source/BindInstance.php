@@ -30,34 +30,37 @@ use n2n\util\ex\IllegalStateException;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\ArgUtils;
 use n2n\bind\build\impl\Bind;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\BindableFactory;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
+use n2n\util\type\custom\Undefined;
 
-abstract class BindInstanceAdapter implements BindInstance {
+class BindInstance {
 	/**
 	 * @var Bindable[]
 	 */
-	private array $bindables;
+	private array $bindables = [];
 	/**
 	 * @var Bindable[]
 	 */
-	private array $originalBindables;
+	private array $originalBindables = [];
 	/**
 	 * @var Message[]
 	 */
 	private array $generalMessages = [];
 
-	/**
-	 * @param Bindable[] $bindables
-	 */
-	function __construct(array $bindables = []) {
-		ArgUtils::valArray($bindables, Bindable::class);
+	function __construct(private BindableFactory $bindableFactory, private bool $undefinedAsNonExisting = true) {
+	}
 
+	function init(): static {
+		$this->originalBindables = $this->bindableFactory->createInitialBindables();
+		ArgUtils::valArrayReturn($this->originalBindables, $this->bindableFactory, 'createInitialBindables',
+				Bindable::class);
 		$this->bindables = [];
-		foreach ($bindables as $bindable) {
+		foreach ($this->originalBindables as $bindable) {
 			$this->addBindable($bindable);
 		}
-
-		$this->originalBindables = $this->bindables;
+		return $this;
 	}
 
 //	function isValid(): bool {
@@ -92,6 +95,33 @@ abstract class BindInstanceAdapter implements BindInstance {
 		}
 		
 		return $errorMap;
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function createBindable(AttributePath $path, bool $mustExist): Bindable  {
+		$bindable = $this->bindableFactory->createBindable($path, $mustExist);
+
+		if ($mustExist && !$bindable->doesExist()) {
+			throw new UnresolvableBindableException('Bindable with path "' . $path . '" does not exist.');
+		}
+
+		if (!$this->undefinedAsNonExisting || !$bindable->doesExist() || !Undefined::is($bindable->getValue())) {
+			$this->addBindable($bindable);
+			return $bindable;
+		}
+
+		if ($mustExist) {
+			throw new UnresolvableBindableException('Bindable with path "' . $path
+					. '" is treated as non existing because it holds a value of type ' . Undefined::class);
+		}
+
+		$bindable->setExist(false);
+
+		$this->addBindable($bindable);
+		return $bindable;
 	}
 
 	/**

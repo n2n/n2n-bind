@@ -37,7 +37,7 @@ use n2n\bind\err\MisconfiguredMapperException;
 class SubPropsFromClassMapper extends MapperAdapter {
 	private ?SubPropsMapper $subPropsMapper = null;
 
-	function __construct(private \ReflectionClass $class, private bool $undefinedRecognized = true) {
+	function __construct(private \ReflectionClass $class, private bool $undefinedAutoFilled = true) {
 	}
 
 	private function getSubPropsMapper(): SubPropsMapper {
@@ -46,7 +46,7 @@ class SubPropsFromClassMapper extends MapperAdapter {
 		}
 
 		$this->subPropsMapper = new SubPropsMapper();
-		(new SubPropsFromClassMappersResolver($this->class, $this->undefinedRecognized))
+		(new SubPropsFromClassMappersResolver($this->class, $this->undefinedAutoFilled))
 				->populateComposer($this->subPropsMapper);
 		return $this->subPropsMapper;
 	}
@@ -58,7 +58,7 @@ class SubPropsFromClassMapper extends MapperAdapter {
 
 class SubPropsFromClassMappersResolver {
 
-	function __construct(private \ReflectionClass $class, private bool $undefinedRecognized = true) {
+	function __construct(private \ReflectionClass $class, private bool $undefinedAutoFilled = true) {
 
 	}
 
@@ -92,7 +92,7 @@ class SubPropsFromClassMappersResolver {
 				continue;
 			}
 
-			if ($this->undefinedRecognized && $typeName === Undefined::class) {
+			if ($this->undefinedAutoFilled && $typeName === Undefined::class) {
 				$undefinable = true;
 				continue;
 			}

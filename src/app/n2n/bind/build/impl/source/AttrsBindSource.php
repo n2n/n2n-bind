@@ -32,18 +32,20 @@ use n2n\util\type\attrs\DataMap;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\plan\BindSource;
-use n2n\bind\plan\BindInstance;
+use n2n\bind\plan\BindableFactory;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\util\type\TypeUtils;
 
 class AttrsBindSource implements BindSource {
 
-	function __construct(private ?AttributeReader $attributeReader = null) {
+	function __construct(private ?AttributeReader $attributeReader = null, private bool $undefinedAsNonExisting = true) {
 	}
 
 	function next(mixed $input): BindInstance {
 		if ($input === null || $this->attributeReader !== null) {
-			return new AttrsBindInstance($this->attributeReader ?? new DataMap());
+			return (new BindInstance(
+					new AttrsBindableFactory($this->attributeReader ?? new DataMap()),
+					$this->undefinedAsNonExisting))->init();
 		}
 
 		if (is_array($input)) {
@@ -51,7 +53,8 @@ class AttrsBindSource implements BindSource {
 		}
 
 		if ($input instanceof AttributeReader) {
-			return new AttrsBindInstance($input);
+			return (new BindInstance(new AttrsBindableFactory($input), $this->undefinedAsNonExisting))
+					->init();
 		}
 
 		throw new IncompatibleBindInputException('AttrsBindSource requires input to be of type '

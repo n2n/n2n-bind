@@ -65,7 +65,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testCreateBindableWithEmptyPath(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$emptyPath = new AttributePath([]);
 		$bindable = $instance->createBindable($emptyPath, true);
@@ -81,7 +81,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testCreateBindableSimpleProperty(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['firstname']);
 		$bindable = $instance->createBindable($path, true);
@@ -97,7 +97,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testCreateBindableNestedProperty(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['obj2', 'firstname']);
 		$bindable = $instance->createBindable($path, true);
@@ -114,7 +114,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testCreateBindableNonExistentMustExist(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['nonexistent']);
 		$this->expectException(UnresolvableBindableException::class);
@@ -129,7 +129,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testCreateBindableNonExistentNotMustExist(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['nonexistent']);
 		$bindable = $instance->createBindable($path, false);
@@ -148,7 +148,7 @@ class ObjectBindInstanceTest extends TestCase {
 		$dummy = $this->createDummyObject();
 		$dummy->obj2 = 'I am not an object';
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['obj2', 'firstname']);
 		$this->expectException(UnresolvableBindableException::class);
@@ -168,7 +168,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testArrayObjectAccessesHello(): void {
 		$dummy = $this->createDummyObject();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['arrObj', 'childMap', 'childProp']);
 		$bindable = $instance->createBindable($path, true);
@@ -185,7 +185,7 @@ class ObjectBindInstanceTest extends TestCase {
 	public function testMixedStructures(): void {
 		$dummy = new DummyMix();
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		// Case 1: object → object → ArrayObject → array, yielding "v1"
 		$path1 = new AttributePath(['mix', 'case1', 'child', 'arrObj', 'arr', 'val']);
@@ -242,7 +242,7 @@ class ObjectBindInstanceTest extends TestCase {
 			}
 		};
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['objArr', 'arr', 'child']);
 		try {
@@ -265,7 +265,7 @@ class ObjectBindInstanceTest extends TestCase {
 			public array $data = ['foo' => 'bar'];
 		};
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['data', 'baz']);
 		try {
@@ -289,7 +289,7 @@ class ObjectBindInstanceTest extends TestCase {
 		// Set obj2 to a non-object value
 		$dummy->obj2 = 'I am not an object';
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['obj2', 'firstname']);
 		try {
@@ -363,7 +363,7 @@ class ObjectBindInstanceTest extends TestCase {
 		};
 
 		$proxyCache = new ObjectBindAccessProxyCache();
-		$instance = new ObjectBindInstance($dummy, $proxyCache);
+		$instance = new ObjectBindableFactory($dummy, $proxyCache);
 
 		$path = new AttributePath(['level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'level7', 'level8',
 				'level9', 'level10']);
