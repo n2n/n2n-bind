@@ -21,82 +21,157 @@ use n2n\bind\mapper\impl\Mappers;
 use n2n\util\type\custom\Undefined;
 use n2n\util\col\Map;
 use n2n\bind\plan\Bindable;
+use n2n\bind\mapper\impl\valobj\ValueObjectMapperExtractor;
+use ReflectionClass;
+use n2n\util\type\TypeUtils;
+use n2n\util\calendar\Date;
+use DateTime;
+use n2n\util\calendar\Time;
+use n2n\util\uri\Url;
+use n2n\validation\validator\impl\Validators;
+use n2n\bind\mapper\impl\ValidatorMapper;
+use n2n\reflection\property\PropertyAccessProxy;
+use n2n\util\ex\ExUtils;
+use n2n\bind\err\MisconfiguredMapperException;
 
 class SubPropsFromClassMapper extends MapperAdapter {
+	private ?SubPropsMapper $subPropsMapper = null;
 
+	function __construct(private \ReflectionClass $class, private bool $undefinedRecognized = true) {
+	}
 
-	function __construct(\ReflectionClass $class) {
+	private function getSubPropsMapper(): SubPropsMapper {
+		if ($this->subPropsMapper !== null) {
+			return $this->subPropsMapper;
+		}
+
+		$this->subPropsMapper = new SubPropsMapper();
+		(new SubPropsFromClassMappersResolver($this->class, $this->undefinedRecognized))
+				->populateComposer($this->subPropsMapper);
+		return $this->subPropsMapper;
+	}
+
+	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
+		return $this->getSubPropsMapper()->map($bindBoundary, $magicContext);
+	}
+}
+
+class SubPropsFromClassMappersResolver {
+
+	function __construct(private \ReflectionClass $class, private bool $undefinedRecognized = true) {
 
 	}
 
-	/**
-	 * @throws InaccessiblePropertyException
-	 * @throws InvalidPropertyAccessMethodException
-	 */
-	private function getBindGroup(): BindGroup {
-
-
-		$bindPlan = new BindPlan();
+	function populateComposer(PropBindComposer $composer): void {
 		$analyzer = new PropertiesAnalyzer($this->class);
-		$composer = new PropBindComposer(new BindPlan());
+		$propertyAccessProxies = ExUtils::try(fn () => $analyzer->analyzeProperties(true));
 
-		foreach ($analyzer->analyzeProperties(true) as $propertyAccessProxy) {
+		foreach ($propertyAccessProxies as $propertyAccessProxy) {
 			if (!$propertyAccessProxy->isWritable()) {
 				continue;
 			}
 
-			$bindPlan->addBindGroup(new BindGroup());
-			$propertyAccessProxy->getSetterConstraint()->getNamedTypeConstraints()
+			$composer->optProp($propertyAccessProxy->getPropertyName(),
+					...$this->createMappersForProperty($propertyAccessProxy));
 		}
-
-		$bindPlan->addBindGroup(new BindGroup());
 	}
 
-	private function determineMappersFor(TypeConstraint $typeConstraint) {
-		$mappers = [];
-		$mustExist = true;
+	private function createMappersForProperty(PropertyAccessProxy $propertyAccessProxy): array {
+		$nullable = false;
+		$undefinable = false;
+		$valueMappers = null;
+
+		$typeConstraint = $propertyAccessProxy->getSetterConstraint();
 		foreach ($typeConstraint->getNamedTypeConstraints() as $namedTypeConstraint) {
 			$typeName = $namedTypeConstraint->getTypeName();
+			if ($namedTypeConstraint->allowsNull()) {
+				$nullable = true;
+			}
+
+			if ($typeName === TypeName::NULL) {
+				continue;
+			}
+
+			if ($this->undefinedRecognized && $typeName === Undefined::class) {
+				$undefinable = true;
+				continue;
+			}
+
+			if ($valueMappers !== null) {
+				throw new MisconfiguredMapperException(SubPropsFromClassMapper::class
+						. ' does not support properties with multiple types: '
+						. TypeUtils::prettyClassPropName($this->class, $propertyAccessProxy->getPropertyName()));
+			}
+
 			if ($namedTypeConstraint->isMixed() || TypeName::isScalar($namedTypeConstraint->getTypeName())) {
-				return [Mappers::type($typeConstraint)];
+				$valueMappers = [Mappers::typeNotNull($namedTypeConstraint)];
+				continue;
 			}
 
-			if ($typeName === Undefined::class) {
-				Mappers::bindableClosure(function (Bindable $b) {
-					if ($b->doesExist()) {
-						return;
-					}
-
-					$b->setValue(Undefined::i());
-					$b->setExist(true);
-				});
-
-				$mappers[] = Mappers::doIfValueClosure(fn ($v) => $v === Undefined::i(), skipNextMappers: true);
-				$mustExist = false;
-
+			$valueMappers = $this->detectKnownTypesMappers($typeName);
+			if ($valueMappers !== null) {
+				continue;
 			}
 
-
-			if (class_exists($typeName)) {
-
+			$valueMappers = $this->detectValObjMappers($typeName);
+			if ($valueMappers !== null) {
+				continue;
 			}
 
-
-
-		}
-	}
-
-	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
-
-
-		foreach ($bindBoundary->getBindables() as $bindable) {
-			$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance());
-
-			if (!$this->bindPlan->exec($bindContext, $magicContext)) {
-				return new MapResult(false);
-			}
+			$valueMappers = [Mappers::typeNotNull($namedTypeConstraint)];
 		}
 
-		return new MapResult(true);
+		return $this->compilePropertyMappers($valueMappers ?? [Mappers::type($typeConstraint)],
+				$undefinable, $nullable);
 	}
+
+	private function compilePropertyMappers(array $valueMappers, bool $undefinable, bool $nullable): array {
+		$mappers = [];
+		if (!$undefinable) {
+			$mappers[] = Mappers::mustExistIf(true);
+		} else {
+			$mappers[] = Mappers::bindableClosure(
+					function (Bindable $bindable) {
+						if (!$bindable->doesExist()) {
+							$bindable->setValue(Undefined::i())->setExist(true);
+						}
+					},
+					nonExistingSkipped: false);
+			$mappers[] = Mappers::doIfValueClosure(fn ($v) => $v === Undefined::i(), skipNextMappers: true);
+		}
+
+		array_push($mappers, ...$valueMappers);
+
+		if (!$nullable) {
+			$mappers[] = new ValidatorMapper(Validators::mandatory());
+		}
+
+		return $mappers;
+	}
+
+	private function detectKnownTypesMappers(string $typeName): ?array {
+		return match ($typeName) {
+			\DateTimeInterface::class, \DateTimeImmutable::class => [Mappers::dateTimeImmutable()],
+			\DateTime::class => [Mappers::dateTime()],
+			Date::class => [Mappers::date()],
+			Time::class => [Mappers::time()],
+			Url::class => [Mappers::url()],
+			default => null,
+		};
+	}
+
+	private function detectValObjMappers(string $typeName): ?array {
+		if (!class_exists($typeName)) {
+			return null;
+		}
+
+		$typeClass = new \ReflectionClass($typeName);
+		if (ValueObjectMapperExtractor::isUnmarshalable($typeClass)) {
+			return [Mappers::unmarshal($typeName)];
+		}
+
+		return null;
+	}
+
+
 }

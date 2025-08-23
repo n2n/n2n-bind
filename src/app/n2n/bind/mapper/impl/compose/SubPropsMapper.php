@@ -12,15 +12,11 @@ use n2n\bind\mapper\MapResult;
 
 class SubPropsMapper extends PropBindComposer implements Mapper {
 
-
 	function __construct() {
 		parent::__construct(new BindPlan());
 	}
 
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
-
-
-
 		foreach ($bindBoundary->getBindables() as $bindable) {
 			$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance());
 

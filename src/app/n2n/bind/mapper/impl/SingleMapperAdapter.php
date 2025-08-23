@@ -31,12 +31,13 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\MapResult;
 
 abstract class SingleMapperAdapter extends MapperAdapter {
+	protected bool $nonExistingSkipped = true;
 
 	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$mapResult = new MapResult();
 
 		foreach ($bindBoundary->getBindables() as $bindable) {
-			if (!$bindable->doesExist() || $bindable->isDirty()) {
+			if (($this->nonExistingSkipped && !$bindable->doesExist()) || $bindable->isDirty()) {
 				continue;
 			}
 

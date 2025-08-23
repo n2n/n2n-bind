@@ -13,7 +13,9 @@ use n2n\bind\mapper\MapResult;
 
 class BindableClosureMapper extends SingleMapperAdapter {
 
-	public function __construct(private \Closure $closure, private bool $nullSkipped) {
+	public function __construct(private \Closure $closure, private bool $nullSkipped,
+			bool $nonExistingSkipped = true) {
+		$this->nonExistingSkipped = $nonExistingSkipped;
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {

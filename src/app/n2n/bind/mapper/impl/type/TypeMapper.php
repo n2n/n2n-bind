@@ -16,10 +16,14 @@ use n2n\bind\plan\BindBoundary;
 
 class TypeMapper extends SingleMapperAdapter {
 
-	function __construct(private TypeConstraint $typeConstraint) {
+	function __construct(private TypeConstraint $typeConstraint, private bool $nullSkipped = false) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
+		if ($this->nullSkipped && $bindable->getValue() === null) {
+			return true;
+		}
+
 		$bindable->setValue($this->readSafeValue($bindable, $this->typeConstraint));
 
 		return true;

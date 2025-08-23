@@ -7,8 +7,21 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use PHPUnit\Framework\TestCase;
+use n2n\bind\err\BindTargetException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\err\BindMismatchException;
+use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\type\attrs\MissingAttributeFieldException;
 
 class EmailMapperTest extends TestCase {
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
 	function testAttrs() {
 		$sdm = new DataMap(['email1' => 'test@t‏esterich.ch ', 'email2' => ' Test@testerich.ch ', 'email3' => ' TeSt@tesTerIch.ch']);
 		$tdm = new DataMap();
@@ -23,8 +36,13 @@ class EmailMapperTest extends TestCase {
 		$this->assertEquals('test@testerich.ch', $tdm->reqString('email3'));
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testAttrsValFail() {
-		$sdm = new DataMap(['email1' => 'asdf@', 'email2' => 'äöl@asdf.adsf', 'email3' => 'asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf@yxcv.ch']);
+		$sdm = new DataMap(['email1' => 'asdf@', 'email2' => 'äöl@äsdf.adsf', 'email3' => 'asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf@yxcv.ch']);
 		$tdm = new DataMap();
 
 		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['email1', 'email2', 'email3'], Mappers::email(true))

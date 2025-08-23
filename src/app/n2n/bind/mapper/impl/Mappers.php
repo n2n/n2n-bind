@@ -25,7 +25,7 @@ use n2n\bind\mapper\impl\string\CleanStringMapper;
 use n2n\bind\mapper\impl\numeric\IntMapper;
 use n2n\bind\mapper\impl\string\EmailMapper;
 use n2n\bind\mapper\impl\closure\PropsClosureMapper;
-use n2n\bind\mapper\impl\closure\SingleClosureMapper;
+use n2n\bind\mapper\impl\closure\ValueClosureMapper;
 use n2n\util\type\TypeConstraint;
 use n2n\bind\mapper\impl\type\TypeMapper;
 use n2n\bind\mapper\impl\closure\BindableClosureMapper;
@@ -60,11 +60,12 @@ use n2n\bind\mapper\impl\date\TimeMapper;
 use n2n\util\calendar\Time;
 use n2n\bind\mapper\impl\string\UrlMapper;
 use n2n\bind\mapper\impl\date\TimeSqlMapper;
-use n2n\util\col\Map;
 use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\Bindable;
 use n2n\util\calendar\Date;
 use n2n\bind\mapper\impl\date\DateMapper;
+use n2n\reflection\ReflectionUtils;
+use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
 
 class Mappers {
 
@@ -72,6 +73,7 @@ class Mappers {
 	 * @param bool $mandatory
 	 * @param int|null $minlength
 	 * @param int|null $maxlength
+	 * @param bool $simpleWhitespacesOnly
 	 * @return CleanStringMapper
 	 */
 	static function cleanString(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255,
@@ -114,6 +116,10 @@ class Mappers {
 	 */
 	static function type(TypeConstraint $typeConstraint): TypeMapper {
 		return new TypeMapper($typeConstraint);
+	}
+
+	static function typeNotNull(TypeConstraint $typeConstraint): TypeMapper {
+		return new TypeMapper($typeConstraint, true);
 	}
 
 	/**
@@ -179,34 +185,26 @@ class Mappers {
 
 	/**
 	 * @param Closure $closure
-	 * @return SingleClosureMapper
+	 * @return ValueClosureMapper
 	 */
-	public static function valueClosure(Closure $closure): SingleClosureMapper {
-		return new SingleClosureMapper($closure, false);
+	public static function valueClosure(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, false);
 	}
 
 	/**
 	 * @param Closure $closure
-	 * @return SingleClosureMapper
+	 * @return ValueClosureMapper
 	 */
-	public static function bindableClosure(Closure $closure): SingleClosureMapper {
-		return new SingleClosureMapper($closure, false, false);
-	}
-
-	/**
-	 * @param Closure $closure
-	 * @return SingleClosureMapper
-	 */
-	public static function valueNotNullClosure(Closure $closure): SingleClosureMapper {
-		return new SingleClosureMapper($closure, true);
+	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, true);
 	}
 
 	/**
 	 * @param Closure $closure
 	 * @return BindableClosureMapper
 	 */
-	static function bindableClosure(Closure $closure): BindableClosureMapper {
-		return new BindableClosureMapper($closure, false);
+	static function bindableClosure(Closure $closure, bool $nonExistingSkipped = true): BindableClosureMapper {
+		return new BindableClosureMapper($closure, false, $nonExistingSkipped);
 	}
 
 	/**
@@ -222,6 +220,10 @@ class Mappers {
 	 * @return BindablesClosureMapper
 	 */
 	static function bindablesClosure(Closure $closure): BindablesClosureMapper {
+		return new BindablesClosureMapper($closure);
+	}
+
+	static function closure(Closure $closure): BindablesClosureMapper {
 		return new BindablesClosureMapper($closure);
 	}
 
@@ -287,6 +289,14 @@ class Mappers {
 	 */
 	static function subProps(): SubPropsMapper {
 		return new SubPropsMapper();
+	}
+
+	static function subPropsFromClass(\ReflectionClass|string $class): SubPropsFromClassMapper {
+		if (is_string($class)) {
+			$class = ReflectionUtils::createReflectionClass($class);
+		}
+
+		return new SubPropsFromClassMapper($class);
 	}
 
 	static function subForeach(Mapper|Validator ...$mappers): SubForeachMapper {

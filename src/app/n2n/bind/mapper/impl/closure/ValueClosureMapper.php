@@ -7,17 +7,14 @@ use n2n\bind\plan\BindContext;
 use n2n\bind\plan\Bindable;
 use n2n\util\magic\MagicContext;
 use n2n\util\type\TypeConstraints;
-use n2n\reflection\magic\MagicMethodInvoker;
+use n2n\util\magic\impl\MagicMethodInvoker;
 use n2n\bind\plan\BindBoundary;
 use n2n\bind\plan\BindData;
 use n2n\bind\mapper\MapResult;
 
-class SingleClosureMapper extends SingleMapperAdapter {
+class ValueClosureMapper extends SingleMapperAdapter {
 
-	private $closure;
-
-	public function __construct(\Closure $closure, private bool $nullSkipped, private bool $valueAsFirstArg = true) {
-		$this->closure = $closure;
+	public function __construct(private \Closure $closure, private bool $nullSkipped) {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
@@ -32,8 +29,7 @@ class SingleClosureMapper extends SingleMapperAdapter {
 		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::mixed());
 
-		$returnValue = $invoker->invoke(null, $this->closure,
-				($this->valueAsFirstArg ? [$value] : []));
+		$returnValue = $invoker->invoke(null, $this->closure, [$value]);
 
 		if ($returnValue instanceof BindData) {
 			$returnValue = $returnValue->toDataMap()->toArray();
