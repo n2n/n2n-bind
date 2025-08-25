@@ -430,6 +430,12 @@ class Mappers {
 		return new DateMapper($mandatory, $min, $max);
 	}
 
+	/**
+	 * Renames Bindable according to the passed a map.
+	 *
+	 * @param array<string> $propsMap key old property name, value new property name.
+	 * @return Mapper
+	 */
 	static function rename(array $propsMap): Mapper {
 		return self::propsClosure(function (array $props) use ($propsMap) {
 			$newProps = [];
