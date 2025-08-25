@@ -38,7 +38,7 @@ use n2n\util\type\mock\PureEnumMock;
 use n2n\util\type\TypeConstraints;
 use n2n\util\type\UnionTypeConstraint;
 
-class SubPropsFormClassMapper extends MapperAdapter {
+class SubPropsFromClassMapper extends MapperAdapter {
 	private ?SubPropsMapper $subPropsMapper = null;
 
 	function __construct(private \ReflectionClass $class, private bool $undefinedAsOptional = true) {
@@ -50,7 +50,7 @@ class SubPropsFormClassMapper extends MapperAdapter {
 		}
 
 		$this->subPropsMapper = new SubPropsMapper();
-		(new SubPropsFormClassMappersResolver($this->class, $this->undefinedAsOptional))
+		(new SubPropsFromClassMappersResolver($this->class, $this->undefinedAsOptional))
 				->populateComposer($this->subPropsMapper);
 		return $this->subPropsMapper;
 	}
@@ -60,7 +60,7 @@ class SubPropsFormClassMapper extends MapperAdapter {
 	}
 }
 
-class SubPropsFormClassMappersResolver {
+class SubPropsFromClassMappersResolver {
 
 	function __construct(private \ReflectionClass $class, private bool $undefinedAsOptional = true) {
 
