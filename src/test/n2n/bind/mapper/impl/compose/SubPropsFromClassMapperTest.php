@@ -16,6 +16,7 @@ use n2n\util\calendar\Date;
 use n2n\util\calendar\Time;
 use n2n\bind\mapper\impl\valobj\ValueObjectMock;
 use n2n\bind\mapper\impl\compose\mock\ValObjRecord;
+use n2n\bind\mapper\impl\compose\mock\SubBaseRecord;
 
 class SubPropsFromClassMapperTest extends TestCase {
 
@@ -29,6 +30,22 @@ class SubPropsFromClassMapperTest extends TestCase {
 
 		$targetAttrs = Bind::attrs($srcAttrs)
 				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
+				->toArray()->exec()->get();
+
+		$this->assertSame($srcAttrs, $targetAttrs);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testExtendsAttrs() {
+		$srcAttrs = ['subProp' => 'subvalue', 'prop' => 'value1', 'nullableProp' => 'value2', 'undefNullableProp' => 'value3',
+				'mixedProp' => ['value4']];
+
+		$targetAttrs = Bind::attrs($srcAttrs)
+				->logicalRoot(Mappers::subPropsFromClass(SubBaseRecord::class))
 				->toArray()->exec()->get();
 
 		$this->assertSame($srcAttrs, $targetAttrs);

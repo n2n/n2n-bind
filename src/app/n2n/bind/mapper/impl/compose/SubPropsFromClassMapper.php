@@ -63,7 +63,7 @@ class SubPropsFromClassMappersResolver {
 	}
 
 	function populateComposer(PropBindComposer $composer): void {
-		$analyzer = new PropertiesAnalyzer($this->class);
+		$analyzer = new PropertiesAnalyzer($this->class, superIgnored: false);
 		$propertyAccessProxies = ExUtils::try(fn () => $analyzer->analyzeProperties(true));
 
 		foreach ($propertyAccessProxies as $propertyAccessProxy) {
