@@ -21,7 +21,7 @@ use n2n\bind\mapper\impl\compose\mock\AdvancedTypesRecord;
 use n2n\util\type\mock\PureEnumMock;
 use n2n\bind\mapper\impl\enum\mock\MockEnum;
 
-class SubPropsFromClassMapperTest extends TestCase {
+class SubPropsForClassMapperTest extends TestCase {
 
 	/**
 	 * @throws BindTargetException
@@ -32,7 +32,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['prop' => 'value1', 'nullableProp' => 'value2', 'undefNullableProp' => 'value3', 'mixedProp' => ['value4']];
 
 		$targetAttrs = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(SimpleBaseRecord::class))
 				->toArray()->exec()->get();
 
 		$this->assertSame($srcAttrs, $targetAttrs);
@@ -48,7 +48,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 				'mixedProp' => ['value4']];
 
 		$targetAttrs = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(SubBaseRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(SubBaseRecord::class))
 				->toArray()->exec()->get();
 
 		$this->assertSame($srcAttrs, $targetAttrs);
@@ -63,7 +63,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['prop' => 'value1', 'nullableProp' => 'value2', 'mixedProp' => array()];
 
 		$targetAttrs = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(SimpleBaseRecord::class))
 				->toArray()->exec()->get();
 
 		$this->assertSame(
@@ -80,7 +80,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['prop' => 'value1', 'nullableProp' => null, 'undefNullableProp' => null, 'mixedProp' => null];
 
 		$result = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(SimpleBaseRecord::class))
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 
@@ -98,7 +98,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 				'date' => '2025-08-01', 'time' => '12:00:00'];
 
 		$result = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(KnownTypesRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(KnownTypesRecord::class))
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 
@@ -123,7 +123,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['valueObject' => 'info@holeradio.ch'];
 
 		$result = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(ValObjRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(ValObjRecord::class))
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 
@@ -143,7 +143,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['enumMock' => MockEnum::EUROPE_ZURICH->value];
 
 		$result = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(AdvancedTypesRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(AdvancedTypesRecord::class))
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 
@@ -163,7 +163,7 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$srcAttrs = ['enumMock' => null];
 
 		$result = Bind::attrs($srcAttrs)
-				->logicalRoot(Mappers::subPropsFromClass(AdvancedTypesRecord::class))
+				->logicalRoot(Mappers::subPropsForClass(AdvancedTypesRecord::class))
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 

@@ -65,7 +65,7 @@ use n2n\bind\plan\Bindable;
 use n2n\util\calendar\Date;
 use n2n\bind\mapper\impl\date\DateMapper;
 use n2n\reflection\ReflectionUtils;
-use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
+use n2n\bind\mapper\impl\compose\SubPropsForClassMapper;
 use n2n\bind\build\impl\Bind;
 
 class Mappers {
@@ -292,12 +292,12 @@ class Mappers {
 		return new SubPropsMapper();
 	}
 
-	static function subPropsFromClass(\ReflectionClass|string $class): SubPropsFromClassMapper {
+	static function subPropsForClass(\ReflectionClass|string $class): SubPropsForClassMapper {
 		if (is_string($class)) {
 			$class = ReflectionUtils::createReflectionClass($class);
 		}
 
-		return new SubPropsFromClassMapper($class);
+		return new SubPropsForClassMapper($class);
 	}
 
 	static function subForeach(Mapper|Validator ...$mappers): SubForeachMapper {

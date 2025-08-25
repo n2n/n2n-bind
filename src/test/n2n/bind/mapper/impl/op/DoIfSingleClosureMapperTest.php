@@ -14,7 +14,7 @@ use n2n\bind\mapper\Mapper;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 
-class DoIfValueClosureMapperTest extends TestCase {
+class DoIfSingleClosureMapperTest extends TestCase {
 
 	/**
 	 * @throws BindTargetException
