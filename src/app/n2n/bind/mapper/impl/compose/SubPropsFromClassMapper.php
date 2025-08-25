@@ -33,6 +33,8 @@ use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\reflection\property\PropertyAccessProxy;
 use n2n\util\ex\ExUtils;
 use n2n\bind\err\MisconfiguredMapperException;
+use n2n\util\EnumUtils;
+use n2n\util\type\mock\PureEnumMock;
 
 class SubPropsFromClassMapper extends MapperAdapter {
 	private ?SubPropsMapper $subPropsMapper = null;
@@ -105,6 +107,11 @@ class SubPropsFromClassMappersResolver {
 
 			if ($namedTypeConstraint->isMixed() || TypeName::isScalar($namedTypeConstraint->getTypeName())) {
 				$valueMappers = [Mappers::typeNotNull($namedTypeConstraint)];
+				continue;
+			}
+
+			if (EnumUtils::isEnumType($typeName)) {
+				$valueMappers = [Mappers::enum($typeName)];
 				continue;
 			}
 

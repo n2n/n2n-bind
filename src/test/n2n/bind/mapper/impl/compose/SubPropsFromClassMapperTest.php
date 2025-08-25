@@ -17,6 +17,9 @@ use n2n\util\calendar\Time;
 use n2n\bind\mapper\impl\valobj\ValueObjectMock;
 use n2n\bind\mapper\impl\compose\mock\ValObjRecord;
 use n2n\bind\mapper\impl\compose\mock\SubBaseRecord;
+use n2n\bind\mapper\impl\compose\mock\AdvancedTypesRecord;
+use n2n\util\type\mock\PureEnumMock;
+use n2n\bind\mapper\impl\enum\mock\MockEnum;
 
 class SubPropsFromClassMapperTest extends TestCase {
 
@@ -127,6 +130,46 @@ class SubPropsFromClassMapperTest extends TestCase {
 		$this->assertEquals(
 				[
 					'valueObject' => new ValueObjectMock('info@holeradio.ch'),
+				],
+				$targetAttrs);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testAdvancedTypesFill() {
+		$srcAttrs = ['enumMock' => MockEnum::EUROPE_ZURICH->value];
+
+		$result = Bind::attrs($srcAttrs)
+				->logicalRoot(Mappers::subPropsFromClass(AdvancedTypesRecord::class))
+				->toArray()->exec();
+		$targetAttrs = $result->get();
+
+		$this->assertEquals(
+				[
+					'enumMock' => MockEnum::EUROPE_ZURICH,
+				],
+				$targetAttrs);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testAdvancedTypesNull() {
+		$srcAttrs = ['enumMock' => null];
+
+		$result = Bind::attrs($srcAttrs)
+				->logicalRoot(Mappers::subPropsFromClass(AdvancedTypesRecord::class))
+				->toArray()->exec();
+		$targetAttrs = $result->get();
+
+		$this->assertEquals(
+				[
+						'enumMock' => null,
 				],
 				$targetAttrs);
 	}
