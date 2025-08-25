@@ -29,14 +29,13 @@ class SubPropsFromClassMapperTest extends TestCase {
 	 * @throws BindMismatchException
 	 */
 	function testBaseAttrs() {
-		$srcObj = new SimpleBaseRecord();
-		$srcObj->prop = 'huii';
-		$srcObj->nullableProp = null;
-		$srcObj->undefNullableProp = Undefined::i();
-		$srcObj->mixedProp = [];
+		$srcAttrs = [
+			'prop' => 'huii',
+			'nullableProp' => null,
+			'mixedProp' => []
+		];
 
-
-		$targetAttrs = Bind::obj($srcObj)
+		$targetAttrs = Bind::attrs($srcAttrs)
 				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
 				->toArray()->exec()->get();
 

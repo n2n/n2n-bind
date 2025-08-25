@@ -83,13 +83,16 @@ class SubPropsFromClassMappersResolver {
 	private function createMappersForProperty(PropertyAccessProxy $propertyAccessProxy): array {
 		$typeConstraint = $propertyAccessProxy->getSetterConstraint();
 		if (!$this->undefinedAsOptional) {
-			return [Mappers::type($typeConstraint)];
+			return [Mappers::mustExistIf(true), Mappers::type($typeConstraint)];
 		}
 
+		$undefinable = false;
 		$validNamedTypeConstraints = [];
 		foreach ($typeConstraint->getNamedTypeConstraints() as $namedTypeConstraint) {
 			if ($namedTypeConstraint->getTypeName() !== Undefined::class) {
 				$validNamedTypeConstraints[] = $namedTypeConstraint;
+				$undefinable = true;
+				continue;
 			}
 		}
 
@@ -99,6 +102,6 @@ class SubPropsFromClassMappersResolver {
 					. TypeUtils::prettyReflPropName($propertyAccessProxy->getProperty()));
 		}
 
-		return [Mappers::type(new UnionTypeConstraint($validNamedTypeConstraints))];
+		return [Mappers::mustExistIf(!$undefinable), Mappers::type(new UnionTypeConstraint($validNamedTypeConstraints))];
 	}
 }
