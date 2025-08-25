@@ -430,4 +430,25 @@ class Mappers {
 		return new DateMapper($mandatory, $min, $max);
 	}
 
+	static function rename(array $propsMap): Mapper {
+		return self::propsClosure(function (array $props) use ($propsMap) {
+			$newProps = [];
+			foreach ($propsMap as $oldName => $newName) {
+				if (array_key_exists($oldName, $props)) {
+					$newProps[$newName] = $props[$oldName];
+				}
+			}
+
+			foreach (array_keys($propsMap) as $oldName) {
+				unset($props[$oldName]);
+			}
+
+			foreach ($newProps as $name => $value) {
+				$props[$name] = $value;
+			}
+
+			return $props;
+		});
+	}
+
 }

@@ -128,4 +128,34 @@ class PropsClosureMapperTest extends TestCase {
 
 		$this->assertEquals(['string' => 'test-holeradio', 'int' => 7], $targetArr);
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testRename() {
+		$srcArr = ['prop1' => 'value1', 'prop2' => 'value2', 'prop3' => 'value3', 'prop4' => 'value4',
+				'prop5' => 'value5', 'prop6' => 'value6'];
+		$result = Bind::attrs($srcArr)
+				->optProps(['prop1', 'prop2', 'prop3', 'prop4', 'prop5', 'prop6'], Mappers::rename([
+					'prop1' => 'prop2',
+					'prop2' => 'prop3',
+					'prop3' => 'prop5',
+					'prop4' => 'prop5',
+					'prop5' => 'prop5',
+					'prop6' => 'prop7',
+					'prop7' => 'prop8'
+				]))
+				->toArray()
+				->exec();
+
+		$this->assertTrue($result->isValid());
+		$this->assertSame(['prop2' => 'value1', 'prop3' => 'value2', 'prop5' => 'value5', 'prop7' => 'value6'],
+				$result->get());
+
+
+
+
+	}
 }
