@@ -59,4 +59,26 @@ class SubPropsFromClassMapperTest extends TestCase {
 
 	}
 
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testExtendsAttrs() {
+		$srcObj = new SubBaseRecord();
+		$srcObj->prop = 'huii';
+		$srcObj->nullableProp = null;
+		$srcObj->undefNullableProp = Undefined::i();
+		$srcObj->mixedProp = [];
+		$srcObj->subProp = 'sub-huii';
+
+		$targetAttrs = Bind::obj($srcObj)
+				->logicalRoot(Mappers::subPropsFromClass(SubBaseRecord::class))
+				->toArray()->exec()->get();
+
+		$this->assertSame(
+				['subProp' => 'sub-huii', 'prop' => 'huii', 'nullableProp' => null, 'mixedProp' => []],
+				$targetAttrs);
+	}
 }
