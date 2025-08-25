@@ -35,6 +35,7 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 
 	protected MultiMapMode $multiMapMode = MultiMapMode::ALWAYS;
 	protected bool $spreadDirtyState = true;
+	protected bool $nonExistingSkipped = true;
 	protected bool $dirtySkipped = true;
 
 	function __construct(MultiMapMode $multiMapMode = MultiMapMode::ALWAYS, bool $spreadDirtyState = true) {
@@ -49,11 +50,11 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 			return new MapResult();
 		}
 
-		$existingBindables = array_filter($allBindables, fn (Bindable $b) => $b->doesExist()
-				&& (!$this->dirtySkipped || !$b->isDirty()));
+		$existingBindables = array_filter($allBindables, fn (Bindable $b)
+				=> (!$this->nonExistingSkipped || $b->doesExist()) && (!$this->dirtySkipped || !$b->isDirty()));
 
-		if (($this->multiMapMode === MultiMapMode::ANY_BINDABLE_MUST_EXIST && empty($existingBindables))
-				|| ($this->multiMapMode === MultiMapMode::EVERY_BINDABLE_MUST_EXIST
+		if (($this->multiMapMode === MultiMapMode::ANY_BINDABLE_MUST_BE_PRESENT && empty($existingBindables))
+				|| ($this->multiMapMode === MultiMapMode::EVERY_BINDABLE_MUST_BE_PRESENT
 						&& count($existingBindables) < count($allBindables))) {
 			return new MapResult();
 		}

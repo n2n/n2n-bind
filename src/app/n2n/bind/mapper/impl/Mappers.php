@@ -156,7 +156,7 @@ class Mappers {
 	 * @return PropsClosureMapper
 	 */
 	public static function propsClosureAny(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, MultiMapMode::ANY_BINDABLE_MUST_EXIST);
+		return new PropsClosureMapper($closure, MultiMapMode::ANY_BINDABLE_MUST_BE_PRESENT);
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Mappers {
 	 * @return PropsClosureMapper
 	 */
 	public static function propsClosureEvery(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_EXIST);
+		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_BE_PRESENT);
 	}
 
 	/**
