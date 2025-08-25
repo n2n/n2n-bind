@@ -51,7 +51,7 @@ use n2n\bind\mapper\impl\mod\SubMergeToObjectMapper;
 use n2n\bind\mapper\impl\op\AbortIfMapper;
 use n2n\bind\mapper\impl\op\AbortIfCondition;
 use n2n\bind\mapper\impl\date\DateTimeSqlMapper;
-use n2n\bind\mapper\impl\op\DoIfValueClosureMapper;
+use n2n\bind\mapper\impl\op\DoIfSingleClosureMapper;
 use n2n\bind\mapper\impl\date\DateSqlMapper;
 use n2n\bind\mapper\impl\compose\SubForeachMapper;
 use n2n\bind\mapper\impl\compose\FactoryClosureMapper;
@@ -66,6 +66,7 @@ use n2n\util\calendar\Date;
 use n2n\bind\mapper\impl\date\DateMapper;
 use n2n\reflection\ReflectionUtils;
 use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
+use n2n\bind\build\impl\Bind;
 
 class Mappers {
 
@@ -379,18 +380,29 @@ class Mappers {
 	}
 
 	static function doIfNull(bool $abort = false, bool $skipNextMappers = false,
-			?bool $chLogical = null): DoIfValueClosureMapper {
+			?bool $chLogical = null): DoIfSingleClosureMapper {
 		return self::doIfValueClosure(fn ($v) => $v === null, $abort, $skipNextMappers, $chLogical);
 	}
 
 	static function doIfNotNull(bool $abort = false, bool $skipNextMappers = false,
-			?bool $chLogical = null): DoIfValueClosureMapper {
+			?bool $chLogical = null): DoIfSingleClosureMapper {
 		return self::doIfValueClosure(fn ($v) => $v !== null, $abort, $skipNextMappers, $chLogical);
 	}
 
 	static function doIfValueClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
-			?bool $chLogical = null): DoIfValueClosureMapper {
-		return new DoIfValueClosureMapper($closure, $abort, $skipNextMappers, $chLogical);
+			?bool $chLogical = null): DoIfSingleClosureMapper {
+		return new DoIfSingleClosureMapper($closure, $abort, $skipNextMappers, $chLogical);
+	}
+
+	static function doIfInvalid(bool $abort = false, bool $skipNextMappers = false,
+			?bool $chLogical = null): DoIfSingleClosureMapper {
+		return self::doIfBindableClosure(fn (Bindable $b) => !$b->isValid(), $abort, $skipNextMappers, $chLogical);
+	}
+
+	static function doIfBindableClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
+			?bool $chLogical = null): DoIfSingleClosureMapper {
+		return (new DoIfSingleClosureMapper($closure, $abort, $skipNextMappers, $chLogical))
+				->setValueAsFirstArg(false);
 	}
 
 	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {
