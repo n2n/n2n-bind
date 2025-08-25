@@ -110,7 +110,7 @@ class ObjectBindableWriteProcess {
 
 		try {
 			if (!isset($this->propertiesAnalyzers[$pathStr])) {
-				$this->propertiesAnalyzers[$pathStr] = new PropertiesAnalyzer(new \ReflectionClass($obj));
+				$this->propertiesAnalyzers[$pathStr] = new PropertiesAnalyzer(new \ReflectionClass($obj), superIgnored: false);
 			}
 
 			return $this->propertiesAnalyzers[$pathStr]->analyzeProperty($path->getLast(),
