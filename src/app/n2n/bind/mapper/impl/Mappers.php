@@ -204,8 +204,8 @@ class Mappers {
 	 * @param Closure $closure
 	 * @return BindableClosureMapper
 	 */
-	static function bindableClosure(Closure $closure, bool $nonExistingSkipped = true): BindableClosureMapper {
-		return new BindableClosureMapper($closure, false, $nonExistingSkipped);
+	static function bindableClosure(Closure $closure, bool $nonExistingSkipped = true, bool $dirtySkipped = true): BindableClosureMapper {
+		return new BindableClosureMapper($closure, false, $nonExistingSkipped, $dirtySkipped);
 	}
 
 	/**

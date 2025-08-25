@@ -32,12 +32,32 @@ use n2n\bind\mapper\MapResult;
 
 abstract class SingleMapperAdapter extends MapperAdapter {
 	protected bool $nonExistingSkipped = true;
+	protected bool $dirtySkipped = true;
+
+	public function isNonExistingSkipped(): bool {
+		return $this->nonExistingSkipped;
+	}
+
+	public function setNonExistingSkipped(bool $nonExistingSkipped): static {
+		$this->nonExistingSkipped = $nonExistingSkipped;
+		return $this;
+	}
+
+	public function isDirtySkipped(): bool {
+		return $this->dirtySkipped;
+	}
+
+	public function setDirtySkipped(bool $dirtySkipped): static {
+		$this->dirtySkipped = $dirtySkipped;
+		return $this;
+	}
 
 	final function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$mapResult = new MapResult();
 
 		foreach ($bindBoundary->getBindables() as $bindable) {
-			if (($this->nonExistingSkipped && !$bindable->doesExist()) || $bindable->isDirty()) {
+			if (($this->nonExistingSkipped && !$bindable->doesExist())
+					|| ($this->dirtySkipped && $bindable->isDirty())) {
 				continue;
 			}
 

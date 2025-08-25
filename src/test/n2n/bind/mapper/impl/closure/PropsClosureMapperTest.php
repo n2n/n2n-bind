@@ -153,9 +153,25 @@ class PropsClosureMapperTest extends TestCase {
 		$this->assertTrue($result->isValid());
 		$this->assertSame(['prop2' => 'value1', 'prop3' => 'value2', 'prop5' => 'value5', 'prop7' => 'value6'],
 				$result->get());
+	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testRenameNonExistingAreIgnored() {
+		$srcArr = ['a' => 'A', 'b' => 'B'];
 
+		$result = Bind::attrs($srcArr)
+				->optProps(['a', 'b'], Mappers::rename([
+						'x' => 'y',
+						'a' => 'c',
+				]))
+				->toArray()
+				->exec();
 
-
+		$this->assertTrue($result->isValid());
+		$this->assertSame(['b' => 'B', 'c' => 'A'], $result->get());
 	}
 }
