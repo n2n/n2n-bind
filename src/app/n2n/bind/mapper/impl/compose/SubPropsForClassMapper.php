@@ -35,6 +35,8 @@ use n2n\util\ex\ExUtils;
 use n2n\bind\err\MisconfiguredMapperException;
 use n2n\util\EnumUtils;
 use n2n\util\type\mock\PureEnumMock;
+use n2n\validation\lang\ValidationMessages;
+use n2n\validation\plan\Validatable;
 
 class SubPropsForClassMapper extends MapperAdapter {
 	private ?SubPropsMapper $subPropsMapper = null;
@@ -150,7 +152,8 @@ class SubPropsForClassMappersResolver {
 		array_push($mappers, ...$valueMappers);
 
 		if (!$nullable) {
-			$mappers[] = new ValidatorMapper(Validators::mandatory());
+			$mappers[] = new ValidatorMapper(Validators::valueClosure(fn ($v, Validatable $validatable)
+					=> ($v !== null ? null : ValidationMessages::mandatory($validatable->getLabel()))));
 		}
 
 		return $mappers;
