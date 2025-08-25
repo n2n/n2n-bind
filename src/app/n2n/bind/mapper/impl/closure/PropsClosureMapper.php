@@ -20,8 +20,9 @@ class PropsClosureMapper extends MultiMapperAdapter {
 
 	private $closure;
 
-	public function __construct(\Closure $closure, private MultiMapMode $multiMapMode, private bool $bindDataMode = false) {
+	public function __construct(\Closure $closure, MultiMapMode $multiMapMode, private bool $bindDataMode = false) {
 		parent::__construct($this->multiMapMode);
+		$this->multiMapMode = $multiMapMode;
 		$this->closure = $closure;
 	}
 

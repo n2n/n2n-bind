@@ -36,7 +36,7 @@ use n2n\bind\err\MisconfiguredMapperException;
 use n2n\util\EnumUtils;
 use n2n\util\type\mock\PureEnumMock;
 
-class SubPropsFromClassMapper extends MapperAdapter {
+class SubPropsForClassMapper extends MapperAdapter {
 	private ?SubPropsMapper $subPropsMapper = null;
 
 	function __construct(private \ReflectionClass $class, private bool $undefinedAutoFilled = true) {
@@ -48,7 +48,7 @@ class SubPropsFromClassMapper extends MapperAdapter {
 		}
 
 		$this->subPropsMapper = new SubPropsMapper();
-		(new SubPropsFromClassMappersResolver($this->class, $this->undefinedAutoFilled))
+		(new SubPropsForClassMappersResolver($this->class, $this->undefinedAutoFilled))
 				->populateComposer($this->subPropsMapper);
 		return $this->subPropsMapper;
 	}
@@ -58,7 +58,7 @@ class SubPropsFromClassMapper extends MapperAdapter {
 	}
 }
 
-class SubPropsFromClassMappersResolver {
+class SubPropsForClassMappersResolver {
 
 	function __construct(private \ReflectionClass $class, private bool $undefinedAutoFilled = true) {
 
@@ -100,7 +100,7 @@ class SubPropsFromClassMappersResolver {
 			}
 
 			if ($valueMappers !== null) {
-				throw new MisconfiguredMapperException(SubPropsFromClassMapper::class
+				throw new MisconfiguredMapperException(SubPropsForClassMapper::class
 						. ' does not support properties with multiple types: '
 						. TypeUtils::prettyClassPropName($this->class, $propertyAccessProxy->getPropertyName()));
 			}

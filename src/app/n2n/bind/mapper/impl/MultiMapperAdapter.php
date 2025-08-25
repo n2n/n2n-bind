@@ -33,8 +33,9 @@ use n2n\bind\mapper\MapResult;
 
 abstract class MultiMapperAdapter extends MapperAdapter {
 
-	private MultiMapMode $multiMapMode = MultiMapMode::ALWAYS;
-	private bool $spreadDirtyState = true;
+	protected MultiMapMode $multiMapMode = MultiMapMode::ALWAYS;
+	protected bool $spreadDirtyState = true;
+	protected bool $dirtySkipped = true;
 
 	function __construct(MultiMapMode $multiMapMode = MultiMapMode::ALWAYS, bool $spreadDirtyState = true) {
 		$this->multiMapMode = $multiMapMode;
@@ -48,13 +49,16 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 			return new MapResult();
 		}
 
-		$existingBindables = array_filter($allBindables, fn (Bindable $b) => $b->doesExist());
+		$existingBindables = array_filter($allBindables, fn (Bindable $b) => $b->doesExist()
+				&& (!$this->dirtySkipped || !$b->isDirty()));
 
 		if (($this->multiMapMode === MultiMapMode::ANY_BINDABLE_MUST_EXIST && empty($existingBindables))
 				|| ($this->multiMapMode === MultiMapMode::EVERY_BINDABLE_MUST_EXIST
 						&& count($existingBindables) < count($allBindables))) {
 			return new MapResult();
 		}
+
+		$existingBindables = array_filter($existingBindables, fn (Bindable $b) => !$b->isDirty());
 
 		return MapResult::fromArg($this->mapMulti($existingBindables, $bindBoundary, $magicContext));
 	}
