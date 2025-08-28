@@ -21,6 +21,6 @@
  */
 namespace n2n\bind\err;
 
-class BindTargetException extends BindException {
+class BindTargetException extends \RuntimeException {
 }
 
