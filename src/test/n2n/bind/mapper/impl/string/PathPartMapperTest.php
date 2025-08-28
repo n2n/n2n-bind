@@ -8,7 +8,7 @@ use n2n\util\magic\MagicContext;
 use PHPUnit\Framework\TestCase;
 use n2n\util\type\attrs\DataMap;
 use InvalidArgumentException;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
@@ -16,7 +16,7 @@ use n2n\bind\err\BindMismatchException;
 class PathPartMapperTest extends TestCase {
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrs() {
 		//pathPart is always changed to lowercase (GenerationIfNullBaseName would make other automatic changes, see other tests)
@@ -36,7 +36,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsValFail() {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'min', 'pathPart3' => 'holeradio', 'pathPart4' => '§§§§', 'pathPart5' => 'blubb']);
@@ -68,7 +68,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsUniqueGenerationIfNullBaseNameForceFailOverflow() {
 		// this should be rare or not happens, because this means 9999 entries with this BaseName already exist
@@ -95,7 +95,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsGenerationIfNullBaseNameNotUnique() {
 		// GenerationIfNullBaseName should be used with uniqueTester else it is possible that 2 generated pathParts are the same
@@ -121,7 +121,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsUniqueGenerationIfNullBaseName() {
 		// if GenerationIfNullBaseName and uniqueTester are used, pathPart is generated, unique num may will be added,
@@ -157,7 +157,7 @@ class PathPartMapperTest extends TestCase {
 
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin4Max12() {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,
@@ -201,7 +201,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin8Max255() {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,
@@ -245,7 +245,7 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin8Max10SetFillStr() {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,

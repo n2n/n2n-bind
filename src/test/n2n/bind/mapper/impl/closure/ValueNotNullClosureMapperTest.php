@@ -7,11 +7,11 @@ use n2n\util\type\attrs\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 
 class ValueNotNullClosureMapperTest extends TestCase {
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testSkipNull() {
 		$dataMap = new DataMap(['clo1' => null, 'clo2' => 'null', 'clo3' => '', 'clo4' => false, 'clo5' => true]);

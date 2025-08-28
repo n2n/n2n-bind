@@ -29,7 +29,7 @@ use n2n\util\magic\MagicContext;
 use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\UnresolvableBindableException;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
 use n2n\bind\err\BindTargetException;

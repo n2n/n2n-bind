@@ -7,7 +7,7 @@ use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\build\impl\target\mock\BindTestClassA;
 use n2n\util\type\attrs\DataMap;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\Mapper;
@@ -170,7 +170,7 @@ class ObjectBindTargetTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 * @throws BindTargetException
 	 */
 	function testObjectChildWrite(): void {
@@ -185,7 +185,7 @@ class ObjectBindTargetTest extends TestCase {
 	}
 
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testObjectNullChildWrite(): void {
 		$this->expectException(BindTargetException::class);

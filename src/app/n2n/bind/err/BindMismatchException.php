@@ -21,8 +21,8 @@
  */
 namespace n2n\bind\err;
 
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 
-class BindMismatchException extends BindException implements MagicTaskExecutionException {
+class BindMismatchException extends BindException implements TaskInputMismatchException {
 }
 

@@ -7,14 +7,14 @@ use n2n\util\type\attrs\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 
 class FloatMapperTest extends TestCase {
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testFloatMapper() {
 		$sdm = new DataMap(['valuenull' => null, 'valuemin' => 0, 'value1' => 20, 'value2' => 60, 'valuemax' => 100]);

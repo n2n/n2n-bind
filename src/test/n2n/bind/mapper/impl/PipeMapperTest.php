@@ -3,7 +3,7 @@
 namespace n2n\bind\mapper\impl;
 
 use PHPUnit\Framework\TestCase;
-use n2n\util\magic\MagicTaskExecutionException;
+use n2n\util\magic\TaskInputMismatchException;
 use n2n\util\type\attrs\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\util\magic\MagicContext;
@@ -18,7 +18,7 @@ use n2n\bind\mapper\MapResult;
 
 class PipeMapperTest extends TestCase {
 	/**
-	 * @throws MagicTaskExecutionException
+	 * @throws TaskInputMismatchException
 	 */
 	function testAttrs() {
 		//pipe mapper can chain multiple mapper, but count itself as single mapper
