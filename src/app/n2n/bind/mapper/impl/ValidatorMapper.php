@@ -32,6 +32,8 @@ class ValidatorMapper extends MultiMapperAdapter {
 
 	function __construct(private Validator $validator) {
 		parent::__construct(spreadDirtyState: false);
+		$this->nonExistingSkipped = false;
+		$this->dirtySkipped = false;
 	}
 
 	function mapMulti(array $bindables, BindBoundary $bindBoundary, MagicContext $magicContext): bool {

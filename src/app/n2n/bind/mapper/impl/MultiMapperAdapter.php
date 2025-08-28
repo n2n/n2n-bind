@@ -59,8 +59,6 @@ abstract class MultiMapperAdapter extends MapperAdapter {
 			return new MapResult();
 		}
 
-		$existingBindables = array_filter($existingBindables, fn (Bindable $b) => !$b->isDirty());
-
 		return MapResult::fromArg($this->mapMulti($existingBindables, $bindBoundary, $magicContext));
 	}
 
