@@ -85,10 +85,6 @@ class BindInstance {
 		$errorMap = new ErrorMap($this->generalMessages);
 		
 		foreach ($this->bindables as $bindable) {
-			if ($bindable->getPath()->isEmpty()) {
-				continue;
-			}
-
 			foreach ($bindable->getMessages() as $message) {
 				$errorMap->addDecendantMessage($bindable->getPath()->toArray(), $message);
 			}
