@@ -48,6 +48,9 @@ class Bind {
 		return self::propBindSource($source);
 	}
 
+	/**
+	 * @see ObjectBindSource::__construct()
+	 */
 	static function obj(?object $obj = null, bool $undefinedAsNonExisting = true,
 			bool $uninitializedUndefinablePropertiesAsUndefined = true): PropBindTask {
 		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting,
