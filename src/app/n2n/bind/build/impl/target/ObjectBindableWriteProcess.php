@@ -35,6 +35,7 @@ use n2n\util\type\attrs\AttributePath;
 use n2n\util\type\TypeConstraints;
 use n2n\util\ex\IllegalStateException;
 use n2n\reflection\property\PropertyAccessException;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class ObjectBindableWriteProcess {
 
@@ -110,7 +111,8 @@ class ObjectBindableWriteProcess {
 
 		try {
 			if (!isset($this->propertiesAnalyzers[$pathStr])) {
-				$this->propertiesAnalyzers[$pathStr] = new PropertiesAnalyzer(new \ReflectionClass($obj), superIgnored: false);
+				$this->propertiesAnalyzers[$pathStr] = new PropertiesAnalyzer(new \ReflectionClass($obj),
+						superIgnored: false, uninitializedBehaviour: UninitializedBehaviour::RETURN_NULL);
 			}
 
 			return $this->propertiesAnalyzers[$pathStr]->analyzeProperty($path->getLast(),

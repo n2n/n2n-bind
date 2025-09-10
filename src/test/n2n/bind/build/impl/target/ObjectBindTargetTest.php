@@ -51,9 +51,10 @@ class ObjectBindTargetTest extends TestCase {
 				'b' => [
 					'value' => 'asdf'
 				]
-		]))->toObj($obj)
-				->optProps(['string', 'int', 'array', 'a/int', 'b/value'])
-				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		]))
+		->toObj($obj)
+		->optProps(['string', 'int', 'array', 'a/int', 'b/value'])
+		->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertEquals('test', $obj->getString());
 		$this->assertEquals( 123, $obj->getInt());

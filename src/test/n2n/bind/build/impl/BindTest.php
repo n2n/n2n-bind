@@ -43,6 +43,7 @@ use n2n\bind\build\impl\source\AttrsBindSource;
 use n2n\util\type\custom\Undefined;
 use n2n\bind\plan\Bindable;
 use n2n\util\magic\impl\MagicContexts;
+use n2n\util\type\custom\Val;
 
 class BindTest extends TestCase {
 
@@ -365,10 +366,48 @@ class BindTest extends TestCase {
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
-	function testUndefined() {
-		Bind::attrs(['prop1' => Undefined::i()])
+	function testAttrsUndefined() {
+		Bind::attrs(['prop1' => Undefined::val()])
 				->optProp('prop1', Mappers::bindableClosure(
 						fn (Bindable $b) => $this->assertFalse($b->doesExist()),
+						nonExistingSkipped: false))
+				->exec();
+	}
+
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testAttrsUndefinedDisabled() {
+		Bind::attrs(['prop1' => Undefined::val()], false)
+				->optProp('prop1', Mappers::bindableClosure(
+						fn (Bindable $b) => $this->assertTrue($b->doesExist()),
+						nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUndefined() {
+		Bind::obj(new class () { public string|Undefined $prop1 = Val::Undefined; })
+				->optProp('prop1', Mappers::bindableClosure(
+						fn (Bindable $b) => $this->assertFalse($b->doesExist()),
+						nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUndefinedDisabled() {
+		Bind::obj(new class () { public string|Undefined $prop1 = Val::Undefined; }, false)
+				->optProp('prop1', Mappers::bindableClosure(
+						fn (Bindable $b) => $this->assertTrue($b->doesExist()),
 						nonExistingSkipped: false))
 				->exec();
 	}

@@ -13,13 +13,16 @@ class ObjectBindSource implements BindSource {
 	 */
 	private ObjectBindAccessProxyCache $proxyCache;
 
-	public function __construct(private ?object $object, private bool $undefinedAsNonExisting) {
+	public function __construct(private ?object $object, private bool $undefinedAsNonExisting,
+			private bool $uninitializedUndefinablePropertiesAsUndefined) {
 		$this->proxyCache = new ObjectBindAccessProxyCache();
 	}
 
 	public function next(mixed $input): BindInstance {
 		if ($this->object !== null) {
-			return (new BindInstance(new ObjectBindableFactory($this->object, $this->proxyCache)))->init();
+			return (new BindInstance(
+					new ObjectBindableFactory($this->object, $this->proxyCache),
+					$this->undefinedAsNonExisting))->init();
 		}
 
 		if (is_object($input)) {

@@ -48,8 +48,10 @@ class Bind {
 		return self::propBindSource($source);
 	}
 
-	static function obj(?object $obj = null, bool $undefinedAsNonExisting = true): PropBindTask {
-		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting));
+	static function obj(?object $obj = null, bool $undefinedAsNonExisting = true,
+			bool $uninitializedUndefinablePropertiesAsUndefined = true): PropBindTask {
+		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting,
+				$uninitializedUndefinablePropertiesAsUndefined));
 	}
 
 	static function propBindSource(BindSource $source): PropBindTask {

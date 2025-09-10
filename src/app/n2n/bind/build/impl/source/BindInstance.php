@@ -104,7 +104,7 @@ class BindInstance {
 			throw new UnresolvableBindableException('Bindable with path "' . $path . '" does not exist.');
 		}
 
-		if (!$this->undefinedAsNonExisting || !$bindable->doesExist() || !Undefined::is($bindable->getValue())) {
+		if (!$bindable->doesExist() || !$this->undefinedAsNonExisting || !Undefined::is($bindable->getValue())) {
 			$this->addBindable($bindable);
 			return $bindable;
 		}
