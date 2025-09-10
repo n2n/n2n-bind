@@ -6,6 +6,7 @@ use n2n\reflection\property\PropertyAccessProxy;
 use n2n\reflection\property\InaccessiblePropertyException;
 use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class ObjectBindAccessProxyCache {
 	public const MAX_CACHED_CLASSES_NUM = 200;
@@ -21,17 +22,19 @@ class ObjectBindAccessProxyCache {
 	 *
 	 * @param ReflectionClass $class A ReflectionClass instance or a fully qualified class name.
 	 * @param string $propertyName The property name.
+	 * @param UninitializedBehaviour $uninitializedBehaviour
 	 * @return PropertyAccessProxy
 	 * @throws InaccessiblePropertyException
 	 * @throws InvalidPropertyAccessMethodException
 	 * @throws UnknownPropertyException
 	 */
-	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName): PropertyAccessProxy {
+	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName,
+			UninitializedBehaviour $uninitializedBehaviour): PropertyAccessProxy {
 		$refClass = $class;
 		$className = $refClass->getName();
 
 		if (!isset($this->cacheItems[$className])) {
-			$this->cacheItems[$className] = new ObjectBindAccessProxyCacheItem($refClass);
+			$this->cacheItems[$className] = new ObjectBindAccessProxyCacheItem($refClass, $uninitializedBehaviour);
 		}
 
 		$proxy = $this->cacheItems[$className]->getProxy($propertyName);

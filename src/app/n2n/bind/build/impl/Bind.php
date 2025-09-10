@@ -29,6 +29,7 @@ use n2n\bind\build\impl\compose\union\UnionBindComposer;
 use n2n\bind\build\impl\source\StaticBindSource;
 use n2n\bind\build\impl\source\AttrsBindSource;
 use n2n\bind\build\impl\source\object\ObjectBindSource;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class Bind {
 
@@ -52,9 +53,8 @@ class Bind {
 	 * @see ObjectBindSource::__construct()
 	 */
 	static function obj(?object $obj = null, bool $undefinedAsNonExisting = true,
-			bool $uninitializedUndefinablePropertiesAsUndefined = true): PropBindTask {
-		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting,
-				$uninitializedUndefinablePropertiesAsUndefined));
+			UninitializedBehaviour $uninitializedBehaviour = UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE): PropBindTask {
+		return self::propBindSource(new ObjectBindSource($obj, $undefinedAsNonExisting, $uninitializedBehaviour));
 	}
 
 	static function propBindSource(BindSource $source): PropBindTask {

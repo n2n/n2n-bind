@@ -7,6 +7,7 @@ use n2n\reflection\property\PropertyAccessProxy;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\reflection\property\InaccessiblePropertyException;
 use n2n\reflection\property\InvalidPropertyAccessMethodException;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class ObjectBindAccessProxyCacheItem {
 	private PropertiesAnalyzer $analyzer;
@@ -18,8 +19,8 @@ class ObjectBindAccessProxyCacheItem {
 	 */
 	private array $proxies = [];
 
-	public function __construct(ReflectionClass $refClass) {
-		$this->analyzer = new PropertiesAnalyzer($refClass, superIgnored: false);
+	public function __construct(ReflectionClass $refClass, UninitializedBehaviour $uninitializedBehaviour) {
+		$this->analyzer = new PropertiesAnalyzer($refClass, superIgnored: false, uninitializedBehaviour: $uninitializedBehaviour);
 	}
 
 	/**

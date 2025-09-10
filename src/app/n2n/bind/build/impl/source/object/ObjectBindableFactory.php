@@ -26,21 +26,19 @@ use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\util\type\attrs\AttributePath;
 use n2n\reflection\property\PropertyAccessException;
-use ArrayAccess;
-use n2n\reflection\property\InaccessiblePropertyException;
-use n2n\reflection\property\InvalidPropertyAccessMethodException;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\util\type\TypeUtils;
 use n2n\util\ex\ExUtils;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
-use n2n\util\type\custom\Undefined;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class ObjectBindableFactory extends BindableFactoryAdapter {
 	/**
 	 * @param object $object The source object from which properties are read.
 	 */
-	public function __construct(private object $object, private ObjectBindAccessProxyCache $proxyCache) {
+	public function __construct(private object $object, private ObjectBindAccessProxyCache $proxyCache,
+			private UninitializedBehaviour $uninitializedBehaviour) {
 	}
 
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
@@ -117,7 +115,7 @@ class ObjectBindableFactory extends BindableFactoryAdapter {
 		if (is_object($value)) {
 			$refClass = ExUtils::try(fn () => new \ReflectionClass($value));
 			try {
-				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment);
+				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment, $this->uninitializedBehaviour);
 				return new RetrievedValue($valueProxy->getValue($value), true);
 			} catch (UnknownPropertyException $e) {
 				if (!$pathContext->mustExist()) {

@@ -44,6 +44,7 @@ use n2n\util\type\custom\Undefined;
 use n2n\bind\plan\Bindable;
 use n2n\util\magic\impl\MagicContexts;
 use n2n\util\type\custom\Val;
+use n2n\reflection\property\UninitializedBehaviour;
 
 class BindTest extends TestCase {
 
@@ -113,6 +114,7 @@ class BindTest extends TestCase {
 
 	/**
 	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
 	 */
 	function testUnresolvableBindable() {
@@ -409,6 +411,69 @@ class BindTest extends TestCase {
 				->optProp('prop1', Mappers::bindableClosure(
 						fn (Bindable $b) => $this->assertTrue($b->doesExist()),
 						nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUninitializedReturnUndefined(): void {
+		$src = new class () { public string $prop1; };
+		Bind::obj($src, true, UninitializedBehaviour::RETURN_UNDEFINED)
+				->optProp('prop1', Mappers::bindableClosure(
+					function (Bindable $b): void {
+						$this->assertFalse($b->doesExist());
+					},
+					nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUninitializedReturnNull(): void {
+		$src = new class () { public string $prop1; };
+		Bind::obj($src, true, UninitializedBehaviour::RETURN_NULL)
+				->optProp('prop1', Mappers::bindableClosure(
+					function (Bindable $b): void {
+						$this->assertTrue($b->doesExist());
+						$this->assertNull($b->getValue());
+					},
+					nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUninitializedReturnUndefinedIfUndefinable(): void {
+		$src = new class () { public string|Undefined $prop1; };
+		Bind::obj($src, true, UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE)
+				->optProp('prop1', Mappers::bindableClosure(
+					function (Bindable $b): void {
+						$this->assertFalse($b->doesExist());
+					},
+					nonExistingSkipped: false))
+				->exec();
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testObjUninitializedThrowException(): void {
+		$src = new class () { public string $prop1; };
+		$this->expectException(UnresolvableBindableException::class);
+		Bind::obj($src, true, UninitializedBehaviour::THROW_EXCEPTION)
+				->prop('prop1')
+				->toArray()
 				->exec();
 	}
 }
