@@ -17,24 +17,25 @@ class ObjectBindAccessProxyCache {
 	 */
 	private array $cacheItems = [];
 
+	function __construct(private UninitializedBehaviour $uninitializedBehaviour) {
+	}
+
 	/**
 	 * Returns a PropertyAccessProxy for the given property.
 	 *
 	 * @param ReflectionClass $class A ReflectionClass instance or a fully qualified class name.
 	 * @param string $propertyName The property name.
-	 * @param UninitializedBehaviour $uninitializedBehaviour
 	 * @return PropertyAccessProxy
 	 * @throws InaccessiblePropertyException
 	 * @throws InvalidPropertyAccessMethodException
 	 * @throws UnknownPropertyException
 	 */
-	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName,
-			UninitializedBehaviour $uninitializedBehaviour): PropertyAccessProxy {
+	public function getPropertyAccessProxy(ReflectionClass $class, string $propertyName): PropertyAccessProxy {
 		$refClass = $class;
 		$className = $refClass->getName();
 
 		if (!isset($this->cacheItems[$className])) {
-			$this->cacheItems[$className] = new ObjectBindAccessProxyCacheItem($refClass, $uninitializedBehaviour);
+			$this->cacheItems[$className] = new ObjectBindAccessProxyCacheItem($refClass, $this->uninitializedBehaviour);
 		}
 
 		$proxy = $this->cacheItems[$className]->getProxy($propertyName);

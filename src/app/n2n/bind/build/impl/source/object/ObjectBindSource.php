@@ -21,19 +21,19 @@ class ObjectBindSource implements BindSource {
  	*/
 	public function __construct(private ?object $object, private bool $undefinedAsNonExisting,
 			private UninitializedBehaviour $uninitializedBehaviour) {
-		$this->proxyCache = new ObjectBindAccessProxyCache();
+		$this->proxyCache = new ObjectBindAccessProxyCache($uninitializedBehaviour);
 	}
 
 	public function next(mixed $input): BindInstance {
 		if ($this->object !== null) {
 			return (new BindInstance(
-					new ObjectBindableFactory($this->object, $this->proxyCache, $this->uninitializedBehaviour),
+					new ObjectBindableFactory($this->object, $this->proxyCache),
 					$this->undefinedAsNonExisting))->init();
 		}
 
 		if (is_object($input)) {
 			return (new BindInstance(
-					new ObjectBindableFactory($input, $this->proxyCache, $this->uninitializedBehaviour)))->init();
+					new ObjectBindableFactory($input, $this->proxyCache)))->init();
 		}
 
 		throw new IncompatibleBindInputException('ObjectBindSource requires input to be of type object. Given: '

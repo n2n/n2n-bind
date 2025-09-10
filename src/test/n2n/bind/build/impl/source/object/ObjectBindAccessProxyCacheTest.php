@@ -42,10 +42,10 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 		$dummy = $this->createUniqueDummy();
 
 		$refClass = ExUtils::try(fn () => new ReflectionClass($dummy));
-		$cache = new ObjectBindAccessProxyCache();
+		$cache = new ObjectBindAccessProxyCache(UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
 
-		$proxy1 = $cache->getPropertyAccessProxy($refClass, 'firstname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
-		$proxy2 = $cache->getPropertyAccessProxy($refClass, 'firstname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+		$proxy1 = $cache->getPropertyAccessProxy($refClass, 'firstname');
+		$proxy2 = $cache->getPropertyAccessProxy($refClass, 'firstname');
 
 		$this->assertSame($proxy1, $proxy2, "Same property should yield the same proxy instance.");
 	}
@@ -60,10 +60,10 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	public function testCacheReturnsDistinctProxiesForDifferentProperties(): void {
 		$dummy = $this->createUniqueDummy();
 		$refClass = ExUtils::try(fn () => new ReflectionClass($dummy));
-		$cache = new ObjectBindAccessProxyCache();
+		$cache = new ObjectBindAccessProxyCache(UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
 
-		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
-		$proxyLast  = $cache->getPropertyAccessProxy($refClass, 'lastname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname', );
+		$proxyLast  = $cache->getPropertyAccessProxy($refClass, 'lastname');
 
 		$this->assertNotSame($proxyFirst, $proxyLast, "Different properties should yield distinct proxy instances.");
 
@@ -77,10 +77,10 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 */
 	public function testCacheSharedForSameClass(): void {
 		$refClass = new ReflectionClass($this->createUniqueDummy());
-		$cache = new ObjectBindAccessProxyCache();
+		$cache = new ObjectBindAccessProxyCache(UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
 
-		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
-		$proxyLast  = $cache->getPropertyAccessProxy($refClass, 'lastname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+		$proxyFirst = $cache->getPropertyAccessProxy($refClass, 'firstname', );
+		$proxyLast  = $cache->getPropertyAccessProxy($refClass, 'lastname');
 
 		$cacheProp = new \ReflectionProperty($cache, 'cacheItems');
 		$cacheData = $cacheProp->getValue($cache);
@@ -105,13 +105,13 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	 * @throws UnknownPropertyException
 	 */
 	public function testPruneCacheInBulk(): void {
-		$cache = new ObjectBindAccessProxyCache();
+		$cache = new ObjectBindAccessProxyCache(UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
 		$maxClassesNum = ObjectBindAccessProxyCache::MAX_CACHED_CLASSES_NUM;
 
 		for ($i = 0; $i < $maxClassesNum + 50; $i++) {
 			$dummy = $this->createUniqueDummy();
 			$ref = ExUtils::try(fn () => new ReflectionClass($dummy));
-			$cache->getPropertyAccessProxy($ref, 'firstname', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+			$cache->getPropertyAccessProxy($ref, 'firstname');
 		}
 
 		$cacheProp = ExUtils::try(fn () => new \ReflectionProperty($cache, 'cacheItems'));
@@ -142,7 +142,7 @@ class ObjectBindAccessProxyCacheTest extends TestCase {
 	public function testUnknownPropertyThrowsException(): void {
 		$this->expectException(UnknownPropertyException::class);
 		$refClass = new ReflectionClass(new class {});
-		$cache = new ObjectBindAccessProxyCache();
-		$cache->getPropertyAccessProxy($refClass, 'nonexistent', UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+		$cache = new ObjectBindAccessProxyCache(UninitializedBehaviour::RETURN_UNDEFINED_IF_UNDEFINABLE);
+		$cache->getPropertyAccessProxy($refClass, 'nonexistent');
 	}
 }

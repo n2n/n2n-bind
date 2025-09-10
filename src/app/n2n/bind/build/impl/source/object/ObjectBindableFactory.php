@@ -37,8 +37,7 @@ class ObjectBindableFactory extends BindableFactoryAdapter {
 	/**
 	 * @param object $object The source object from which properties are read.
 	 */
-	public function __construct(private object $object, private ObjectBindAccessProxyCache $proxyCache,
-			private UninitializedBehaviour $uninitializedBehaviour) {
+	public function __construct(private object $object, private ObjectBindAccessProxyCache $proxyCache) {
 	}
 
 	public function createBindable(AttributePath $path, bool $mustExist): Bindable {
@@ -53,9 +52,7 @@ class ObjectBindableFactory extends BindableFactoryAdapter {
 			throw new BindMismatchException($e->getMessage(), previous: $e);
 		}
 
-		$valueBindable = new ValueBindable($path, $retrievedValue->value, $retrievedValue->exists);
-
-		return $valueBindable;
+		return new ValueBindable($path, $retrievedValue->value, $retrievedValue->exists);
 	}
 
 	/**
@@ -115,7 +112,7 @@ class ObjectBindableFactory extends BindableFactoryAdapter {
 		if (is_object($value)) {
 			$refClass = ExUtils::try(fn () => new \ReflectionClass($value));
 			try {
-				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment, $this->uninitializedBehaviour);
+				$valueProxy = $this->proxyCache->getPropertyAccessProxy($refClass, $segment);
 				return new RetrievedValue($valueProxy->getValue($value), true);
 			} catch (UnknownPropertyException $e) {
 				if (!$pathContext->mustExist()) {
