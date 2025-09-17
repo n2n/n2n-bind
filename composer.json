@@ -22,6 +22,7 @@
 	},
 	"require" : {
 		"n2n/n2n-util": "~7.4.5",
+        "n2n/n2n-reflection": "~7.4.1",
         "n2n/n2n-validation": "~7.4",
         "n2n/n2n-spec-valobj": "~1.0",
         "ext-ctype": "*",
