@@ -49,12 +49,14 @@ class ObjectBindableWriteProcess {
 	private array $propertiesAnalyzers = [];
 
 	private array $pendingObjWriteCallbacks = [];
+	private AttributePath $contextPath;
 
 	/**
 	 * @param Bindable[] $bindables
 	 */
-	public function __construct(private array $bindables) {
+	public function __construct(private array $bindables, ?AttributePath $contextPath = null) {
 		ArgUtils::valArray($this->bindables, Bindable::class);
+		$this->contextPath = $contextPath ?? new AttributePath([]);
 	}
 
 	/**
@@ -66,12 +68,13 @@ class ObjectBindableWriteProcess {
 				continue;
 			}
 
-			if ($bindable->getPath()->isEmpty()) {
+			$path = $bindable->getPath();
+
+			if ($path->isEmpty()) {
 				throw new BindTargetException('Root bindable can not be written to object');
 			}
 
-			$this->writeValueToObject($bindable->getValue(), $obj, [], $bindable->getPath()->toArray(),
-					$bindable->getPath());
+			$this->writeValueToObject($bindable->getValue(), $obj, [], $path->toArray(), $path);
 		}
 
 		while (null !== ($callback = array_pop($this->pendingObjWriteCallbacks))) {

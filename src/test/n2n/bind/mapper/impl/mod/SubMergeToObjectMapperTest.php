@@ -31,4 +31,24 @@ class SubMergeToObjectMapperTest extends TestCase {
 		$this->assertEquals('123', $targetObj->int);
 		$this->assertEquals([2, 3], $targetObj->array);
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testSubProp(): void {
+		$targetObj = new MergeTestClass();
+		$targetValue = null;
+		Bind::attrs(['sub' => ['string' => 'test', 'int' => 123, 'array' => [2, 3]]])
+				->toValue($targetValue)
+				->props(['sub/string', 'sub/int', 'sub/array'])
+				->prop('sub', Mappers::subMergeToObject(fn () => $targetObj))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertEquals($targetObj, ['sub' => $targetValue]);
+		$this->assertEquals('test', $targetObj->string);
+		$this->assertEquals('123', $targetObj->int);
+		$this->assertEquals([2, 3], $targetObj->array);
+	}
 }
