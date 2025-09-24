@@ -27,7 +27,7 @@ class SubMergeToObjectMapper extends SingleMapperAdapter {
 		$bindablesFilter = new BindablesFilter($bindBoundary->unwarpBindInstance());
 		$descendantBindables = $bindablesFilter->descendantsOf($bindable->getPath());
 
-		$objectBindableWriteProcess = new ObjectBindableWriteProcess($descendantBindables);
+		$objectBindableWriteProcess = new ObjectBindableWriteProcess($descendantBindables, $bindable->getPath());
 		try {
 			$objectBindableWriteProcess->process($obj);
 		} catch (BindTargetException $e) {

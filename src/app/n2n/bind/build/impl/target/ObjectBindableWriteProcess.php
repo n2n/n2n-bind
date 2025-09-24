@@ -68,7 +68,7 @@ class ObjectBindableWriteProcess {
 				continue;
 			}
 
-			$path = $bindable->getPath();
+			$path = $bindable->getPath()->slice($this->contextPath->size());
 
 			if ($path->isEmpty()) {
 				throw new BindTargetException('Root bindable can not be written to object');

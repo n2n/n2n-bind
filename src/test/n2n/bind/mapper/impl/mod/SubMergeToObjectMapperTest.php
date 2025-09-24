@@ -46,7 +46,7 @@ class SubMergeToObjectMapperTest extends TestCase {
 				->prop('sub', Mappers::subMergeToObject(fn () => $targetObj))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
-		$this->assertEquals($targetObj, ['sub' => $targetValue]);
+		$this->assertEquals($targetObj, $targetValue);
 		$this->assertEquals('test', $targetObj->string);
 		$this->assertEquals('123', $targetObj->int);
 		$this->assertEquals([2, 3], $targetObj->array);
