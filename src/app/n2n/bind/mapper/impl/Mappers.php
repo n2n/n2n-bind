@@ -67,6 +67,7 @@ use n2n\bind\mapper\impl\date\DateMapper;
 use n2n\reflection\ReflectionUtils;
 use n2n\bind\mapper\impl\compose\SubPropsForClassMapper;
 use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
+use n2n\bind\mapper\impl\string\ColorHexMapper;
 
 class Mappers {
 
@@ -436,6 +437,10 @@ class Mappers {
 
 	static function date(bool $mandatory = false, ?Date $min = null, ?Date $max = null): DateMapper {
 		return new DateMapper($mandatory, $min, $max);
+	}
+
+	static function colorHex(bool $mandatory = false): ColorHexMapper {
+		return new ColorHexMapper($mandatory);
 	}
 
 	/**
