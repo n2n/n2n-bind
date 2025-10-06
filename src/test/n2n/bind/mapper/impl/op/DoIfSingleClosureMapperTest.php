@@ -382,6 +382,21 @@ class DoIfSingleClosureMapperTest extends TestCase {
 	}
 
 	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDoDeleteIfBindableClosureCascade() {
+		$result = Bind::attrs(['prop' => ['subProp' => 'holeradio'], 'prop2' => ['subProp2' => 'holeradio2']])
+				->props(['prop/subProp', 'prop2/subProp2'], Mappers::valueClosure(fn(string $v) => $v . '-m'))
+				->props(['prop'], Mappers::deleteIfBindableClosure(fn () => true, cascaded: false))
+				->props(['prop2'], Mappers::deleteIfBindableClosure(fn () => true))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop/subProp' => 'holeradio-m'], $result->get());
+	}
+
+	/**
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
