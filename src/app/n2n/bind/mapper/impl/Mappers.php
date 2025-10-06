@@ -399,8 +399,14 @@ class Mappers {
 	}
 
 	static function doIfValueClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
-			?bool $chLogical = null): DoIfSingleClosureMapper {
-		return new DoIfSingleClosureMapper($closure, $abort, $skipNextMappers, $chLogical);
+			?bool $chLogical = null, ?bool $chExists = null, bool $nonExistingSkipped = true): DoIfSingleClosureMapper {
+		if ($chExists === true && $nonExistingSkipped === true) {
+			throw new \InvalidArgumentException(
+					'It makes no sense when arguments chExists and nonExistingSkipped both are true.');
+		}
+
+		return (new DoIfSingleClosureMapper($closure, $abort, $skipNextMappers, $chLogical, $chExists))
+				->setNonExistingSkipped($nonExistingSkipped);
 	}
 
 	static function doIfInvalid(bool $abort = false, bool $skipNextMappers = false,
@@ -409,9 +415,17 @@ class Mappers {
 	}
 
 	static function doIfBindableClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
-			?bool $chLogical = null): DoIfSingleClosureMapper {
-		return (new DoIfSingleClosureMapper($closure, $abort, $skipNextMappers, $chLogical))
+			?bool $chLogical = null, ?bool $chExists = null, bool $nonExistingSkipped = true): DoIfSingleClosureMapper {
+		return self::doIfValueClosure($closure, $abort, $skipNextMappers, $chLogical, $chExists, $nonExistingSkipped)
 				->setValueAsFirstArg(false);
+	}
+
+	static function deleteIfValueClosure(\Closure $closure): DoIfSingleClosureMapper {
+		return self::doIfValueClosure($closure, chExists: false);
+	}
+
+	static function deleteIfBindableClosure(\Closure $closure): DoIfSingleClosureMapper {
+		return self::doIfBindableClosure($closure, chExists: false);
 	}
 
 	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {

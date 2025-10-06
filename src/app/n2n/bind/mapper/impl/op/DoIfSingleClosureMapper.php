@@ -15,7 +15,7 @@ class DoIfSingleClosureMapper extends SingleMapperAdapter {
 	private bool $valueAsFirstArg = true;
 
 	public function __construct(private \Closure $closure, private bool $abort = false,
-			private bool $skipNextMappers = false, private ?bool $chLogical = null) {
+			private bool $skipNextMappers = false, private ?bool $chLogical = null, private ?bool $chExists = null) {
 	}
 
 	public function isValueAsFirstArg(): bool {
@@ -43,6 +43,10 @@ class DoIfSingleClosureMapper extends SingleMapperAdapter {
 
 		if ($this->chLogical !== null) {
 			$bindable->setLogical($this->chLogical);
+		}
+
+		if ($this->chExists !== null) {
+			$bindable->setExist($this->chExists);
 		}
 
 		return new MapResult(!$this->abort, $this->skipNextMappers);

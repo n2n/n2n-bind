@@ -15,7 +15,11 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\plan\Bindable;
 use n2n\validation\lang\ValidationMessages;
+use n2n\bind\plan\BindBoundary;
 
+/**
+ * this will test {@link DoIfSingleClosureMapper} and it's different params or options
+ */
 class DoIfSingleClosureMapperTest extends TestCase {
 
 	/**
@@ -298,13 +302,13 @@ class DoIfSingleClosureMapperTest extends TestCase {
 				->prop('prop',
 						Mappers::cleanString(true, 1, 5),
 						Mappers::doIfInvalid(chLogical: false),
-						Mappers::bindableClosure(function (Bindable $bindable) {
+						Mappers::bindableClosure(function(Bindable $bindable) {
 							$this->assertFalse($bindable->isLogical());
 						}, true, false))
 				->logicalProp('prop2',
 						Mappers::cleanString(true, 1, 5),
 						Mappers::doIfInvalid(chLogical: false)->setDirtySkipped(false),
-						Mappers::bindableClosure(function (Bindable $bindable) {
+						Mappers::bindableClosure(function(Bindable $bindable) {
 							$this->assertFalse($bindable->isLogical());
 						}, true, false))
 				->toArray()->exec();
@@ -312,5 +316,119 @@ class DoIfSingleClosureMapperTest extends TestCase {
 		$this->assertFalse($result->isValid());
 		$this->assertCount(1, $result->getErrorMap()->getChild('prop')->getMessages());
 		$this->assertCount(1, $result->getErrorMap()->getChild('prop2')->getMessages());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDoDeleteInvalidProps() {
+		$result = Bind::attrs(['prop' => 'holeradio','prop2' => 'blubb','prop3' => 'holeradio'])
+				->props(['prop', 'prop2', 'prop3'],
+						Mappers::valueClosure(fn(string $v) => $v . '-1'),
+						Mappers::doIfValueClosure(function(string $v) {
+							if('holeradio-1' !== $v){
+								return true;
+							}
+							return false;
+						}, skipNextMappers: false, chExists: false),
+						Mappers::valueClosure(fn(string $v) => $v . '-1'))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop' => 'holeradio-1-1', 'prop3' => 'holeradio-1-1'], $result->get());
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDoDeleteIfValueClosure() {
+		$result = Bind::attrs(['prop' => 'holeradio','prop2' => 'blubb','prop3' => 'holeradio'])
+				->props(['prop', 'prop2', 'prop3'],
+						Mappers::valueClosure(fn(string $v) => $v . '-1'),
+						Mappers::deleteIfValueClosure(function(string $v) {
+							if('holeradio-1' !== $v){
+								return true;
+							}
+							return false;
+						}),
+						Mappers::valueClosure(fn(string $v) => $v . '-1'))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop' => 'holeradio-1-1', 'prop3' => 'holeradio-1-1'], $result->get());
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDoDeleteIfBindableClosure() {
+		$result = Bind::attrs(['prop' => 'holeradio','prop2' => 'blubb','prop3' => 'holeradio'])
+				->props(['prop', 'prop2', 'prop3'],
+						Mappers::valueClosure(fn(string $v) => $v . '-1'),
+						Mappers::deleteIfBindableClosure(function (Bindable $b) {
+							if('holeradio-1' !== $b->getValue()){
+								return true;
+							}
+							return false;
+						}),
+						Mappers::valueClosure(fn(string $v) => $v . '-1'))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop' => 'holeradio-1-1', 'prop3' => 'holeradio-1-1'], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDoDeleteInvalidPropsExistTrue() {
+		$result = Bind::attrs()
+				->optProps(['prop', 'prop2'],
+						Mappers::closure(function (array $bindables) {
+							$this->assertCount(2, $bindables);
+							$this->assertFalse($bindables['prop']->doesExist());
+							$this->assertFalse($bindables['prop2']->doesExist());
+						}),
+						Mappers::doIfValueClosure(function(?string $v) {
+							$this->assertNull($v);
+							return true;
+						}, chExists: true, nonExistingSkipped: false),
+						Mappers::closure(function (array $bindables) {
+							$this->assertCount(2, $bindables);
+							$this->assertTrue($bindables['prop']->doesExist());
+							$this->assertTrue($bindables['prop2']->doesExist());
+
+							$bindables['prop']->setValue('value');
+							$bindables['prop2']->setValue('value-2');
+						}))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop' => 'value', 'prop2' => 'value-2'], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDoDeleteInvalidPropsDefault() {
+		$result = Bind::attrs(['prop' => 'holeradio','prop2' => 'blubb','prop3' => 'holeradio'])
+				->props(['prop', 'prop2', 'prop3'],
+						Mappers::valueClosure(fn(string $v) => $v . '-1'),
+						Mappers::doIfValueClosure(function(string $v) {
+							if('holeradio-1' !== $v){
+								return true;
+							}
+							return false;
+						}, skipNextMappers: true, chExists: null),
+						Mappers::valueClosure(fn(string $v) => $v . '-1'))
+				->toArray()->exec();
+
+
+		$this->assertSame(['prop' => 'holeradio-1', 'prop2' => 'blubb-1', 'prop3' => 'holeradio-1'], $result->get());
 	}
 }
