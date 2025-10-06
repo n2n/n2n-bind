@@ -24,4 +24,22 @@ class SubForeachMapperTest extends TestCase {
 
 		$this->assertSame(['huii' => [ 'key1' => 'value1-m', 'key2' => 'value2-m']], $result->get()->toArray());
 	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testSeparatedBindGroups(): void {
+		$dataMap = new DataMap(['huii' => [ 'key1' => 'value1', 'key2' => 'value2']]);
+		$result = Bind::attrs($dataMap)
+				->prop('huii', Mappers::subForeach(Mappers::closure(function (array $bindables) {
+					$this->assertCount(1, $bindables);
+					$bindable = current($bindables);
+					$bindable->setValue($bindable->getValue() . '-m');
+				})))
+				->toAttrs(new DataMap())
+				->exec();
+
+		$this->assertSame(['huii' => [ 'key1' => 'value1-m', 'key2' => 'value2-m']], $result->get()->toArray());
+	}
 }

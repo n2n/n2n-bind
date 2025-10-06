@@ -23,14 +23,16 @@ class SubForeachMapper extends SingleMapperAdapter {
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult|bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type(['array', Traversable::class]));
-		$path = $bindable->getPath();
 
-
-		$bindBoundary = new BindBoundary(new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance()), []);
+		$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance());
 		foreach ($value as $fieldKey => $fieldValue) {
+			$bindBoundary = new BindBoundary($bindContext, []);
 			$bindBoundary->acquireBindableByRelativeName($fieldKey);
+			$result = (new PipeMapper($this->mappers))->map($bindBoundary, $magicContext);
+			if (!$result->isOk()) {
+				return $result;
+			}
 		}
-
-		return (new PipeMapper($this->mappers))->map($bindBoundary, $magicContext);
+		return new MapResult();
 	}
 }
