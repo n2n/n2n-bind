@@ -107,8 +107,13 @@ class SubPropsForClassMappersResolver {
 						. TypeUtils::prettyClassPropName($this->class, $propertyAccessProxy->getPropertyName()));
 			}
 
-			if ($namedTypeConstraint->isMixed() || TypeName::isScalar($namedTypeConstraint->getTypeName())) {
+			if ($namedTypeConstraint->isMixed()) {
 				$valueMappers = [Mappers::typeNotNull($namedTypeConstraint)];
+				continue;
+			}
+
+			if (TypeName::isScalar($namedTypeConstraint->getTypeName())) {
+				$valueMappers = [Mappers::typeNotNull($namedTypeConstraint->setConvertable(true))];
 				continue;
 			}
 
@@ -131,18 +136,18 @@ class SubPropsForClassMappersResolver {
 		}
 
 		return $this->compilePropertyMappers($valueMappers ?? [Mappers::type($typeConstraint)],
-				$undefinable, $nullable);
+				$undefinable, $nullable, $propertyAccessProxy->getProperty()?->hasDefaultValue());
 	}
 
-	private function compilePropertyMappers(array $valueMappers, bool $undefinable, bool $nullable): array {
+	private function compilePropertyMappers(array $valueMappers, bool $undefinable, bool $nullable, bool $defaultValueAvailable): array {
 		$mappers = [];
-		if (!$undefinable) {
+		if (!$undefinable && !$defaultValueAvailable) {
 			$mappers[] = Mappers::mustExistIf(true);
-		} else {
+		} else if ($undefinable) {
 			$mappers[] = Mappers::bindableClosure(
 					function (Bindable $bindable) {
 						if (!$bindable->doesExist()) {
-							$bindable->setValue(Undefined::i())->setExist(true);
+							$bindable->setValue(Undefined::val())->setExist(true);
 						}
 					},
 					nonExistingSkipped: false);
@@ -153,7 +158,7 @@ class SubPropsForClassMappersResolver {
 
 		if (!$nullable) {
 			$mappers[] = new ValidatorMapper(Validators::valueClosure(fn ($v, Validatable $validatable)
-					=> ($v !== null ? null : ValidationMessages::mandatory($validatable->getLabel()))));
+			=> ($v !== null ? null : ValidationMessages::mandatory($validatable->getLabel()))));
 		}
 
 		return $mappers;

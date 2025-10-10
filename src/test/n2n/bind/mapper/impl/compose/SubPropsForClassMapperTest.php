@@ -20,6 +20,7 @@ use n2n\bind\mapper\impl\compose\mock\SubBaseRecord;
 use n2n\bind\mapper\impl\compose\mock\AdvancedTypesRecord;
 use n2n\util\type\mock\PureEnumMock;
 use n2n\bind\mapper\impl\enum\mock\MockEnum;
+use n2n\bind\mapper\impl\compose\mock\DefaultValueRecord;
 
 class SubPropsForClassMapperTest extends TestCase {
 
@@ -172,5 +173,21 @@ class SubPropsForClassMapperTest extends TestCase {
 						'enumMock' => null,
 				],
 				$targetAttrs);
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDefaultValues() {
+
+
+		$result = Bind::attrs(['prop' => 'value'])
+				->logicalRoot(Mappers::subPropsForClass(DefaultValueRecord::class))
+				->toArray()->exec();
+		$targetAttrs = $result->get();
+
+		$this->assertSame(['prop' => 'value'], $targetAttrs);
 	}
 }
