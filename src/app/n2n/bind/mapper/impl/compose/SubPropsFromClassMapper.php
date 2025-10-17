@@ -66,7 +66,7 @@ class SubPropsFromClassMappersResolver {
 
 	}
 
-	function populateComposer(PropBindComposer $composer): void {
+	function populateComposer(SubPropsMapper $composer): void {
 		$analyzer = new PropertiesAnalyzer($this->class, superIgnored: false);
 		$propertyAccessProxies = ExUtils::try(fn () => $analyzer->analyzeProperties(true));
 

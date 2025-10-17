@@ -29,7 +29,7 @@ class DeleteMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertEquals('foo', $targetMock->holeradio);
-		$this->assertEquals('bar', $targetMock->sub->huii);
+		$this->assertNull($targetMock->sub->huii);
 	}
 }
 
