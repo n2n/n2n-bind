@@ -118,6 +118,9 @@ class ObjectBindableFactory extends BindableFactoryAdapter {
 				if (!$pathContext->mustExist()) {
 					return new RetrievedValue(null, false);
 				}
+				throw new ValueNotTraversableException('Can not resolve path "' . $pathContext->getTraversedPath()
+						. '". Path "' . $pathContext->getTraversedPath()->slice(0, -1) . '" resolved a value of type '
+						. TypeUtils::getTypeInfo($value) . ' which does not contain a property "' . $segment . '".');
 			} catch (PropertyAccessException|\ReflectionException $e) {
 				throw new ValueNotTraversableException('Can not resolve path "'
 						. $pathContext->getTraversedPath() . '". Reason: ' . $e->getMessage(), previous: $e);
