@@ -188,6 +188,6 @@ class SubPropsForClassMapperTest extends TestCase {
 				->toArray()->exec();
 		$targetAttrs = $result->get();
 
-		$this->assertSame(['prop' => 'value'], $targetAttrs);
+		$this->assertSame(['undefPropWithDefault' => Undefined::val(), 'prop' => 'value'], $targetAttrs);
 	}
 }
