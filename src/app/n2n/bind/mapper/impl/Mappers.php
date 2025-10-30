@@ -68,6 +68,7 @@ use n2n\reflection\ReflectionUtils;
 use n2n\bind\mapper\impl\compose\SubPropsForClassMapper;
 use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
 use n2n\bind\mapper\impl\string\ColorHexMapper;
+use n2n\bind\mapper\impl\op\DoIfMapper;
 
 class Mappers {
 
@@ -432,8 +433,18 @@ class Mappers {
 		return self::doIfBindableClosure($closure, chExists: false, cascaded: $cascaded);
 	}
 
+	static function doIf(\Closure|bool $closureOrBool, bool $abort = false, bool $skipNextMappers = false,
+			?bool $chLogical = null, ?bool $chExists = null, bool $cascaded = false): DoIfMapper {
+		return (new DoIfMapper($closureOrBool, $abort, $skipNextMappers, $chLogical, $chExists))
+				->setCascaded($cascaded);
+	}
+
 	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {
 		return new FactoryClosureMapper($closure);
+	}
+
+	static function deleteIf(\Closure|bool $closureOrBool, bool $cascaded = true): DoIfMapper {
+		return self::doIf($closureOrBool, chExists: false, cascaded: $cascaded);
 	}
 
 	static function mustExistIf(\Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {

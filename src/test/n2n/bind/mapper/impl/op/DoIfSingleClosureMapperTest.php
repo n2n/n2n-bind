@@ -127,12 +127,12 @@ class DoIfSingleClosureMapperTest extends TestCase {
 						Mappers::valueClosure(fn (string $v) => $v . '-1'),
 						Mappers::doIfValueClosure(function (string $v) {
 							$this->assertEquals('holeradio-1', $v);
-							return true;
+							return false;
 						}, skipNextMappers: true),
 						Mappers::valueClosure(fn (string $v) => $v . '-2'))
 				->toArray()->exec();
 
-		$this->assertSame(['prop' => 'holeradio-1'], $result->get());
+		$this->assertSame(['prop' => 'holeradio-1-2'], $result->get());
 	}
 
 	/**
@@ -440,7 +440,7 @@ class DoIfSingleClosureMapperTest extends TestCase {
 							}
 							return false;
 						}, skipNextMappers: true, chExists: null),
-						Mappers::valueClosure(fn(string $v) => $v . '-1'))
+						Mappers::valueClosure(fn(string $v) => $v . '-2'))
 				->toArray()->exec();
 
 

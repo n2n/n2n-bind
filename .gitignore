@@ -1,3 +1,4 @@
 /composer.lock
 /.idea
 /.run
+/.phpunit.result.cache
