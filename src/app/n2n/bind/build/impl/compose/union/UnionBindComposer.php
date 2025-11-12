@@ -27,7 +27,7 @@ use n2n\bind\plan\BindTarget;
 use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\bind\plan\MapBindGroup;
 use n2n\bind\mapper\Mapper;
-use n2n\bind\plan\BindTask;
+use n2n\bind\plan\BindQueue;
 use n2n\bind\plan\BindSource;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
@@ -45,12 +45,12 @@ use n2n\bind\plan\impl\WriteBindStep;
 
 class UnionBindComposer implements MagicTask {
 
-	private BindTask $bindTask;
+	private BindQueue $bindTask;
 
 	private MapBindStep $mapBindStep;
 
 	function __construct(private BindSource $source) {
-		$this->bindTask = new BindTask($source);
+		$this->bindTask = new BindQueue($source);
 		$this->bindTask->addBindStep($this->mapBindStep = new MapBindStep());
 	}
 

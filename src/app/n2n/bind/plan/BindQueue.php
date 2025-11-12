@@ -31,7 +31,7 @@ use n2n\bind\plan\impl\BindResults;
 use n2n\validation\plan\ErrorMap;
 use n2n\bind\build\impl\target\NullBindTargetInstance;
 
-class BindTask {
+class BindQueue {
 
 	private ?BindTarget $bindTarget = null;
 	/**

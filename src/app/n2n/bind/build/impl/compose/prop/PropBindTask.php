@@ -4,7 +4,7 @@ namespace n2n\bind\build\impl\compose\prop;
 
 use n2n\bind\plan\impl\MapBindStep;
 use n2n\bind\plan\BindTarget;
-use n2n\bind\plan\BindTask;
+use n2n\bind\plan\BindQueue;
 use n2n\util\magic\MagicTask;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
@@ -23,7 +23,7 @@ use n2n\bind\plan\impl\IfValidBindStep;
 use n2n\bind\plan\impl\WriteBindStep;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
-	private BindTask $bindTask;
+	private BindQueue $bindTask;
 
 	/**
 	 * @var \Closure[]
@@ -33,7 +33,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	function __construct(private BindSource $bindSource) {
 		parent::__construct(new MapBindStep());
 
-		$this->bindTask = new BindTask($bindSource);
+		$this->bindTask = new BindQueue($bindSource);
 		$this->bindTask->addBindStep($this->bindPlan);
 	}
 
