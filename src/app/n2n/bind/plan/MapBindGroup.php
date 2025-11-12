@@ -27,7 +27,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\err\UnresolvableBindableException;
 
-class BindGroup {
+class MapBindGroup {
 
 	/**
 	 * @param Mapper[] $mappers

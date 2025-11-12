@@ -1,11 +1,10 @@
 <?php
 namespace n2n\bind\build\impl\source\object;
 
-use n2n\bind\plan\BindableFactory;
 use n2n\bind\plan\BindSource;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\util\type\TypeUtils;
-use n2n\bind\build\impl\source\BindInstance;
+use n2n\bind\plan\BindInstance;
 use n2n\reflection\property\UninitializedBehaviour;
 
 class ObjectBindSource implements BindSource {

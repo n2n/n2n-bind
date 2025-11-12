@@ -4,13 +4,13 @@ namespace n2n\bind\mapper\impl\mod;
 
 use n2n\bind\plan\BindBoundary;
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\BindPlan;
+use n2n\bind\plan\impl\MapBindStep;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
 use n2n\bind\plan\Bindable;
 
 class SubMergeMapper extends SingleMapperAdapter {
 
-	private BindPlan $bindPlan;
+	private MapBindStep $bindPlan;
 
 	function __construct() {
 	}

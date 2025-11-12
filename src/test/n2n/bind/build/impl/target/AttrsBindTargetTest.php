@@ -37,7 +37,8 @@ class AttrsBindTargetTest extends TestCase {
 	function testToAttrsFailWithWrite(): void {
 		$result = Bind::attrs(['prop1' => null, 'prop2' => 'value2'])
 				->props(['prop1', 'prop2'], Validators::mandatory())
-				->toAttrs(new DataMap(), writeTargetOnFailure: true)
+				->write()
+				->toAttrs(new DataMap())
 				->exec();
 
 		$this->assertFalse($result->isValid());

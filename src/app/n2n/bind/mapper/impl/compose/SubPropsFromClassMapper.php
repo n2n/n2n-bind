@@ -2,40 +2,17 @@
 
 namespace n2n\bind\mapper\impl\compose;
 
-use n2n\bind\mapper\Mapper;
 use n2n\bind\plan\BindBoundary;
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\BindPlan;
-use n2n\bind\plan\impl\BindableBindContext;
-use n2n\bind\build\impl\compose\prop\PropBindComposer;
 use n2n\bind\mapper\MapResult;
 use n2n\bind\mapper\impl\MapperAdapter;
 use n2n\reflection\property\PropertiesAnalyzer;
-use n2n\bind\plan\BindGroup;
-use n2n\reflection\property\InaccessiblePropertyException;
-use n2n\reflection\property\InvalidPropertyAccessMethodException;
-use n2n\util\type\NamedTypeConstraint;
-use n2n\util\type\TypeConstraint;
-use n2n\util\type\TypeName;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\type\custom\Undefined;
-use n2n\util\col\Map;
-use n2n\bind\plan\Bindable;
-use n2n\bind\mapper\impl\valobj\ValueObjectMapperExtractor;
-use ReflectionClass;
 use n2n\util\type\TypeUtils;
-use n2n\util\calendar\Date;
-use DateTime;
-use n2n\util\calendar\Time;
-use n2n\util\uri\Url;
-use n2n\validation\validator\impl\Validators;
-use n2n\bind\mapper\impl\ValidatorMapper;
 use n2n\reflection\property\PropertyAccessProxy;
 use n2n\util\ex\ExUtils;
 use n2n\bind\err\MisconfiguredMapperException;
-use n2n\util\EnumUtils;
-use n2n\util\type\mock\PureEnumMock;
-use n2n\util\type\TypeConstraints;
 use n2n\util\type\UnionTypeConstraint;
 
 class SubPropsFromClassMapper extends MapperAdapter {

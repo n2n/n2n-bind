@@ -22,10 +22,9 @@
 namespace n2n\bind\build\impl\source;
 
 use n2n\bind\plan\BindSource;
-use n2n\bind\plan\BindableFactory;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\util\type\TypeUtils;
-use n2n\util\type\attrs\AttributeReader;
+use n2n\bind\plan\BindInstance;
 
 class StaticBindSource implements BindSource {
 

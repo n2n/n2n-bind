@@ -22,23 +22,40 @@
 namespace n2n\bind\build\impl\target;
 
 use n2n\bind\plan\BindTarget;
+use n2n\util\type\attrs\AttributeWriter;
+use n2n\util\type\attrs\AttributePath;
+use n2n\util\type\attrs\AttributesException;
 use n2n\bind\err\BindTargetException;
 use n2n\util\type\ArgUtils;
-use n2n\util\type\attrs\AttributeWriter;
+use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindTargetInstance;
 
-class ObjectBindTarget implements BindTarget {
+/**
+ * @template-extends BindTargetInstance<AttributeWriter>
+ */
+class AttrsBindTargetInstance implements BindTargetInstance {
 
-	function __construct(private object $objOrCallback) {
+	function __construct(private AttributeWriter $attributeWriter) {
 	}
 
-	function next(): BindTargetInstance {
-		if ($this->objOrCallback instanceof \Closure) {
-			$obj = $this->objOrCallback->__invoke();
-			ArgUtils::valTypeReturn($obj, 'object', null, $this->objOrCallback);
-		} else {
-			$obj = $this->objOrCallback;
+	function write(array $bindables): void {
+		ArgUtils::valArray($bindables, Bindable::class);
+
+		foreach ($bindables as $bindable) {
+			if (!$bindable->doesExist() || $bindable->isLogical() || !$bindable->isValid() || $bindable->isDirty()) {
+				continue;
+			}
+
+			try {
+				$this->attributeWriter->writeAttribute($bindable->getPath(), $bindable->getValue());
+			} catch (AttributesException $e) {
+				throw new BindTargetException('Could not write bindable \'' . $bindable->getPath(), 0, $e);
+
+			}
 		}
-		return new ObjectBindTargetInstance($obj);
+	}
+
+	function getValue(): AttributeWriter {
+		return $this->attributeWriter;
 	}
 }

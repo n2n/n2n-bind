@@ -19,17 +19,38 @@
  * Bert Hofmänner.......: Idea, Frontend UI, Community Leader, Marketing
  * Thomas Günther.......: Developer, Hangar
  */
-namespace n2n\bind\plan;
+namespace n2n\bind\build\impl\target;
 
-use n2n\bind\err\IncompatibleBindInputException;
+use n2n\bind\plan\BindTarget;
+use n2n\bind\err\BindTargetException;
+use n2n\util\type\ArgUtils;
+use n2n\util\type\attrs\AttributeWriter;
+use n2n\bind\plan\BindTargetInstance;
 
-interface BindSource {
+/**
+ * @template T
+ * @template-extends BindTargetInstance<T>
+ */
+class ObjectBindTargetInstance implements BindTargetInstance {
 
 	/**
-	 * @param mixed $input
-	 * @return BindInstance
-	 * @throws IncompatibleBindInputException
+	 * @param T $obj
 	 */
-	function next(mixed $input): BindInstance;
+	function __construct(private object $obj) {
+	}
 
+	/**
+	 * @throws BindTargetException
+	 */
+	function write(array $bindables): void {
+		$objectBindableWriteProcess = new ObjectBindableWriteProcess($bindables);
+		$objectBindableWriteProcess->process($this->obj);
+	}
+
+	/**
+	 * @return T
+	 */
+	function getValue() {
+		return $this->obj;
+	}
 }

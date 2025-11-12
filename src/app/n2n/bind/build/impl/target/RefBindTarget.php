@@ -22,24 +22,24 @@
 namespace n2n\bind\build\impl\target;
 
 use n2n\bind\plan\BindTarget;
-use n2n\util\type\attrs\AttributeWriter;
-use n2n\util\type\attrs\AttributePath;
-use n2n\util\type\attrs\AttributesException;
-use n2n\bind\err\BindTargetException;
-use n2n\util\type\ArgUtils;
-use n2n\bind\plan\Bindable;
+use n2n\bind\plan\BindTargetInstance;
 
-class RefBindTarget implements BindTarget {
+class RefBindTarget implements BindTarget, BindTargetInstance {
 	private TargetValueCompiler $targetValueCompiler;
 
 	function __construct(private &$ref, bool $arrayStrict) {
 		$this->targetValueCompiler = new TargetValueCompiler($arrayStrict);
 	}
 
-	function write(array $bindables): mixed {
-		$this->ref = $this->targetValueCompiler->compile($bindables);
+	public function next(): BindTargetInstance {
+		return $this;
+	}
 
-		ArgUtils::valArray($bindables, Bindable::class);
+	function write(array $bindables): void {
+		$this->ref = $this->targetValueCompiler->compile($bindables);
+	}
+
+	function getValue() {
 		return $this->ref;
 	}
 }

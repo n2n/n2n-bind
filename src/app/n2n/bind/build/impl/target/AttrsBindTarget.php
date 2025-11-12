@@ -28,15 +28,14 @@ use n2n\util\type\attrs\AttributesException;
 use n2n\bind\err\BindTargetException;
 use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
+use n2n\bind\plan\BindTargetInstance;
 
 class AttrsBindTarget implements BindTarget {
 
 	function __construct(private AttributeWriter|\Closure $attributeWriter) {
 	}
 
-	function write(array $bindables): AttributeWriter {
-		ArgUtils::valArray($bindables, Bindable::class);
-
+	function next(): BindTargetInstance {
 		$attributeWriter = null;
 		if ($this->attributeWriter instanceof AttributeWriter) {
 			$attributeWriter = $this->attributeWriter;
@@ -44,20 +43,6 @@ class AttrsBindTarget implements BindTarget {
 			$attributeWriter = $this->attributeWriter->__invoke();
 			ArgUtils::valTypeReturn($attributeWriter, AttributeWriter::class, null, $this->attributeWriter);
 		}
-
-		foreach ($bindables as $bindable) {
-			if (!$bindable->doesExist() || $bindable->isLogical() || !$bindable->isValid() || $bindable->isDirty()) {
-				continue;
-			}
-
-			try {
-				$attributeWriter->writeAttribute($bindable->getPath(), $bindable->getValue());
-			} catch (AttributesException $e) {
-				throw new BindTargetException('Could not write bindable \'' . $bindable->getPath(), 0, $e);
-
-			}
-		}
-
-		return $attributeWriter;
+		return new AttrsBindTargetInstance($attributeWriter);
 	}
 }

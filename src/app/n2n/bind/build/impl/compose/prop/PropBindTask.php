@@ -2,7 +2,7 @@
 
 namespace n2n\bind\build\impl\compose\prop;
 
-use n2n\bind\plan\BindPlan;
+use n2n\bind\plan\impl\MapBindStep;
 use n2n\bind\plan\BindTarget;
 use n2n\bind\plan\BindTask;
 use n2n\util\magic\MagicTask;
@@ -19,6 +19,8 @@ use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
 use n2n\util\magic\impl\MagicContexts;
 use n2n\bind\plan\BindResult;
+use n2n\bind\plan\impl\IfValidBindStep;
+use n2n\bind\plan\impl\WriteBindStep;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
 	private BindTask $bindTask;
@@ -29,44 +31,52 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	private array $onSuccessCallbacks = [];
 
 	function __construct(private BindSource $bindSource) {
-		parent::__construct(new BindPlan());
+		parent::__construct(new MapBindStep());
 
 		$this->bindTask = new BindTask($bindSource);
-		$this->bindTask->addBindPlan($this->bindPlan);
+		$this->bindTask->addBindStep($this->bindPlan);
 	}
 
 	function ifValid(): static {
-		$this->bindPlan = new BindPlan();
-		$this->bindTask->addBindPlan($this->bindPlan);
+		$this->bindTask->addBindStep($this->bindPlan);
+		$this->bindTask->addBindStep(new IfValidBindStep());
+		$this->bindPlan = new MapBindStep();
 		return $this;
 	}
 
-	function toAttrs(AttributeWriter|\Closure $attributeWriter, bool $writeTargetOnFailure = false): static {
-		return $this->to(new AttrsBindTarget($attributeWriter), $writeTargetOnFailure);
+	function write(): static  {
+		$this->bindTask->addBindStep($this->bindPlan);
+		$this->bindTask->addBindStep(new WriteBindStep($this->bindTask));
+		$this->bindPlan = new MapBindStep();
+		return $this;
+	}
+
+	function toAttrs(AttributeWriter|\Closure $attributeWriter): static {
+		return $this->to(new AttrsBindTarget($attributeWriter));
 	}
 
 	/**
 	 * @param array $array
 	 * @return PropBindTask
 	 */
-	function toArray(array &$array = [], bool $writeTargetOnFailure = false): static {
-		return $this->to(new RefBindTarget($array, true), $writeTargetOnFailure);
+	function toArray(array &$array = []): static {
+		return $this->to(new RefBindTarget($array, true));
 	}
 
 	/**
 	 * @param $value
 	 * @return PropBindTask
 	 */
-	function toValue(&$value, bool $writeTargetOnFailure = false): static {
-		return $this->to(new RefBindTarget($value, false), $writeTargetOnFailure);
+	function toValue(&$value): static {
+		return $this->to(new RefBindTarget($value, false));
 	}
 
 	/**
 	 * @param object $objOrCallback can also be a Closure
 	 * @return PropBindTask
 	 */
-	function toObj(object $objOrCallback, bool $writeTargetOnFailure = false): static {
-		return $this->to(new ObjectBindTarget($objOrCallback), $writeTargetOnFailure);
+	function toObj(object $objOrCallback): static {
+		return $this->to(new ObjectBindTarget($objOrCallback));
 	}
 
 	/**
@@ -74,9 +84,8 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @param bool $writeTargetOnFailure
 	 * @return PropBindTask
 	 */
-	function to(BindTarget $target, bool $writeTargetOnFailure = false): static {
+	function to(BindTarget $target): static {
 		$this->bindTask->setBindTarget($target);
-		$this->bindTask->setWriteTargetOnFailure($writeTargetOnFailure);
 		return $this;
 	}
 

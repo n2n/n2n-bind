@@ -2,15 +2,14 @@
 
 namespace n2n\bind\plan;
 
-use n2n\l10n\Message;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
-use n2n\bind\build\impl\source\BindInstance;
 
 abstract class BindContextAdapter implements BindContext {
 
-	function __construct(private readonly BindInstance $bindInstance) {
+	function __construct(private readonly BindInstance $bindInstance,
+			private readonly BindTargetInstance $bindTargetInstance) {
 
 	}
 
@@ -49,4 +48,7 @@ abstract class BindContextAdapter implements BindContext {
 		return $this->bindInstance;
 	}
 
+	function unwrapBindTargetInstance(): BindTargetInstance {
+		return $this->bindTargetInstance;
+	}
 }

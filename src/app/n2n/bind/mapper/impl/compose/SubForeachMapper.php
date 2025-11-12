@@ -24,7 +24,8 @@ class SubForeachMapper extends SingleMapperAdapter {
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult|bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type(['array', Traversable::class]));
 
-		$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance());
+		$bindContext = new BindableBindContext($bindable, $bindBoundary->unwarpBindInstance(),
+				$bindBoundary->getBindContext()->unwrapBindTargetInstance());
 		foreach ($value as $fieldKey => $fieldValue) {
 			$bindBoundary = new BindBoundary($bindContext, []);
 			$bindBoundary->acquireBindableByRelativeName($fieldKey);

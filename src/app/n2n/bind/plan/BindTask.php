@@ -28,16 +28,16 @@ use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\bind\plan\impl\BindResults;
-use n2n\bind\build\impl\source\BindInstance;
 use n2n\validation\plan\ErrorMap;
+use n2n\bind\build\impl\target\NullBindTargetInstance;
 
 class BindTask {
 
 	private ?BindTarget $bindTarget = null;
 	/**
-	 * @var array<BindPlan>
+	 * @var array<BindStep>
 	 */
-	private array $bindPlans = [];
+	private array $bindSteps = [];
 
 	private bool $writeTargetOnFailure = false;
 
@@ -45,22 +45,14 @@ class BindTask {
 	}
 
 	/**
-	 * @return BindPlan[]
+	 * @return BindStep[]
 	 */
-	function getBindPlans(): array {
-		return $this->bindPlans;
+	function getBindStep(): array {
+		return $this->bindSteps;
 	}
 
-	function addBindPlan(BindPlan $bindPlan): void {
-		$this->bindPlans[] = $bindPlan;
-	}
-
-	function setWriteTargetOnFailure(bool $writeTargetOnFailure): void {
-		$this->writeTargetOnFailure = $writeTargetOnFailure;
-	}
-
-	function isWriteTargetOnFailure(): bool {
-		return $this->writeTargetOnFailure;
+	function addBindStep(BindStep $bindStep): void {
+		$this->bindSteps[] = $bindStep;
 	}
 
 	function setBindTarget(?BindTarget $bindTarget): void {
@@ -73,11 +65,11 @@ class BindTask {
 
 	/**
 	 * @param MagicContext $magicContext
+	 * @param mixed
 	 * @return BindResult
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
-	 * /
 	 */
 	function exec(MagicContext $magicContext, mixed $input): BindResult {
 		try {
@@ -86,22 +78,30 @@ class BindTask {
 			throw new BindMismatchException($e->getMessage(), previous: $e);
 		}
 
-		foreach ($this->bindPlans as $bindPlan) {
-			if (!$bindPlan->exec(new RootBindContext($bindInstance), $magicContext)) {
-				return $this->createInvalidResult($bindInstance, $bindInstance->createErrorMap());
-			}
-
-			$errorMap = $bindInstance->createErrorMap();
-			if ($errorMap->isEmpty()) {
+		$bindTargetInstance = $this->bindTarget?->next() ?? new NullBindTargetInstance();
+		$bindContext = new RootBindContext($bindInstance, $bindTargetInstance);
+		$targetWritten = false;
+		foreach ($this->bindSteps as $bindStep) {
+			$result = $bindStep->exec($bindContext, $magicContext);
+			$targetWritten = $targetWritten || $result->targetWritten;
+			if ($result->ok) {
 				continue;
 			}
-
-			return $this->createInvalidResult($bindInstance, $errorMap);
+			if ($targetWritten) {
+				return BindResults::invalidWithValue($bindInstance->createErrorMap(), $bindTargetInstance->getValue());
+			}
+			return BindResults::invalid($bindInstance->createErrorMap());
 		}
 
-		$resultValue = $this->bindTarget?->write($bindInstance->getBindables());
-
-		return BindResults::valid($resultValue);
+		$errorMap = $bindInstance->createErrorMap();
+		if ($errorMap->isEmpty()) {
+			$bindTargetInstance?->write($bindInstance->getBindables());
+			return BindResults::valid($bindTargetInstance->getValue());
+		}
+		if ($targetWritten) {
+			return BindResults::invalidWithValue($bindInstance->createErrorMap(), $bindTargetInstance->getValue());
+		}
+		return BindResults::invalid($bindInstance->createErrorMap());
 	}
 
 	private function createInvalidResult(BindInstance $bindInstance, ErrorMap $errorMap): BindResult {

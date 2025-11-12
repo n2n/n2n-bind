@@ -22,40 +22,23 @@
 namespace n2n\bind\plan;
 
 use n2n\util\magic\MagicContext;
-use n2n\bind\plan\impl\SimpleBindResult;
 use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
 
-class BindPlan {
-
-	/**
-	 * @var BindGroup[]
-	 */
-	private array $bindGroups = [];
-
-	function __construct() {
-	}
-
-	/**
-	 * @param BindGroup $bindGroup
-	 * @return void
-	 */
-	function addBindGroup(BindGroup $bindGroup): void {
-		$this->bindGroups[] = $bindGroup;
-	}
+interface BindStep {
 
 	/**
 	 * @param BindContext $bindContext
 	 * @param MagicContext $magicContext
-	 * @return bool
-	 * @throws BindMismatchException|\n2n\bind\err\UnresolvableBindableException
+	 * @return BindStepResult
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
 	 */
-	function exec(BindContext $bindContext, MagicContext $magicContext): bool {
-		foreach ($this->bindGroups as $bindGroup) {
-			if (!$bindGroup->exec($bindContext, $magicContext)) {
-				return false;
-			}
-		}
+	function exec(BindContext $bindContext, MagicContext $magicContext): BindStepResult;
+}
 
-		return true;
+class BindStepResult {
+	function __construct(public bool $ok = true, public bool $targetWritten = false) {
+
 	}
 }

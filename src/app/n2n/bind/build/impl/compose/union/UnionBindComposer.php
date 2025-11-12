@@ -21,21 +21,14 @@
  */
 namespace n2n\bind\build\impl\compose\union;
 use n2n\util\magic\MagicContext;
-use n2n\validation\plan\ValidationTask;
-use n2n\validation\plan\ValidationPlan;
-use n2n\validation\plan\Validatable;
 use n2n\validation\validator\Validator;
-use n2n\util\type\ArgUtils;
-use n2n\validation\plan\ValidationGroup;
-use n2n\validation\plan\ValidationResult;
-use n2n\bind\plan\BindPlan;
+use n2n\bind\plan\impl\MapBindStep;
 use n2n\bind\plan\BindTarget;
 use n2n\bind\mapper\impl\ValidatorMapper;
-use n2n\bind\plan\BindGroup;
+use n2n\bind\plan\MapBindGroup;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\plan\BindTask;
 use n2n\bind\plan\BindSource;
-use n2n\bind\plan\BindResult;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
@@ -47,20 +40,29 @@ use n2n\bind\build\impl\target\ObjectBindTarget;
 use n2n\util\magic\TaskResult;
 use n2n\util\magic\impl\MagicContexts;
 use n2n\util\magic\MagicTask;
+use n2n\bind\plan\impl\IfValidBindStep;
+use n2n\bind\plan\impl\WriteBindStep;
 
 class UnionBindComposer implements MagicTask {
 
 	private BindTask $bindTask;
 
-	private BindPlan $bindPlan;
+	private MapBindStep $mapBindStep;
 
 	function __construct(private BindSource $source) {
 		$this->bindTask = new BindTask($source);
-		$this->bindTask->addBindPlan($this->bindPlan = new BindPlan());
+		$this->bindTask->addBindStep($this->mapBindStep = new MapBindStep());
 	}
 
 	function ifValid(): static {
-		$this->bindTask->addBindPlan($this->bindPlan = new BindPlan());
+		$this->bindTask->addBindStep(new IfValidBindStep());
+		$this->bindTask->addBindStep($this->mapBindStep = new MapBindStep());
+		return $this;
+	}
+
+	function write(): static {
+		$this->bindTask->addBindStep(new WriteBindStep());
+		$this->bindTask->addBindStep($this->mapBindStep = new MapBindStep());
 		return $this;
 	}
 
@@ -71,8 +73,8 @@ class UnionBindComposer implements MagicTask {
 	function map(Mapper|Validator ...$mappers): static {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 
-		$this->bindPlan->addBindGroup(
-				new BindGroup($mappers, new UnionBindablesResolver($this->source), $this->source));
+		$this->mapBindStep->addBindGroup(
+				new MapBindGroup($mappers, new UnionBindablesResolver($this->source), $this->source));
 
 		return $this;
 	}

@@ -5,7 +5,6 @@ namespace n2n\bind\plan;
 use n2n\util\type\attrs\AttributePath;
 use n2n\util\ex\IllegalStateException;
 use n2n\bind\err\BindMismatchException;
-use n2n\bind\build\impl\source\BindInstance;
 
 class BindBoundary {
 	/**
