@@ -63,7 +63,7 @@ class MapBindGroup {
 				}
 			} catch (BindMismatchException $e) {
 				throw new BindMismatchException('Mapper ' . get_class($mapper) . ' rejected bindables group '
-						. implode(', ', array_map(fn ($b) => $b->getPath(), $bindables)), 0, $e);
+						. implode(', ', array_map(fn ($b) => '"' . $b->getPath()->toAbsoluteString() . '"', $bindables)), 0, $e);
 			}
 		}
 
