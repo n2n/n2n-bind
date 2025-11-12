@@ -26,6 +26,7 @@ use n2n\validation\plan\ErrorMap;
 use n2n\validation\plan\ValidationResult;
 
 /**
+ * @deprecated {@link TaskResult} should be used.
  * @template T
  * @template-implements TaskResult<T>
  */

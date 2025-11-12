@@ -41,40 +41,42 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 		return $this;
 	}
 
-	function toAttrs(AttributeWriter|\Closure $attributeWriter): static {
-		return $this->to(new AttrsBindTarget($attributeWriter));
+	function toAttrs(AttributeWriter|\Closure $attributeWriter, bool $writeTargetOnFailure = false): static {
+		return $this->to(new AttrsBindTarget($attributeWriter), $writeTargetOnFailure);
 	}
 
 	/**
 	 * @param array $array
 	 * @return PropBindTask
 	 */
-	function toArray(array &$array = []): static {
-		return $this->to(new RefBindTarget($array, true));
+	function toArray(array &$array = [], bool $writeTargetOnFailure = false): static {
+		return $this->to(new RefBindTarget($array, true), $writeTargetOnFailure);
 	}
 
 	/**
 	 * @param $value
 	 * @return PropBindTask
 	 */
-	function toValue(&$value): static {
-		return $this->to(new RefBindTarget($value, false));
+	function toValue(&$value, bool $writeTargetOnFailure = false): static {
+		return $this->to(new RefBindTarget($value, false), $writeTargetOnFailure);
 	}
 
 	/**
 	 * @param object $objOrCallback can also be a Closure
 	 * @return PropBindTask
 	 */
-	function toObj(object $objOrCallback): static {
-		return $this->to(new ObjectBindTarget($objOrCallback));
+	function toObj(object $objOrCallback, bool $writeTargetOnFailure = false): static {
+		return $this->to(new ObjectBindTarget($objOrCallback), $writeTargetOnFailure);
 	}
 
 	/**
 	 * @param BindTarget $target
+	 * @param bool $writeTargetOnFailure
 	 * @return PropBindTask
 	 */
-	function to(BindTarget $target): static {
+	function to(BindTarget $target, bool $writeTargetOnFailure = false): static {
 		$this->bindTask->setBindTarget($target);
+		$this->bindTask->setWriteTargetOnFailure($writeTargetOnFailure);
 		return $this;
 	}
 

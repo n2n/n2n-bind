@@ -64,7 +64,7 @@ class ObjectBindableWriteProcess {
 	 */
 	public function process(object $obj): void {
 		foreach ($this->bindables as $bindable) {
-			if (!$bindable->doesExist() || $bindable->isLogical()) {
+			if (!$bindable->doesExist() || $bindable->isLogical() || !$bindable->isValid() || $bindable->isDirty()) {
 				continue;
 			}
 

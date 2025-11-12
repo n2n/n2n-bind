@@ -5,6 +5,8 @@ namespace n2n\bind\plan\impl;
 use n2n\util\ex\IllegalStateException;
 use n2n\bind\plan\BindResult;
 use n2n\validation\plan\ErrorMap;
+use n2n\util\magic\MagicArray;
+use n2n\util\magic\TaskResult;
 
 class BindResults {
 
@@ -56,6 +58,38 @@ class BindResults {
 
 			function get(): mixed {
 				throw new IllegalStateException('BindResult is invalid.');
+			}
+		};
+	}
+
+	/**
+	 * @template T
+	 * @param MagicArray $errorMap
+	 * @param T $value
+	 * @return BindResult<T>
+	 */
+	static function invalidWithValue(MagicArray $errorMap, $value): BindResult {
+		return new class($errorMap, $value) implements BindResult {
+			function __construct(private MagicArray $errorMap, private $value) {
+			}
+
+			function isValid(): bool {
+				return false;
+			}
+
+			/**
+			 * @deprecated legacy usage only
+			 */
+			function hasErrors(): bool {
+				return true;
+			}
+
+			function getErrorMap(): ErrorMap {
+				return $this->errorMap;
+			}
+
+			function get(): mixed {
+				return $this->value;
 			}
 		};
 	}

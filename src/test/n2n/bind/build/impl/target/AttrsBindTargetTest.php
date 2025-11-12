@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
+use n2n\validation\validator\impl\Validators;
 
 class AttrsBindTargetTest extends TestCase {
 
@@ -26,5 +27,24 @@ class AttrsBindTargetTest extends TestCase {
 
 		$this->assertEquals('value1', $dataMap1->req('prop'));
 		$this->assertEquals('value2', $dataMap2->req('prop'));
+	}
+
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testToAttrsFailWithWrite(): void {
+		$result = Bind::attrs(['prop1' => null, 'prop2' => 'value2'])
+				->props(['prop1', 'prop2'], Validators::mandatory())
+				->toAttrs(new DataMap(), writeTargetOnFailure: true)
+				->exec();
+
+		$this->assertFalse($result->isValid());
+
+		$this->assertCount(1, $result->getErrorMap()->getChild('prop1')->getMessages());
+		$dm = $result->get();
+		$this->assertInstanceOf(DataMap::class, $dm);
+		$this->assertSame(['prop2' => 'value2'], $dm->toArray());
 	}
 }

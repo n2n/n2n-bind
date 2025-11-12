@@ -29,6 +29,7 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\IncompatibleBindInputException;
 use n2n\bind\plan\impl\BindResults;
 use n2n\bind\build\impl\source\BindInstance;
+use n2n\validation\plan\ErrorMap;
 
 class BindTask {
 
@@ -37,6 +38,8 @@ class BindTask {
 	 * @var array<BindPlan>
 	 */
 	private array $bindPlans = [];
+
+	private bool $writeTargetOnFailure = false;
 
 	function __construct(private BindSource $bindSource) {
 	}
@@ -50,6 +53,14 @@ class BindTask {
 
 	function addBindPlan(BindPlan $bindPlan): void {
 		$this->bindPlans[] = $bindPlan;
+	}
+
+	function setWriteTargetOnFailure(bool $writeTargetOnFailure): void {
+		$this->writeTargetOnFailure = $writeTargetOnFailure;
+	}
+
+	function isWriteTargetOnFailure(): bool {
+		return $this->writeTargetOnFailure;
 	}
 
 	function setBindTarget(?BindTarget $bindTarget): void {
@@ -77,17 +88,28 @@ class BindTask {
 
 		foreach ($this->bindPlans as $bindPlan) {
 			if (!$bindPlan->exec(new RootBindContext($bindInstance), $magicContext)) {
-				return BindResults::invalid($bindInstance->createErrorMap());
+				return $this->createInvalidResult($bindInstance, $bindInstance->createErrorMap());
 			}
 
 			$errorMap = $bindInstance->createErrorMap();
-			if (!$errorMap->isEmpty()) {
-				return BindResults::invalid($errorMap);
+			if ($errorMap->isEmpty()) {
+				continue;
 			}
+
+			return $this->createInvalidResult($bindInstance, $errorMap);
 		}
 
 		$resultValue = $this->bindTarget?->write($bindInstance->getBindables());
 
 		return BindResults::valid($resultValue);
+	}
+
+	private function createInvalidResult(BindInstance $bindInstance, ErrorMap $errorMap): BindResult {
+		if ($this->writeTargetOnFailure) {
+			return BindResults::invalidWithValue($errorMap, $this->bindTarget
+					?->write($bindInstance->getBindables()));
+		}
+
+		return BindResults::invalid($errorMap);
 	}
 }

@@ -46,7 +46,7 @@ class AttrsBindTarget implements BindTarget {
 		}
 
 		foreach ($bindables as $bindable) {
-			if (!$bindable->doesExist() || $bindable->isLogical()) {
+			if (!$bindable->doesExist() || $bindable->isLogical() || !$bindable->isValid() || $bindable->isDirty()) {
 				continue;
 			}
 
