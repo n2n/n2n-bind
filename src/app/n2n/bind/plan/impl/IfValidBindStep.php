@@ -16,7 +16,6 @@ class IfValidBindStep implements BindStep {
 	function exec(BindContext $bindContext, MagicContext $magicContext): BindStepResult {
 		foreach ($bindContext->unwarpBindInstance()->getBindables() as $bindable) {
 			if (!$bindable->isValid()) {
-				var_dump('FALSE!!');
 				return new BindStepResult(false);
 			}
 		}
