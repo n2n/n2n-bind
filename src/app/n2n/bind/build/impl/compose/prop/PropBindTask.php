@@ -23,7 +23,7 @@ use n2n\bind\plan\impl\IfValidBindStep;
 use n2n\bind\plan\impl\WriteBindStep;
 
 class PropBindTask extends PropBindComposer implements MagicTask {
-	private BindQueue $bindTask;
+	private BindQueue $bindQueue;
 
 	/**
 	 * @var \Closure[]
@@ -33,19 +33,19 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	function __construct(private BindSource $bindSource) {
 		parent::__construct(new MapBindStep());
 
-		$this->bindTask = new BindQueue($bindSource);
-		$this->bindTask->addBindStep($this->bindPlan);
+		$this->bindQueue = new BindQueue($bindSource);
+		$this->bindQueue->addBindStep($this->bindPlan);
 	}
 
 	function ifValid(): static {
-		$this->bindTask->addBindStep(new IfValidBindStep());
-		$this->bindTask->addBindStep($this->bindPlan = new MapBindStep());
+		$this->bindQueue->addBindStep(new IfValidBindStep());
+		$this->bindQueue->addBindStep($this->bindPlan = new MapBindStep());
 		return $this;
 	}
 
 	function write(): static  {
-		$this->bindTask->addBindStep(new WriteBindStep($this->bindTask));
-		$this->bindTask->addBindStep($this->bindPlan = new MapBindStep());
+		$this->bindQueue->addBindStep(new WriteBindStep($this->bindQueue));
+		$this->bindQueue->addBindStep($this->bindPlan = new MapBindStep());
 		return $this;
 	}
 
@@ -83,7 +83,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @return PropBindTask
 	 */
 	function to(BindTarget $target): static {
-		$this->bindTask->setBindTarget($target);
+		$this->bindQueue->setBindTarget($target);
 		return $this;
 	}
 
@@ -95,7 +95,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	function exec(?MagicContext $magicContext = null, mixed $input = null): BindResult {
 		$magicContext ??= MagicContexts::simple([]);
 
-		$bindResult = $this->bindTask->exec($magicContext, $input);
+		$bindResult = $this->bindQueue->exec($magicContext, $input);
 
 		if ($bindResult->isValid()) {
 			$this->triggerOnSuccessCallbacks($magicContext, $bindResult);
