@@ -38,16 +38,14 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	}
 
 	function ifValid(): static {
-		$this->bindTask->addBindStep($this->bindPlan);
 		$this->bindTask->addBindStep(new IfValidBindStep());
-		$this->bindPlan = new MapBindStep();
+		$this->bindTask->addBindStep($this->bindPlan = new MapBindStep());
 		return $this;
 	}
 
 	function write(): static  {
-		$this->bindTask->addBindStep($this->bindPlan);
 		$this->bindTask->addBindStep(new WriteBindStep($this->bindTask));
-		$this->bindPlan = new MapBindStep();
+		$this->bindTask->addBindStep($this->bindPlan = new MapBindStep());
 		return $this;
 	}
 
