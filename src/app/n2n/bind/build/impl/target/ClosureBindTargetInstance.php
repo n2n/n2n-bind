@@ -30,13 +30,21 @@ use n2n\util\type\ArgUtils;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\BindTargetInstance;
 
-class ClosureBindTarget implements BindTarget {
+class ClosureBindTargetInstance implements BindTargetInstance {
+
+	private TargetValueCompiler $targetValueCompiler;
+	private mixed $value = null;
 
 	function __construct(private readonly \Closure $closure) {
+		$this->targetValueCompiler = new TargetValueCompiler(false);
 	}
 
-	function next(): ClosureBindTargetInstance {
-		return new ClosureBindTargetInstance($this->closure);
+	function write(array $bindables): void {
+		$c = $this->closure;
+		$this->value = $c($this->targetValueCompiler->compile($bindables));
 	}
 
+	public function getValue() {
+		return $this->value;
+	}
 }
