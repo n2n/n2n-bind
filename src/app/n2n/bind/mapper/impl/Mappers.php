@@ -69,6 +69,7 @@ use n2n\bind\mapper\impl\compose\SubPropsForClassMapper;
 use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
 use n2n\bind\mapper\impl\string\ColorHexMapper;
 use n2n\bind\mapper\impl\op\DoIfMapper;
+use n2n\bind\mapper\impl\op\ValueIfNotExistsMapper;
 
 class Mappers {
 
@@ -470,6 +471,16 @@ class Mappers {
 
 	static function colorHex(bool $mandatory = false): ColorHexMapper {
 		return new ColorHexMapper($mandatory);
+	}
+
+	static function valueIfNotExists(mixed $value) {
+		if (!$value instanceof Closure) {
+			$value = function() use ($value) {
+				return $value;
+			};
+		}
+
+		return new ValueIfNotExistsMapper($value);
 	}
 
 	/**
