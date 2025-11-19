@@ -12,6 +12,7 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
+use n2n\util\type\attrs\AttributesException;
 
 class ValueIfNotExistsMapperTest extends TestCase {
 
@@ -43,6 +44,7 @@ class ValueIfNotExistsMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws UnresolvableBindableException
 	 * @throws BindMismatchException
+	 * @throws AttributesException
 	 */
 	function testAttrsValExists() {
 		$sdm = new DataMap(['holeradio' => 'hmm', 'hahaha' => 'hii']);

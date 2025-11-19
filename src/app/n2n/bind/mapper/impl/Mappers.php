@@ -473,14 +473,8 @@ class Mappers {
 		return new ColorHexMapper($mandatory);
 	}
 
-	static function valueIfNotExists(mixed $value) {
-		if (!$value instanceof Closure) {
-			$value = function() use ($value) {
-				return $value;
-			};
-		}
-
-		return new ValueIfNotExistsMapper($value);
+	static function valueIfNotExists(mixed $closureOrValue): ValueIfNotExistsMapper {
+		return new ValueIfNotExistsMapper($closureOrValue);
 	}
 
 	/**
