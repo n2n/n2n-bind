@@ -23,7 +23,6 @@ class ValueIfNotExistsMapper extends SingleMapperAdapter {
 		$invoker->setClosure($this->closureOrValue);
 		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
 		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
-		$invoker->setReturnTypeConstraint(TypeConstraints::bool());
 		return $invoker->invoke();
 	}
 
