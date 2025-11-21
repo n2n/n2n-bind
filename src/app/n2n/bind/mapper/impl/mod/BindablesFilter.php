@@ -26,4 +26,20 @@ class BindablesFilter {
 		}
 		return $bindables;
 	}
+
+	/**
+	 * @param AttributePath $path
+	 * @return Bindable[]
+	 */
+	function childrenOf(AttributePath $path): array {
+		$reqPathSize = $path->size() + 1;
+		$bindables = [];
+		foreach ($this->bindInstance->getBindables() as $key => $bindable) {
+			$bPath = $bindable->getPath();
+			if ($bPath->size() === $reqPathSize && $bPath->startsWith($path)) {
+				$bindables[$key] = $bindable;
+			}
+		}
+		return $bindables;
+	}
 }

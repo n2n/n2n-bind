@@ -33,7 +33,7 @@ class ValueIfNotExistsMapper extends SingleMapperAdapter {
 		}
 
 		$bindable->setExist(true);
-		$bindable->setValue( $this->obtainValue($bindBoundary, $magicContext));
+		$bindable->setValue($this->obtainValue($bindBoundary, $magicContext));
 
 		return true;
 	}

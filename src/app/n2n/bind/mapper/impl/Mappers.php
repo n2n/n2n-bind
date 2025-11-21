@@ -70,6 +70,7 @@ use n2n\bind\mapper\impl\compose\SubPropsFromClassMapper;
 use n2n\bind\mapper\impl\string\ColorHexMapper;
 use n2n\bind\mapper\impl\op\DoIfMapper;
 use n2n\bind\mapper\impl\op\ValueIfNotExistsMapper;
+use n2n\bind\mapper\impl\mod\ValueToSubValuesMapper;
 
 class Mappers {
 
@@ -201,6 +202,10 @@ class Mappers {
 	 */
 	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, true);
+	}
+
+	static function valueToSubValues(\Closure|array $subValuesClosureOrArray): ValueToSubValuesMapper {
+		return new ValueToSubValuesMapper($subValuesClosureOrArray);
 	}
 
 	/**
