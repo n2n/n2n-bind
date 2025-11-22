@@ -12,7 +12,7 @@ use n2n\util\magic\impl\MagicMethodInvoker;
 
 class ValueToSubValuesMapper extends SingleMapperAdapter {
 
-	public function __construct(private \Closure|array $subValuesClosureOrArray, private bool $chExistToFalse = true) {
+	public function __construct(private \Closure|array $subValuesClosureOrArray, private bool $chExistToFalse = false) {
 
 	}
 

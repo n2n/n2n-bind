@@ -16,7 +16,7 @@ class ValueToSubValuesMapperTest extends TestCase {
 	 */
 	function testClosure(): void {
 		$result = Bind::attrs(['prop1' => 'value1', 'prop2' => 'value2'])
-				->prop('prop1', Mappers::valueToSubValues(function (string $value) {
+				->logicalProp('prop1', Mappers::valueToSubValues(function (string $value) {
 					$this->assertSame('value1', $value);
 					return ['subProp1' => 'subValue1', 'subProp2' => 'subValue2'];
 				}))
@@ -35,7 +35,7 @@ class ValueToSubValuesMapperTest extends TestCase {
 	 */
 	function testArray(): void {
 		$result = Bind::attrs(['prop1' => 'value1', 'prop2' => 'value2'])
-				->prop('prop1', Mappers::valueToSubValues(['subProp1' => 'subValue1', 'subProp2' => 'subValue2']))
+				->logicalProp('prop1', Mappers::valueToSubValues(['subProp1' => 'subValue1', 'subProp2' => 'subValue2']))
 				->prop('prop2')
 				->toArray()
 				->exec();
