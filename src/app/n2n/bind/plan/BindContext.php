@@ -33,6 +33,10 @@ interface BindContext extends ValidationContext  {
 
 	function getValueByAbsolutePath(AttributePath|string|null $absolutePath = null, bool $mustExist = true): mixed;
 
+	function acquireBindable(string|array|AttributePath $relativePath): Bindable;
+
+	function acquireBindableByAbsoluteName(string|array|AttributePath $absolutePath): Bindable;
+
 	function unwarpBindInstance(): BindInstance;
 
 	function unwrapBindTargetInstance(): BindTargetInstance;

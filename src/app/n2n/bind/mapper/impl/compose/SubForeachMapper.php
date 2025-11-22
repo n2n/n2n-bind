@@ -28,7 +28,7 @@ class SubForeachMapper extends SingleMapperAdapter {
 				$bindBoundary->getBindContext()->unwrapBindTargetInstance());
 		foreach ($value as $fieldKey => $fieldValue) {
 			$bindBoundary = new BindBoundary($bindContext, []);
-			$bindBoundary->acquireBindableByRelativeName($fieldKey);
+			$bindBoundary->acquireBindable($fieldKey);
 			$result = (new PipeMapper($this->mappers))->map($bindBoundary, $magicContext);
 			if (!$result->isOk()) {
 				return $result;

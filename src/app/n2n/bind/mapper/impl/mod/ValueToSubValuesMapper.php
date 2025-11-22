@@ -33,8 +33,9 @@ class ValueToSubValuesMapper extends SingleMapperAdapter {
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$values = $this->obtainSubValues($bindable, $bindBoundary, $magicContext);
 
+		$bindContext = $bindBoundary->getBindContext();
 		foreach ($values as $name => $value) {
-			$subBindable = $bindBoundary->acquireBindableByAbsoluteName($bindable->getPath()->ext($name));
+			$subBindable = $bindContext->acquireBindableByAbsoluteName($bindable->getPath()->ext($name));
 			$subBindable->setValue($value);
 			$subBindable->setExist(true);
 		}

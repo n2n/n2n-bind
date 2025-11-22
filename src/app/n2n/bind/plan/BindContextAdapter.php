@@ -5,6 +5,7 @@ namespace n2n\bind\plan;
 use n2n\util\type\attrs\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
+use n2n\util\ex\IllegalStateException;
 
 abstract class BindContextAdapter implements BindContext {
 
@@ -42,6 +43,19 @@ abstract class BindContextAdapter implements BindContext {
 		$bindable = $this->bindInstance->createBindable($attributePath, $mustExist);
 		$bindable->setLogical(true);
 		return $bindable?->getValue();
+	}
+
+	function acquireBindable(string|array|AttributePath $relativePath): Bindable {
+		$path = $this->getPath()->ext(AttributePath::create($relativePath));
+
+		return $this->acquireBindableByAbsoluteName($path);
+	}
+
+	function acquireBindableByAbsoluteName(string|array|AttributePath $absolutePath): Bindable {
+		$path = AttributePath::create($absolutePath);
+
+		return $this->bindInstance->getBindable($path) ??
+				IllegalStateException::try(fn () => $this->bindInstance->createBindable($path, false));
 	}
 
 	function unwarpBindInstance(): BindInstance {

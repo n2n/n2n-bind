@@ -66,17 +66,23 @@ class BindBoundary {
 	}
 
 
-	function acquireBindableByRelativeName(string|array|AttributePath $relativeName): Bindable {
+	function acquireBindable(string|array|AttributePath $relativeName): Bindable {
 		$name = $this->bindContext->getPath()->ext(AttributePath::create($relativeName));
 
 		return $this->acquireBindableByAbsoluteName($name);
 	}
 
-	function acquireBindableByAbsoluteName(string|array|AttributePath $relativeName): Bindable {
-		$name = AttributePath::create($relativeName);
+	/**
+	 * @deprecated use {@link self::acquireBindable()}
+	 */
+	function acquireBindableByRelativeName(string|array|AttributePath $relativeName): Bindable {
+		return self::acquireBindable($relativeName);
+	}
 
-		$bindable = $this->bindInstance->getBindable($name) ??
-				IllegalStateException::try(fn () => $this->bindInstance->createBindable($name, false));
+	function acquireBindableByAbsoluteName(string|array|AttributePath $absoluteName): Bindable {
+		$attributePath = AttributePath::create($absoluteName);
+
+		$bindable = $this->bindContext->acquireBindableByAbsoluteName($attributePath);
 
 		$this->addBindable($bindable);
 

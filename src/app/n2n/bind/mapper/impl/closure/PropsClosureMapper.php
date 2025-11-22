@@ -48,7 +48,7 @@ class PropsClosureMapper extends MultiMapperAdapter {
 		}
 
 		foreach ($returnValuesMap as $relativeName => $value) {
-			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindableByRelativeName($relativeName);
+			$bindable = $bindablesMap[$relativeName] ?? $bindBoundary->acquireBindable($relativeName);
 			$bindable->setValue($value);
 			unset($bindablesMap[$relativeName]);
 			$bindable->setExist(true);
