@@ -148,26 +148,35 @@ class Mappers {
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return PropsClosureMapper
+	 * @deprecated use {@link self::values()}
 	 */
 	public static function propsClosure(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, MultiMapMode::ALWAYS);
 	}
 
-	/**
-	 * @param Closure $closure
-	 * @return PropsClosureMapper
-	 */
-	public static function propsClosureAny(Closure $closure): PropsClosureMapper {
-		return new PropsClosureMapper($closure, MultiMapMode::ANY_BINDABLE_MUST_BE_PRESENT);
+	public static function values(Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, MultiMapMode::ALWAYS);
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return PropsClosureMapper
+	 * @deprecated use {@link self::valuesAny()}
+	 */
+	public static function propsClosureAny(Closure $closure): PropsClosureMapper {
+		return self::valuesAny($closure);
+	}
+
+	static function valuesAny(Closure $closure): PropsClosureMapper {
+		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_BE_PRESENT);
+	}
+
+	/**
+	 * @deprecated use {@link self::valuesEvery()}
 	 */
 	public static function propsClosureEvery(Closure $closure): PropsClosureMapper {
+		return self::valuesEvery($closure);
+	}
+
+	static function valuesEvery(Closure $closure): PropsClosureMapper {
 		return new PropsClosureMapper($closure, MultiMapMode::EVERY_BINDABLE_MUST_BE_PRESENT);
 	}
 
@@ -189,18 +198,28 @@ class Mappers {
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return ValueClosureMapper
+	 * @deprecated use {@link self::values()}
 	 */
 	public static function valueClosure(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, false);
+	}
+
+	public static function value(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, false);
+	}
+
+	/**
+	 * @deprecated use {@link self::valueIfNotNull()}
+	 */
+	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
+		return new ValueClosureMapper($closure, true);
 	}
 
 	/**
 	 * @param Closure $closure
 	 * @return ValueClosureMapper
 	 */
-	public static function valueNotNullClosure(Closure $closure): ValueClosureMapper {
+	public static function valueIfNotNull(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, true);
 	}
 
@@ -209,26 +228,35 @@ class Mappers {
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return BindableClosureMapper
+	 * @deprecated use {@link self::bindable()}
 	 */
 	static function bindableClosure(Closure $closure, bool $nonExistingSkipped = true, bool $dirtySkipped = true): BindableClosureMapper {
+		return self::bindable($closure, $nonExistingSkipped, $dirtySkipped);
+	}
+
+	static function bindable(Closure $closure, bool $nonExistingSkipped = true, bool $dirtySkipped = true): BindableClosureMapper {
 		return new BindableClosureMapper($closure, false, $nonExistingSkipped, $dirtySkipped);
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return BindableClosureMapper
+	 * @deprecated use {@link self::bindableIfNotNull()}
 	 */
 	static function bindableNotNullClosure(Closure $closure): BindableClosureMapper {
+		return self::bindableIfNotNull($closure);
+	}
+
+	static function bindableIfNotNull(Closure $closure): BindableClosureMapper {
 		return new BindableClosureMapper($closure, true);
 	}
 
 	/**
-	 * @param Closure $closure
-	 * @return BindablesClosureMapper
+	 * @deprecated use {@link self::bindables()}
 	 */
 	static function bindablesClosure(Closure $closure): BindablesClosureMapper {
+		return new BindablesClosureMapper($closure);
+	}
+
+	static function bindables(Closure $closure): BindablesClosureMapper {
 		return new BindablesClosureMapper($closure);
 	}
 
