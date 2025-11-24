@@ -65,7 +65,7 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	 * @param $value
 	 * @return PropBindTask
 	 */
-	function toValue(&$value): static {
+	function toValue(&$value = null): static {
 		return $this->to(new RefBindTarget($value, false));
 	}
 
