@@ -57,13 +57,13 @@ class DateMapper extends SingleMapperAdapter {
 		}
 
 		if ($this->min !== null) {
-			$validators[] = Validators::valueClosure(fn ($date) => $date >= $this->min
+			$validators[] = Validators::valueClosure(fn ($date) => $date->isGreaterThanOrEqualTo($this->min)
 					? true
 					: ValidationMessages::notEarlierThan(L10nUtils::formatDate($this->min->toDateTimeImmutable(), $n2nLocale)));
 		}
 
 		if ($this->max !== null) {
-			$validators[] = Validators::valueClosure(fn($date) => $date <= $this->max
+			$validators[] = Validators::valueClosure(fn($date) => $date->isLessThanOrEqualTo($this->max)
 					? true
 					: ValidationMessages::notLaterThan(L10nUtils::formatDate($this->max->toDateTimeImmutable(), $n2nLocale)));
 		}

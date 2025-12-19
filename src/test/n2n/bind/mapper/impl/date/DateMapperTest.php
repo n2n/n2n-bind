@@ -79,6 +79,21 @@ class DateMapperTest extends TestCase {
 	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 */
+	public function testDateBeforeMax(): void {
+		$this->sdm->set('date', new Date('2001-01-20'));
+		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
+				->props(['date'], Mappers::date(false, null, new Date('2020-12-19')))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($result->isValid());
+	}
+
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
 	public function testDateAfterMax(): void {
 		$this->sdm->set('date', new Date('2023-12-12'));
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
