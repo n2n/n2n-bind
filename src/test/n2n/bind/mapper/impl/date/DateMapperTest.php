@@ -13,6 +13,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\type\attrs\InvalidAttributeException;
 use n2n\util\type\attrs\MissingAttributeFieldException;
 use n2n\util\calendar\Date;
+use n2n\util\type\attrs\AttributesException;
 
 class DateMapperTest extends TestCase {
 	private DataMap $sdm;
@@ -200,6 +201,38 @@ class DateMapperTest extends TestCase {
 		$this->sdm->set('date', null);
 		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
 				->props(['date'], Mappers::date(true, null, null))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
+		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
+		$this->assertEmpty($this->tdm->toArray());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 * @throws AttributesException
+	 */
+	public function testDateMapperNullMinMax(): void {
+		$this->sdm->set('date', null);
+		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
+				->props(['date'], Mappers::date(false, new Date('2023-10-01'), new Date('2023-10-01')))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($result->isValid());
+		$this->assertNull($this->tdm->req('date'));
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	public function testDateMapperNullMandatoryMinMax(): void {
+		$this->sdm->set('date', null);
+		$result = Bind::attrs($this->sdm)->toAttrs($this->tdm)
+				->props(['date'], Mappers::date(true, new Date('2023-10-01'), new Date('2023-10-01')))
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
