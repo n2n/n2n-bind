@@ -35,7 +35,7 @@ class CleanStringMapper extends SingleMapperAdapter {
 	/**
 	 * @return Validator[]
 	 */
-	private function createValidators() {
+	private function createValidators(): array {
 		$validators = [];
 
 		if ($this->mandatory) {

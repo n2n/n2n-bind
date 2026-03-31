@@ -3,9 +3,7 @@
 namespace n2n\bind\mapper\impl\enum;
 
 use n2n\bind\plan\Bindable;
-use n2n\bind\plan\BindContext;
 use n2n\util\magic\MagicContext;
-use n2n\validation\plan\ValidationGroup;
 use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
@@ -33,13 +31,12 @@ class EnumMapper extends SingleMapperAdapter {
 	/**
 	 * @return Validator[]
 	 */
-	private function createValidators() {
+	private function createValidators(): array {
 		$validators = [];
 
 		if ($this->mandatory) {
 			$validators[] = Validators::mandatory();
 		}
-
 		return $validators;
 	}
 }
