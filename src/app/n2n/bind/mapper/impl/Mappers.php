@@ -198,7 +198,7 @@ class Mappers {
 	}
 
 	/**
-	 * @deprecated use {@link self::values()}
+	 * @deprecated use {@link self::value()}
 	 */
 	public static function valueClosure(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, false);
