@@ -46,6 +46,10 @@ class PhoneMapper extends SingleMapperAdapter {
 	static function normalizeStr(string $phone): string {
 		// we normalize as much as possible, trim, and clean String. normalize whitespaces by replace them with a space
 		// remove unnecessary double whitespaces and the space between + and country-code
-		return preg_replace(['/^00/', '/\\+\\s/', '/\\s+/'], ['+', '+', ' '], StringUtils::clean(($phone)));
+		// parentheses are allowed input but only kept when optional (0) is after country-code
+		$phone = preg_replace(['/^00/', '/\\+\\s/', '/\\s+/'], ['+', '+', ' '], StringUtils::clean(($phone)));
+
+		preg_match('/^(\+\d{1,3} ?\(0\))?(.*)/', $phone, $matches);
+		return $matches[1] . str_replace(['(', ')'], '', $matches[2]);
 	}
 }
