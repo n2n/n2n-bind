@@ -20,10 +20,7 @@ class PhoneMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		if ($value !== null) {
-			//we normalize as much as possible, trim, and clean String. normalize whitespaces by replace them with a space
-			// remove unnecessary double whitespaces and the space between + and country-code
-			$bindable->setValue(preg_replace(['/^00/', '/\\+\\s/', '/\\s+/'], ['+', '+', ' '],
-					StringUtils::clean(($value))));
+			$bindable->setValue(self::normalizeStr($value));
 		}
 
 		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
@@ -44,5 +41,11 @@ class PhoneMapper extends SingleMapperAdapter {
 		$validators[] = Validators::phone();
 
 		return $validators;
+	}
+
+	static function normalizeStr(string $phone): string {
+		// we normalize as much as possible, trim, and clean String. normalize whitespaces by replace them with a space
+		// remove unnecessary double whitespaces and the space between + and country-code
+		return preg_replace(['/^00/', '/\\+\\s/', '/\\s+/'], ['+', '+', ' '], StringUtils::clean(($phone)));
 	}
 }
