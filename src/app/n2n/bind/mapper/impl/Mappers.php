@@ -71,16 +71,10 @@ use n2n\bind\mapper\impl\string\ColorHexMapper;
 use n2n\bind\mapper\impl\op\DoIfMapper;
 use n2n\bind\mapper\impl\op\ValueIfNotExistsMapper;
 use n2n\bind\mapper\impl\mod\ValueToSubValuesMapper;
+use n2n\bind\mapper\impl\string\PhoneMapper;
 
 class Mappers {
 
-	/**
-	 * @param bool $mandatory
-	 * @param int|null $minlength
-	 * @param int|null $maxlength
-	 * @param bool $simpleWhitespacesOnly
-	 * @return CleanStringMapper
-	 */
 	static function cleanString(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255,
 			bool $simpleWhitespacesOnly = true): CleanStringMapper {
 		return new CleanStringMapper($mandatory, $minlength, $maxlength, $simpleWhitespacesOnly);
@@ -94,31 +88,14 @@ class Mappers {
 //		throw new NotYetImplementedException();
 //	}
 
-	/**
-	 * @param bool $mandatory
-	 * @param int|null $min
-	 * @param int|null $max
-	 * @return IntMapper
-	 */
 	static function int(bool $mandatory = false, ?int $min = -100000, ?int $max = 100000): IntMapper {
 		return new IntMapper($mandatory, $min, $max);
 	}
 
-	/**
-	 * @param bool $mandatory
-	 * @param float|null $min
-	 * @param float|null $max
-	 * @param float|null $step
-	 * @return FloatMapper
-	 */
 	static function float(bool $mandatory = false, ?float $min = -100000, ?float $max = 100000, ?float $step = 0.01): FloatMapper {
 		return new FloatMapper($mandatory, $min, $max, $step);
 	}
 
-	/**
-	 * @param TypeConstraint $typeConstraint
-	 * @return TypeMapper
-	 */
 	static function type(TypeConstraint $typeConstraint): TypeMapper {
 		return new TypeMapper($typeConstraint);
 	}
@@ -127,21 +104,14 @@ class Mappers {
 		return new TypeMapper($typeConstraint, true);
 	}
 
-	/**
-	 * @param bool $mandatory
-	 * @return EmailMapper
-	 */
 	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
 	}
 
-	/**
-	 * @param bool $mandatory
-	 * @param array|null $allowedSchemas
-	 * @param bool $schemeRequired
-	 * @param int $maxLength
-	 * @return UrlMapper
-	 */
+	static function phone(bool $mandatory = false): PhoneMapper {
+		return new PhoneMapper($mandatory);
+	}
+
 	static function url(bool $mandatory = false, ?array $allowedSchemas = ['https', 'http'], bool $schemeRequired = true,
 			int $maxLength = 2048): UrlMapper {
 		return new UrlMapper($mandatory, $allowedSchemas, $schemeRequired, $maxLength);
@@ -215,10 +185,6 @@ class Mappers {
 		return new ValueClosureMapper($closure, true);
 	}
 
-	/**
-	 * @param Closure $closure
-	 * @return ValueClosureMapper
-	 */
 	public static function valueIfNotNull(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, true);
 	}
@@ -269,12 +235,6 @@ class Mappers {
 	}
 
 
-	/**
-	 * @param bool $mandatory
-	 * @param \DateTimeInterface|null $min
-	 * @param \DateTimeInterface|null $max
-	 * @return DateTimeMapper
-	 */
 	public static function dateTime(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
 	}
