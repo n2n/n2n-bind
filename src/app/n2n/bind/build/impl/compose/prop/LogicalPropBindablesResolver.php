@@ -24,7 +24,7 @@ namespace n2n\bind\build\impl\compose\prop;
 use n2n\bind\plan\BindablesResolver;
 use n2n\bind\plan\Bindable;
 use n2n\util\type\ArgUtils;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\bind\plan\BindSource;
 use n2n\bind\plan\BindContext;
 use n2n\bind\err\UnresolvableBindableException;

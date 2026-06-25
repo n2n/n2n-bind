@@ -2,7 +2,7 @@
 
 namespace n2n\bind\mapper\impl\string;
 
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
-use n2n\util\type\attrs\InvalidAttributeException;
-use n2n\util\type\attrs\MissingAttributeFieldException;
+use n2n\util\attr\InvalidAttributeException;
+use n2n\util\attr\MissingAttributeFieldException;
 
 class PhoneMapperTest extends TestCase {
 

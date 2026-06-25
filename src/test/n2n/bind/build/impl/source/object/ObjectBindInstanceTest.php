@@ -22,7 +22,7 @@
 namespace n2n\bind\build\impl\source\object;
 
 use PHPUnit\Framework\TestCase;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\BindException;

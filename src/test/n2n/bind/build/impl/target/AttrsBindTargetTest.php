@@ -3,7 +3,7 @@
 namespace n2n\bind\build\impl\target;
 
 use n2n\bind\build\impl\Bind;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 use PHPUnit\Framework\TestCase;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindTargetException;

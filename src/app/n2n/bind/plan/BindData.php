@@ -23,15 +23,15 @@ namespace n2n\bind\plan;
 
 use n2n\util\type\TypeConstraint;
 
-use n2n\util\type\attrs\AttributePath;
-use n2n\util\type\attrs\DataMap;
-use n2n\util\type\attrs\AttributeReader;
-use n2n\util\type\attrs\AttributesException;
-use n2n\util\type\attrs\AttributeWriter;
+use n2n\util\attr\AttributePath;
+use n2n\util\attr\DataMap;
+use n2n\util\attr\AttributeReader;
+use n2n\util\attr\AttributesException;
+use n2n\util\attr\AttributeWriter;
 use n2n\bind\err\BindException;
-use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\attr\InvalidAttributeException;
 use n2n\bind\err\BindMismatchException;
-use n2n\util\type\attrs\MissingAttributeFieldException;
+use n2n\util\attr\MissingAttributeFieldException;
 use n2n\bind\err\UnresolvableBindableException;
 
 class BindData implements AttributeReader, AttributeWriter {
@@ -49,7 +49,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \n2n\util\type\attrs\AttributeReader::containsAttribute()
+	 * @see \n2n\util\attr\AttributeReader::containsAttribute()
 	 */
 	function containsAttribute(AttributePath $path): bool {
 		return $this->has($path);
@@ -61,7 +61,7 @@ class BindData implements AttributeReader, AttributeWriter {
 	 * use {@link self::req()} instead.
 	 * 
 	 * {@inheritDoc}
-	 * @see \n2n\util\type\attrs\AttributeReader::readAttribute()
+	 * @see \n2n\util\attr\AttributeReader::readAttribute()
 	 */
 	function readAttribute(AttributePath $path, ?TypeConstraint $typeConstraint = null, bool $mandatory = true,
 			mixed $defaultValue = null): mixed {

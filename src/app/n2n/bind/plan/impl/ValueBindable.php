@@ -21,7 +21,7 @@
  */
 namespace n2n\bind\plan\impl;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 
 class ValueBindable extends BindableAdapter {
 	private mixed $origValue;

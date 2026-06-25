@@ -24,7 +24,7 @@ namespace n2n\bind\build\impl\source\object;
 use n2n\bind\build\impl\source\BindableFactoryAdapter;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\reflection\property\PropertyAccessException;
 use n2n\reflection\property\UnknownPropertyException;
 use n2n\util\type\TypeUtils;

@@ -8,7 +8,7 @@ use n2n\reflection\magic\MagicMethodInvoker;
 use n2n\bind\plan\BindData;
 use n2n\util\type\TypeConstraints;
 use n2n\bind\mapper\impl\SingleMapperAdapter;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 use n2n\bind\plan\Bindable;
 use n2n\bind\mapper\MapResult;
 

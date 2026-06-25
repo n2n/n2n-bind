@@ -27,7 +27,7 @@ use n2n\bind\plan\BindSource;
 use n2n\bind\plan\Bindable;
 use n2n\validation\plan\ErrorMap;
 use n2n\util\ex\IllegalStateException;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\util\type\ArgUtils;
 use n2n\bind\build\impl\Bind;
 use n2n\bind\plan\BindableFactory;

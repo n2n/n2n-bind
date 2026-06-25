@@ -31,7 +31,7 @@ use n2n\util\type\ValueIncompatibleWithConstraintsException;
 use n2n\reflection\property\AccessProxy;
 use n2n\util\type\TypeName;
 use n2n\reflection\property\PropertyValueTypeMismatchException;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\util\type\TypeConstraints;
 use n2n\util\ex\IllegalStateException;
 use n2n\reflection\property\PropertyAccessException;

@@ -21,12 +21,12 @@
  */
 namespace n2n\bind\build\impl\source;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\bind\plan\Bindable;
 use n2n\bind\plan\impl\ValueBindable;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\plan\BindData;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 
 class StaticBindableFactory extends BindableFactoryAdapter {
 

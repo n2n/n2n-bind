@@ -2,7 +2,7 @@
 
 namespace n2n\bind\mapper;
 
-use n2n\util\type\attrs\InvalidAttributeException;
+use n2n\util\attr\InvalidAttributeException;
 
 class MapResult {
 

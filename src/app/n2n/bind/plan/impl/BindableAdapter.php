@@ -21,7 +21,7 @@
  */
 namespace n2n\bind\plan\impl;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\bind\plan\Bindable;
 use n2n\validation\plan\impl\ValidatableAdapter;
 use n2n\l10n\Lstr;

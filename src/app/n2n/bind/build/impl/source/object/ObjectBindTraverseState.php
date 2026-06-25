@@ -1,7 +1,7 @@
 <?php
 namespace n2n\bind\build\impl\source\object;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 
 class ObjectBindTraverseState {
 	private array $traversedSegments = [];

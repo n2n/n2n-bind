@@ -2,7 +2,7 @@
 
 namespace n2n\bind\mapper\impl\mod;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\util\type\ArgUtils;
 
 class BindableValuesMerger {

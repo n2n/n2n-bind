@@ -6,7 +6,7 @@ use n2n\bind\build\impl\Bind;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use PHPUnit\Framework\TestCase;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 use InvalidArgumentException;
 use n2n\util\magic\TaskInputMismatchException;
 use n2n\bind\err\BindTargetException;

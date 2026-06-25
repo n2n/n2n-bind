@@ -9,7 +9,7 @@ use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\plan\BindBoundary;
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 
 /**
  * this will test {@link DoIfMapper} and it's different params or options

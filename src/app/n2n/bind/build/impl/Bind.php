@@ -21,8 +21,8 @@
  */
 namespace n2n\bind\build\impl;
 
-use n2n\util\type\attrs\DataMap;
-use n2n\util\type\attrs\AttributeReader;
+use n2n\util\attr\DataMap;
+use n2n\util\attr\AttributeReader;
 use n2n\bind\plan\BindSource;
 use n2n\bind\build\impl\compose\prop\PropBindTask;
 use n2n\bind\build\impl\compose\union\UnionBindComposer;

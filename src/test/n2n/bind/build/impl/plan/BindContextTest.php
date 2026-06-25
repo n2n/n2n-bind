@@ -9,8 +9,8 @@ use n2n\bind\plan\BindContext;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
-use n2n\util\type\attrs\AttributePath;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\AttributePath;
+use n2n\util\attr\DataMap;
 
 class BindContextTest extends TestCase {
 

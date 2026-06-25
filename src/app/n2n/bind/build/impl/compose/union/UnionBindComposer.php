@@ -32,7 +32,7 @@ use n2n\bind\plan\BindSource;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
-use n2n\util\type\attrs\AttributeWriter;
+use n2n\util\attr\AttributeWriter;
 use n2n\bind\build\impl\target\AttrsBindTarget;
 use n2n\bind\build\impl\target\RefBindTarget;
 use n2n\bind\build\impl\target\ClosureBindTarget;

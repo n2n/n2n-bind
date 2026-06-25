@@ -22,7 +22,7 @@
 namespace n2n\bind\build\impl;
 
 use PHPUnit\Framework\TestCase;
-use n2n\util\type\attrs\DataMap;
+use n2n\util\attr\DataMap;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\validation\build\impl\EmptyMagicContext;
 use n2n\util\magic\MagicContext;
@@ -30,8 +30,8 @@ use n2n\validation\validator\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\magic\TaskInputMismatchException;
-use n2n\util\type\attrs\InvalidAttributeException;
-use n2n\util\type\attrs\MissingAttributeFieldException;
+use n2n\util\attr\InvalidAttributeException;
+use n2n\util\attr\MissingAttributeFieldException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\ex\IllegalStateException;

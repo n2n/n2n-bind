@@ -2,7 +2,7 @@
 
 namespace n2n\bind\plan\impl;
 
-use n2n\util\type\attrs\AttributePath;
+use n2n\util\attr\AttributePath;
 use n2n\l10n\Message;
 use n2n\bind\plan\BindContextAdapter;
 use n2n\bind\plan\BindInstance;
