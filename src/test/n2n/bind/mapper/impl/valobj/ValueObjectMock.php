@@ -10,7 +10,7 @@ use n2n\bind\mapper\Mapper;
 use n2n\bind\attribute\impl\Unmarshal;
 use n2n\spec\valobj\scalar\StringValueObject;
 
-class ValueObjectMock implements StringValueObject {
+class ValueObjectMock implements StringValueObject, \Stringable {
 
 	function __construct(private readonly string $value) {
 		IllegalValueException::assertTrue(ValidationUtils::isEmail($this->value),
@@ -28,6 +28,10 @@ class ValueObjectMock implements StringValueObject {
 	}
 
 	function toScalar(): string {
+		return $this->value;
+	}
+
+	public function __toString(): string {
 		return $this->value;
 	}
 }

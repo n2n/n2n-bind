@@ -26,23 +26,33 @@ use n2n\util\attr\DataMap;
 use n2n\bind\mapper\impl\Mappers;
 use n2n\util\magic\MagicContext;
 use n2n\bind\build\impl\Bind;
+use n2n\bind\err\BindMismatchException;
+use n2n\bind\err\UnresolvableBindableException;
+use n2n\bind\mapper\impl\valobj\ValueObjectMock;
 
 class CleanStringMapperTest extends TestCase {
 
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testAttrs() {
 		$this->assertFalse(ctype_print("\x06"));
 
-		$sdm = new DataMap(['firstname' => 'Tester' . "\x06" . 'ich ' , 'lastname' => 'von  ' . "\t" . 'Testen ' . "\r\n"]);
+		$sdm = new DataMap(['firstname' => 'Tester' . "\x06" . 'ich ' , 'lastname' => 'von  ' . "\t" . 'Testen ' . "\r\n",
+				'valObjEmail' => new ValueObjectMock('holeradio@hnm.ch')]);
 		$tdm = new DataMap();
 
-		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['firstname', 'lastname'], Mappers::cleanString())
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->props(['firstname', 'lastname', 'valObjEmail'], Mappers::cleanString())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
 
 		$this->assertEquals('Testerich', $tdm->reqString('firstname'));
 		$this->assertEquals('von Testen', $tdm->reqString('lastname'));
+		$this->assertEquals('holeradio@hnm.ch', $tdm->reqString('valObjEmail'));
 	}
 
 	function testAttrsValFail() {
