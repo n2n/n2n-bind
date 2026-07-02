@@ -21,7 +21,7 @@ class CleanStringMapper extends SingleMapperAdapter {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
+		$value = $this->readSafeValue($bindable, TypeConstraints::type(['string', \Stringable::class, null]));
 
 		if ($value !== null) {
 			$bindable->setValue(StringUtils::clean($value, $this->simpleWhitespacesOnly));
