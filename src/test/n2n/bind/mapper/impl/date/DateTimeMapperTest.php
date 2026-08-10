@@ -15,6 +15,7 @@ use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\validation\plan\ErrorMap;
 use n2n\l10n\N2nLocale;
+use Stringable;
 
 class DateTimeMapperTest extends TestCase {
 	private DataMap $sdm;
@@ -420,6 +421,27 @@ class DateTimeMapperTest extends TestCase {
 
 		$this->assertTrue($result->isValid());
 		$this->assertNull($this->tdm->req('date'));
+	}
+
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	public function testDateTimeStringableConversion(): void {
+		$stringableMock = new class implements Stringable {
+			public function __toString(): string {
+				return '2010-01-01 00:00:00';
+			}
+		};
+
+		$this->sdm->set('date', $stringableMock);
+		$result = $this->performMapping();
+
+		$this->assertTrue($result->isValid());
+		$this->assertInstanceOf(\DateTime::class, $this->tdm->req('date'));
+		$this->assertEquals(new \DateTime('2010-01-01 00:00:00'), $this->tdm->req('date'));
 	}
 
 	/**
