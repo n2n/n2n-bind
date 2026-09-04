@@ -18,6 +18,7 @@ use n2n\validation\validator\impl\ValidationUtils;
 use InvalidArgumentException;
 use n2n\l10n\Message;
 use n2n\bind\plan\BindBoundary;
+use n2n\bind\mapper\impl\Mappers;
 
 
 class PathPartMapper extends SingleMapperAdapter {
@@ -40,7 +41,7 @@ class PathPartMapper extends SingleMapperAdapter {
 	 * @param bool $mandatory validation will fail, if true when Bindable and $generationIfNullBaseName are null
 	 */
 	public function __construct(?Closure $uniqueTester, private ?string $generationIfNullBaseName,
-			private ?int $minlength, private ?int $maxlength, private bool $mandatory = false) {
+			private ?int $minlength, private ?int $maxlength, private bool $mandatory = false, private bool $lowerCase = true) {
 		$this->uniqueTester = $uniqueTester;
 		$this->validateBoundaryArgs();
 	}
@@ -85,10 +86,12 @@ class PathPartMapper extends SingleMapperAdapter {
 	}
 
 	function setFillStr(string $fillStr): static {
-		$fillStr = StringUtils::clean($fillStr);
-		ArgUtils::assertTrue(ValidationUtils::isLowerCaseOnly($fillStr) && !IoUtils::hasSpecialChars($fillStr)
-				&& ValidationUtils::isNotShorterThan($fillStr, 1),
-				'Invalid fill str, make sure it is lowercase, contains no specialChars and is at least 1 char long: ' . $fillStr);
+		$fillStr = IoUtils::stripSpecialChars(StringUtils::clean($fillStr));
+		if ($this->lowerCase) {
+			$fillStr = mb_strtolower($fillStr);
+		}
+		ArgUtils::assertTrue(ValidationUtils::isNotShorterThan($fillStr, 1),
+				'Invalid fill str, make sure it is at least 1 char long: ' . $fillStr);
 		$this->fillStr = $fillStr;
 		return $this;
 	}
@@ -112,7 +115,17 @@ class PathPartMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		if ($value !== null) {
-			$bindable->setValue(mb_strtolower(StringUtils::clean($value)));
+			$noSpecialCharsMapper = Mappers::noSpecialChars($this->mandatory, $this->lowerCase, $this->minlength, $this->maxlength);
+			$noSpecialCharsMapper->setMandatoryErrorMessage($this->mandatoryErrorMessage);
+			$noSpecialCharsMapper->setMaxlengthErrorMessage($this->maxlengthErrorMessage);
+			$noSpecialCharsMapper->setMinlengthErrorMessage($this->minlengthErrorMessage);
+			$noSpecialCharsMapper->setNoSpecialCharsErrorMessage($this->noSpecialCharsErrorMessage);
+			$noSpecialCharsMapper->map($bindBoundary, $magicContext);
+			$cleanValue = $noSpecialCharsMapper->readSafeValue($bindable, TypeConstraints::string(true));
+			if (StringUtils::isEmpty($cleanValue)) {
+				$cleanValue = null;
+			}
+			$bindable->setValue($cleanValue);
 			$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 			return true;
 		}
@@ -121,45 +134,14 @@ class PathPartMapper extends SingleMapperAdapter {
 			$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 			return true;
 		}
-
-		$bindable->setValue($this->generatePathPart($this->generationIfNullBaseName, $magicContext));
+		$genericGeneratedValueMapper = Mappers::generateAlternateValue($this->minlength ?? 3, $this->maxlength ?? 63,
+				$this->generationIfNullBaseName, $this->fillStr, $this->uniqueTester);
+		$genericGeneratedValueMapper->setLowerCase(true)->map($bindBoundary, $magicContext);
+		$genericValue = $genericGeneratedValueMapper->readSafeValue($bindable, TypeConstraints::string(true));
+		$bindable->setValue($genericValue);
 
 		$this->validate($bindable, $bindBoundary->getBindContext(), $magicContext);
 		return true;
-	}
-
-	private function generatePathPart(string $baseName, MagicContext $magicContext): ?string {
-		$value = mb_strtolower(IoUtils::stripSpecialChars(StringUtils::clean($baseName)));
-		if (StringUtils::isEmpty($value)) {
-			$value = $this->fillStr;
-		}
-
-		if ($this->minlength !== null) {
-			while (mb_strlen($value) < $this->minlength) {
-				$value .= '-' . $this->fillStr;
-			}
-		}
-
-		$value = StringUtils::reduce($value, $this->maxlength);
-
-		if ($this->uniqueTester === null) {
-			return $value;
-		}
-
-		$invoker = new MagicMethodInvoker($magicContext);
-		$invoker->setReturnTypeConstraint(TypeConstraints::bool());
-
-		$valueBase = $value;
-
-		for ($i = 2; !$invoker->invoke(null, $this->uniqueTester, [$value]); $i++) {
-			$value = StringUtils::reduce($valueBase, $this->maxlength - (mb_strlen($i) + 1)) . '-' . $i;
-
-			if ($i > 9999) {
-				return null;
-			}
-		}
-
-		return $value;
 	}
 
 	private function createValidators(): array {

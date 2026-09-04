@@ -24,10 +24,11 @@ class PhoneMapperTest extends TestCase {
 	 */
 	function testAttrs() {
 		$sdm = new DataMap(['phone1' => '+49 (0)228-997799-0', 'phone2' => ' + 41 52 
-				233 79 77 ', 'phone3' => ' 079  123  45  67 ', 'phone4' => ' 0041 79  123  45  67 ']);
+				233 79 77 ', 'phone3' => ' 079  123  45  67 ', 'phone4' => ' 0041 79  123  45  67 ',
+				'phone5' => '+49\ 228/9977990']);
 		$tdm = new DataMap();
 
-		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['phone1', 'phone2', 'phone3', 'phone4'], Mappers::phone(true))
+		$result = Bind::attrs($sdm)->toAttrs($tdm)->props(['phone1', 'phone2', 'phone3', 'phone4', 'phone5'], Mappers::phone(true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -36,6 +37,7 @@ class PhoneMapperTest extends TestCase {
 		$this->assertEquals('+41 52 233 79 77', $tdm->reqString('phone2'));
 		$this->assertEquals('079 123 45 67', $tdm->reqString('phone3'));
 		$this->assertEquals('+41 79 123 45 67', $tdm->reqString('phone4'));
+		$this->assertEquals('+49 228 9977990', $tdm->reqString('phone5'));
 	}
 
 	/**

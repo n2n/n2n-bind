@@ -72,6 +72,11 @@ use n2n\bind\mapper\impl\op\DoIfMapper;
 use n2n\bind\mapper\impl\op\ValueIfNotExistsMapper;
 use n2n\bind\mapper\impl\mod\ValueToSubValuesMapper;
 use n2n\bind\mapper\impl\string\PhoneMapper;
+use n2n\bind\mapper\impl\closure\UniqueMapper;
+use n2n\bind\mapper\impl\string\NoSpecialCharsMapper;
+use n2n\bind\mapper\impl\string\GenericGeneratedValueMapper;
+use n2n\spec\valobj\scalar\StringValueObject;
+use Stringable;
 
 class Mappers {
 
@@ -257,7 +262,22 @@ class Mappers {
 
 	static function pathPart(?Closure $uniqueTester, ?string $generationIfNullBaseName, bool $mandatory = false,
 			?int $minlength = 3, ?int $maxlength = 150): PathPartMapper {
-		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory);
+		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory, true);
+	}
+
+	static function noSpecialChars(bool $mandatory = false, bool $lowercase = true, ?int $minlength = 1,
+			?int $maxlength = 255): NoSpecialCharsMapper {
+		return new NoSpecialCharsMapper($mandatory, $lowercase, $minlength, $maxlength);
+	}
+
+	static function unique(Closure $uniqueTester): UniqueMapper {
+		return new UniqueMapper($uniqueTester);
+	}
+
+	static function generateAlternateValue(int $minlength = 3, int $maxlength = 63,
+			StringValueObject|Stringable|string|null $generationIfNullBaseName = null,
+			string $fillStr = 'path', ?Closure $uniqueTester = null): GenericGeneratedValueMapper {
+		return new GenericGeneratedValueMapper($minlength, $maxlength, $generationIfNullBaseName, $fillStr, $uniqueTester);
 	}
 
 	static function pipe(Mapper|Validator ...$mappers): PipeMapper {

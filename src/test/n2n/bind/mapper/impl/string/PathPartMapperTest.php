@@ -12,15 +12,20 @@ use n2n\util\magic\TaskInputMismatchException;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
+use n2n\util\attr\InvalidAttributeException;
+use n2n\util\attr\MissingAttributeFieldException;
 
 class PathPartMapperTest extends TestCase {
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
 	 */
 	function testAttrs() {
 		//pathPart is always changed to lowercase (GenerationIfNullBaseName would make other automatic changes, see other tests)
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'Asdf', 'pathPart3' => ' ', 'pathPart4' => 'abc']);
+		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'Asdf', 'pathPart3' => '§§ ', 'pathPart4' => 'abc']);
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart3', 'pathPart4'],
@@ -29,9 +34,9 @@ class PathPartMapperTest extends TestCase {
 
 		$this->assertTrue($result->isValid());
 
-		$this->assertEquals(null, $tdm->reqString('pathPart1', true));
+		$this->assertSame(null, $tdm->reqString('pathPart1', true));
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2'));
-		$this->assertEquals('', $tdm->reqString('pathPart3'));
+		$this->assertSame(null, $tdm->reqString('pathPart3', true));
 		$this->assertEquals('abc', $tdm->reqString('pathPart4'));
 	}
 
@@ -60,8 +65,8 @@ class PathPartMapperTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('pathPart3')->getMessages()); //more chars than max allows
 		$this->assertEquals('Maxlength [maxlength = 8]', $errorMap->getChild('pathPart3')->jsonSerialize()['messages'][0]); //max violation
 
-		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains special chars
-		$this->assertEquals('Special Chars', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
+		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains only special chars that where removed which will end in empty string
+		$this->assertEquals('Mandatory', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
 
 		$this->assertCount(1, $errorMap->getChild('pathPart5')->getMessages()); //path already used, unique fails
 		$this->assertEquals('Already Taken', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
@@ -288,24 +293,10 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('awaytolo-2', $tdm->reqString('pathPart6')); //reduced to max, added num count for unique
 	}
 
-	function testSetFillStrViolationUppercase() {
-		//error message is the same for all setFillStr violations, but fail for different reasons
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('Hoi');
-	}
-
-	function testSetFillStrViolationSpecialChar() {
-		//error message is the same for all setFillStr violations, but fail for different reasons
-		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('H§oi');
-	}
 
 	function testSetFillStrViolationToShort() {
-		//error message is the same for all setFillStr violations, but fail for different reasons
 		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessageMatches('/lowercase.*specialChars.*long/i');
+		$this->expectExceptionMessageMatches('/Invalid fill str, make sure it is at least.*long/i');
 		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('');
 	}
 
@@ -355,8 +346,8 @@ class PathPartMapperTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('pathPart3')->getMessages()); //more chars than max allows
 		$this->assertEquals('CustomErrorMessage max', $errorMap->getChild('pathPart3')->jsonSerialize()['messages'][0]); //max violation
 
-		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains special chars
-		$this->assertEquals('CustomErrorMessage noSpecial', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
+		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains only special chars that where removed which will end in empty string
+		$this->assertEquals('CustomErrorMessage req', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
 
 		$this->assertCount(1, $errorMap->getChild('pathPart5')->getMessages()); //path already used, unique fails
 		$this->assertEquals('CustomErrorMessage unique', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
