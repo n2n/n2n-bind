@@ -8,7 +8,7 @@ use n2n\bind\mapper\Mapper;
 use n2n\bind\attribute\impl\Unmarshal;
 use n2n\spec\valobj\scalar\StringValueObject;
 
-class StringValObjMock implements StringValueObject {
+class StringValObjMock implements StringValueObject, \Stringable {
 
 	function __construct(private readonly string $value) {
 	}
@@ -24,6 +24,10 @@ class StringValObjMock implements StringValueObject {
 	}
 
 	function toScalar(): string {
+		return $this->value;
+	}
+
+	function __toString(): string {
 		return $this->value;
 	}
 

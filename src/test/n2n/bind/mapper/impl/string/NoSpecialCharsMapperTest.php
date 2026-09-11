@@ -42,7 +42,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 
 		$this->assertTypeSafeEquals(null, $tdm->reqString('noSpecialChars1', true));
 		$this->assertTypeSafeEquals('jkloe', $tdm->reqString('noSpecialChars2'));
-		$this->assertTypeSafeEquals('', $tdm->reqString('noSpecialChars3'));
+		$this->assertNull($tdm->reqString('noSpecialChars3', true));
 		$this->assertTypeSafeEquals(new StringValObjMock('abc'), $tdm->reqStringValueObject('noSpecialChars4', StringValObjMock::class));
 		$this->assertTypeSafeEquals('abc', $tdm->reqString('noSpecialChars4'));
 		$this->assertTypeSafeEquals('cba', $tdm->reqString('noSpecialChars5'));

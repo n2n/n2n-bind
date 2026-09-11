@@ -14,7 +14,6 @@ use n2n\validation\validator\impl\Validators;
 use n2n\util\io\IoUtils;
 use InvalidArgumentException;
 use n2n\l10n\Message;
-use n2n\spec\valobj\scalar\StringValueObject;
 
 class NoSpecialCharsMapper extends SingleMapperAdapter {
 	private ?Message $mandatoryErrorMessage = null;
@@ -30,16 +29,19 @@ class NoSpecialCharsMapper extends SingleMapperAdapter {
 	}
 
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
-		$value = $this->readSafeValue($bindable, TypeConstraints::type(['string', \Stringable::class, StringValueObject::class, null]));
-		$value = StringUtils::strOrNullOf($value);
-		$cleanValue = null;
+		$value = $this->readSafeValue($bindable, TypeConstraints::string(true, true));
 		if ($value !== null) {
-			$cleanValue = IoUtils::stripSpecialChars(StringUtils::clean($value));
-			if ($this->lowerCase && $cleanValue !== null) {
-				$cleanValue = mb_strtolower($cleanValue);
+			$value = IoUtils::stripSpecialChars($value, true);
+			if ($this->lowerCase) {
+				$value = mb_strtolower($value);
 			}
 		}
-		$bindable->setValue($cleanValue);
+
+		if ($value === '') {
+			$value = null;
+		}
+
+		$bindable->setValue($value);
 		MapperUtils::validate([$bindable], $this->createValidators(), $bindBoundary->getBindContext(), $magicContext);
 
 		return true;
