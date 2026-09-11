@@ -26,7 +26,8 @@ class DateMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type([Date::class, 'string', 'null']));
 
 		if (is_string($value) && null === ($value = $this->convertStrToDate($value, $bindable))) {
-			return false;
+			$bindable->addError(ValidationMessages::dateFormat());
+			return true;
 		}
 
 		$bindable->setValue($value);
