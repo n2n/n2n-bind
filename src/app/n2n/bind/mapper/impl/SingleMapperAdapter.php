@@ -74,7 +74,7 @@ abstract class SingleMapperAdapter extends MapperAdapter {
 	 * @param Bindable $bindable
 	 * @param BindBoundary $bindBoundary
 	 * @param MagicContext $magicContext
-	 * @return MapResult|bool
+	 * @return MapResult|bool false aborts the whole mapping process and should be used with caution. See {@link self::map()} return docs for further information.
 	 * @throws BindMismatchException <a href="psi_element://Mapper::map()">Mapper::map()</a>
 	 * @throws UnresolvableBindableException
 	 */
