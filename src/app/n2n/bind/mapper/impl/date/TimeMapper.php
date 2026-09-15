@@ -27,7 +27,8 @@ class TimeMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type([Time::class, 'string', 'null']));
 
 		if (is_string($value) && null === ($value = $this->convertStrToTime($value, $bindable))) {
-			return false;
+			$bindable->addError(ValidationMessages::timeFormat());
+			return true;
 		}
 
 		$bindable->setValue($value);

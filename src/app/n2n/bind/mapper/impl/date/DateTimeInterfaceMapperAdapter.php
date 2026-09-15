@@ -29,7 +29,8 @@ abstract class DateTimeInterfaceMapperAdapter extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::type([DateTimeInterface::class, 'string', 'null'], true));
 
 		if (is_string($value) && null === ($value = $this->convertStrToDateTime($value, $bindable))) {
-			return false;
+			$bindable->addError(ValidationMessages::dateTimeFormat());
+			return true;
 		}
 
 		if ($value !== null) {
