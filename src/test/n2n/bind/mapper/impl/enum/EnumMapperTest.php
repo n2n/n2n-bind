@@ -13,6 +13,7 @@ use n2n\util\attr\InvalidAttributeException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\util\attr\MissingAttributeFieldException;
 use n2n\bind\err\BindTargetException;
+use n2n\util\type\custom\Undefined;
 
 class EnumMapperTest extends TestCase {
 	/**
@@ -51,6 +52,40 @@ class EnumMapperTest extends TestCase {
 		$this->assertTrue($result->isValid());
 
 		$this->assertNull($tdm->req('timezone'));
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	function testEnumMandatoryOnNull() {
+		$sdm = new DataMap(['timezone' => null]);
+		$val = Undefined::val();
+
+		$result = Bind::attrs($sdm)->toValue($val)
+				->props(['timezone'], Mappers::enum(MockEnum::class, true))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertFalse($result->isValid());
+		$this->assertInstanceOf(Undefined::class, $val);
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	function testEnumNoMandatoryOnNull() {
+		$sdm = new DataMap(['timezone' => null]);
+		$val = Undefined::val();
+
+		$result = Bind::attrs($sdm)->toValue($val)
+				->props(['timezone'], Mappers::enum(MockEnum::class, false))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertTrue($result->isValid());
+		$this->assertNull($val);
 	}
 
 	/**

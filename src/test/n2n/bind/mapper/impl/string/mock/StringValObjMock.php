@@ -15,12 +15,15 @@ class StringValObjMock implements StringValueObject, \Stringable {
 
 	#[Marshal]
 	static function marshalMapper(): Mapper {
-		return Mappers::valueClosure(fn (StringValObjMock $mock) => $mock->toScalar());
+		return Mappers::value(fn (StringValObjMock $mock) => $mock->toScalar());
 	}
 
 	#[Unmarshal]
 	static function unmarshalMapper(): Mapper {
-		return Mappers::pipe(Mappers::noSpecialChars());
+		$class = new \ReflectionClass(static::class);
+		return Mappers::pipe(
+				Mappers::cleanString(),
+				Mappers::valueIfNotNull(fn(string $value) => $class->newInstance($value)));
 	}
 
 	function toScalar(): string {

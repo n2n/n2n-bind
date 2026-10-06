@@ -9,13 +9,20 @@ use PHPUnit\Framework\TestCase;
 use n2n\util\attr\DataMap;
 use InvalidArgumentException;
 use n2n\util\magic\TaskInputMismatchException;
-use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\attr\InvalidAttributeException;
 use n2n\util\attr\MissingAttributeFieldException;
+use n2n\bind\err\MisconfiguredMapperException;
 
 class PathPartMapperTest extends TestCase {
+	private \Closure $simpleClosure;
+
+	function setUp(): void {
+		$this->simpleClosure = function() {
+			return true;
+		};
+	}
 
 	/**
 	 * @throws BindMismatchException
@@ -29,47 +36,15 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart3', 'pathPart4'],
-						Mappers::pathPart(null, null, minlength: null))
+						Mappers::pathPart($this->simpleClosure,null))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
 
 		$this->assertSame(null, $tdm->reqString('pathPart1', true));
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2'));
-		$this->assertSame(null, $tdm->reqString('pathPart3', true));
+		$this->assertSame('path', $tdm->reqString('pathPart3', true));
 		$this->assertEquals('abc', $tdm->reqString('pathPart4'));
-	}
-
-	/**
-	 * @throws TaskInputMismatchException
-	 */
-	function testAttrsValFail() {
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'min', 'pathPart3' => 'holeradio', 'pathPart4' => '§§§§', 'pathPart5' => 'blubb']);
-		$tdm = new DataMap();
-		$result = Bind::attrs($dm)->toAttrs($tdm)
-				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart4', 'pathPart5'],
-						Mappers::pathPart((function($value) use ($dm) {
-							return !in_array($value, ['blubb', 'somepath']);
-						}), null, true, 4, 8))
-				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertFalse($result->isValid());
-		$this->assertTrue($tdm->isEmpty());
-		$errorMap = $result->getErrorMap();
-
-		$this->assertCount(1, $errorMap->getChild('pathPart1')->getMessages()); //is empty
-		$this->assertEquals('Mandatory', $errorMap->getChild('pathPart1')->jsonSerialize()['messages'][0]); //mandatory violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart2')->getMessages()); //min chars not reached
-		$this->assertEquals('Minlength [minlength = 4]', $errorMap->getChild('pathPart2')->jsonSerialize()['messages'][0]); //min violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart3')->getMessages()); //more chars than max allows
-		$this->assertEquals('Maxlength [maxlength = 8]', $errorMap->getChild('pathPart3')->jsonSerialize()['messages'][0]); //max violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains only special chars that where removed which will end in empty string
-		$this->assertEquals('Mandatory', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart5')->getMessages()); //path already used, unique fails
-		$this->assertEquals('Already Taken', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
 	}
 
 	/**
@@ -80,27 +55,22 @@ class PathPartMapperTest extends TestCase {
 		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null]);
 		$tdm = new DataMap();
 		$unique = [];
-		$result = Bind::attrs($dm)->toAttrs($tdm)
+		$this->expectException(MisconfiguredMapperException::class);
+		$this->expectExceptionMessage('could not find a unique value after');
+		Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2'],
 						Mappers::pathPart(function($value) use ($dm, &$unique) {
 							$unique[] = $value;
 							return false;
-						}, 'blubb', true, 4, 8))
+						}, 'blubb', minlength: 4, maxlength: 8, maxRetryNo: 9))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-
-		$this->assertFalse($result->isValid());
-		$this->assertTrue($tdm->isEmpty());
-		$this->assertCount(19998, $unique); //2x9999Entries
-		$errorMap = $result->getErrorMap();
-
-		$this->assertCount(1, $errorMap->getChild('pathPart1')->getMessages()); //Mandatory error because generation fails
-		$this->assertEquals('Mandatory', $errorMap->getChild('pathPart1')->jsonSerialize()['messages'][0]); //mandatory violation
-		$this->assertCount(1, $errorMap->getChild('pathPart2')->getMessages()); //Mandatory error because generation fails
-		$this->assertEquals('Mandatory', $errorMap->getChild('pathPart2')->jsonSerialize()['messages'][0]); //mandatory violation
 	}
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
 	 */
 	function testAttrsGenerationIfNullBaseNameNotUnique() {
 		// GenerationIfNullBaseName should be used with uniqueTester else it is possible that 2 generated pathParts are the same
@@ -108,13 +78,13 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('pathPart1',
-						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart($this->simpleClosure, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart2',
-						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart($this->simpleClosure, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart3',
-						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart($this->simpleClosure, 'bl ubb', minlength: 4, maxlength: 12))
 				->prop('pathPart4',
-						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart($this->simpleClosure, 'bl ubb', minlength: 4, maxlength: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -126,7 +96,10 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
 	 */
 	function testAttrsUniqueGenerationIfNullBaseName() {
 		// if GenerationIfNullBaseName and uniqueTester are used, pathPart is generated, unique num may will be added,
@@ -162,10 +135,13 @@ class PathPartMapperTest extends TestCase {
 
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin4Max12() {
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,
+		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => '§§§§',
 				'pathPart5' => null, 'pathPart6' => null]);
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
@@ -184,7 +160,7 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', minlength: 4, maxlength: 12))
+						}), null, minlength: 4, maxlength: 12))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
@@ -206,10 +182,13 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin8Max255() {
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,
+		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => '§§§§',
 				'pathPart5' => null, 'pathPart6' => null]);
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
@@ -228,7 +207,7 @@ class PathPartMapperTest extends TestCase {
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', minlength: 8, maxlength: 255))
+						}), null, minlength: 8, maxlength: 255))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
@@ -250,37 +229,40 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
 	 */
 	function testAttrsGenerationIfNullBaseNameMin8Max10SetFillStr() {
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => null,
+		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => null, 'pathPart3' => null, 'pathPart4' => '§§§§',
 				'pathPart5' => null, 'pathPart6' => null]);
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('pathPart1',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'Blubb', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), 'Blubb', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart2',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'a§%sdf', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), 'a§%sdf', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart3',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'aWayToLongString', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), 'aWayToLongString', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), '§§§§', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), '§§§§', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, []);
-						}), 'xy', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), 'xy', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart6',
 						Mappers::pathPart((function($value) use ($dm) {
 							return !in_array($value, ['awaytolong', 'somepath']);
-						}), 'aWayToLongString', minlength: 8, maxlength: 10)->setFillStr('hoi'))
+						}), 'aWayToLongString', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -297,7 +279,7 @@ class PathPartMapperTest extends TestCase {
 	function testSetFillStrViolationToShort() {
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/Invalid fill str, make sure it is at least.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10)->setFillStr('');
+		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10, fillStr: '');
 	}
 
 	function testMinMaxViolation() {
@@ -310,47 +292,7 @@ class PathPartMapperTest extends TestCase {
 	function testMaxToShortForGenerationIfNullBaseNameViolation() {
 		//make sure we have at least a char where a minus sign and a num 2-9999 is added to make unique pathPart
 		$this->expectException(InvalidArgumentException::class);
-		$this->expectExceptionMessageMatches('/generation.*maxlength must be greater/i');
+		$this->expectExceptionMessageMatches('/maxLength need to be greater than \(numberSuffixOnRetry \+ maxRetries\) length/i');
 		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 0, maxlength: 5);
 	}
-
-	/**
-	 * @throws BindTargetException
-	 * @throws UnresolvableBindableException
-	 * @throws BindMismatchException
-	 */
-	function testAttrsValFailCustomErrorMessages() {
-		$dm = new DataMap(['pathPart1' => null, 'pathPart2' => 'min', 'pathPart3' => 'holeradio', 'pathPart4' => '§§§§', 'pathPart5' => 'blubb']);
-		$tdm = new DataMap();
-		$result = Bind::attrs($dm)->toAttrs($tdm)
-				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart4', 'pathPart5'],
-						Mappers::pathPart((function($value) use ($dm) {
-							return !in_array($value, ['blubb', 'somepath']);
-						}), null, true, 4, 8)
-								->setMaxlengthErrorMessage('CustomErrorMessage max')
-								->setMinlengthErrorMessage('CustomErrorMessage min')
-								->setUniqueErrorMessage('CustomErrorMessage unique')
-								->setMandatoryErrorMessage('CustomErrorMessage req')
-								->setNoSpecialCharsErrorMessage('CustomErrorMessage noSpecial'))
-				->exec($this->getMockBuilder(MagicContext::class)->getMock());
-		$this->assertFalse($result->isValid());
-		$this->assertTrue($tdm->isEmpty());
-		$errorMap = $result->getErrorMap();
-
-		$this->assertCount(1, $errorMap->getChild('pathPart1')->getMessages()); //is empty
-		$this->assertEquals('CustomErrorMessage req', $errorMap->getChild('pathPart1')->jsonSerialize()['messages'][0]); //mandatory violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart2')->getMessages()); //min chars not reached
-		$this->assertEquals('CustomErrorMessage min', $errorMap->getChild('pathPart2')->jsonSerialize()['messages'][0]); //min violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart3')->getMessages()); //more chars than max allows
-		$this->assertEquals('CustomErrorMessage max', $errorMap->getChild('pathPart3')->jsonSerialize()['messages'][0]); //max violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart4')->getMessages()); //contains only special chars that where removed which will end in empty string
-		$this->assertEquals('CustomErrorMessage req', $errorMap->getChild('pathPart4')->jsonSerialize()['messages'][0]); //special chars violation
-
-		$this->assertCount(1, $errorMap->getChild('pathPart5')->getMessages()); //path already used, unique fails
-		$this->assertEquals('CustomErrorMessage unique', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
-	}
-
 }

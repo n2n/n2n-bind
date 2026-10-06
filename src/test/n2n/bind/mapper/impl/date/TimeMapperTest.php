@@ -138,7 +138,7 @@ class TimeMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Time Format', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
 		$this->assertNull($this->tdm->opt('time'));
 	}
 

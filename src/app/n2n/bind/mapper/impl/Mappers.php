@@ -37,7 +37,6 @@ use n2n\bind\mapper\impl\date\DateTimeMapper;
 use n2n\bind\mapper\impl\l10n\N2nLocaleMapper;
 use n2n\bind\mapper\impl\numeric\FloatMapper;
 use n2n\bind\mapper\impl\date\DateTimeImmutableMapper;
-use n2n\bind\mapper\impl\string\PathPartMapper;
 use n2n\bind\mapper\Mapper;
 use n2n\bind\mapper\impl\compose\SubPropsMapper;
 use n2n\bind\mapper\impl\compose\FromBindDataClosureMapper;
@@ -72,11 +71,11 @@ use n2n\bind\mapper\impl\op\DoIfMapper;
 use n2n\bind\mapper\impl\op\ValueIfNotExistsMapper;
 use n2n\bind\mapper\impl\mod\ValueToSubValuesMapper;
 use n2n\bind\mapper\impl\string\PhoneMapper;
-use n2n\bind\mapper\impl\closure\UniqueMapper;
 use n2n\bind\mapper\impl\string\NoSpecialCharsMapper;
-use n2n\bind\mapper\impl\string\GenericGeneratedValueMapper;
-use n2n\spec\valobj\scalar\StringValueObject;
-use Stringable;
+use n2n\bind\mapper\impl\pipe\ChangeUntilValidMapper;
+use n2n\bind\mapper\impl\string\mock\RetryValueChangers;
+use n2n\util\StringUtils;
+use n2n\bind\mapper\impl\pipe\RetryValueChanger;
 
 class Mappers {
 
@@ -194,7 +193,7 @@ class Mappers {
 		return new ValueClosureMapper($closure, true);
 	}
 
-	static function valueToSubValues(\Closure|array $subValuesClosureOrArray): ValueToSubValuesMapper {
+	static function valueToSubValues(Closure|array $subValuesClosureOrArray): ValueToSubValuesMapper {
 		return new ValueToSubValuesMapper($subValuesClosureOrArray);
 	}
 
@@ -260,9 +259,12 @@ class Mappers {
 		return new N2nLocaleMapper($mandatory, $allowedValues);
 	}
 
-	static function pathPart(?Closure $uniqueTester, ?string $generationIfNullBaseName, bool $mandatory = false,
-			?int $minlength = 3, ?int $maxlength = 150): PathPartMapper {
-		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory, true);
+	static function pathPart(Closure $uniqueTester, ?string $fallBackValue, int $minlength = 3, int $maxlength = 63,
+			string $fillStr = 'path', int $maxRetryNo = 9999): ChangeUntilValidMapper {
+		$retryValueChanger = RetryValueChangers::uniquePathPart(fallBack: $fallBackValue, closure: $uniqueTester,
+				min: $minlength, max: $maxlength, fillStr: $fillStr, maxRetryNo: $maxRetryNo);
+		return self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
+				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
 	}
 
 	static function noSpecialChars(bool $mandatory = false, bool $lowercase = true, ?int $minlength = 1,
@@ -270,14 +272,9 @@ class Mappers {
 		return new NoSpecialCharsMapper($mandatory, $lowercase, $minlength, $maxlength);
 	}
 
-	static function unique(Closure $uniqueTester): UniqueMapper {
-		return new UniqueMapper($uniqueTester);
-	}
-
-	static function generateAlternateValue(int $minlength = 3, int $maxlength = 63,
-			StringValueObject|Stringable|string|null $generationIfNullBaseName = null,
-			string $fillStr = 'path', ?Closure $uniqueTester = null): GenericGeneratedValueMapper {
-		return new GenericGeneratedValueMapper($minlength, $maxlength, $generationIfNullBaseName, $fillStr, $uniqueTester);
+	static function changeUntilValid(RetryValueChanger $retryValueChanger, Mapper|Validator ... $mappers): ChangeUntilValidMapper {
+		$mappers = ValidatorMapper::convertValidators($mappers);
+		return new ChangeUntilValidMapper($retryValueChanger, $mappers);
 	}
 
 	static function pipe(Mapper|Validator ...$mappers): PipeMapper {
@@ -338,7 +335,7 @@ class Mappers {
 	/**
 	 * Merges values of descendant Bindables as to an object into the current Bindable and removes them.
 	 */
-	static function subMergeToObject(\Closure $objCallbackClosure): SubMergeToObjectMapper {
+	static function subMergeToObject(Closure $objCallbackClosure): SubMergeToObjectMapper {
 		return new SubMergeToObjectMapper($objCallbackClosure);
 	}
 
@@ -353,7 +350,7 @@ class Mappers {
 	 * 			});
 	 * </pre>
 	 */
-	static function fromBindDataClosure(\Closure $closure): FromBindDataClosureMapper {
+	static function fromBindDataClosure(Closure $closure): FromBindDataClosureMapper {
 		return new FromBindDataClosureMapper($closure);
 	}
 
@@ -369,7 +366,7 @@ class Mappers {
 	 * 			});
 	 * </pre>
 	 */
-	static function valueAsBindDataClosure(\Closure $closure): ValueAsBindDataClosureMapper {
+	static function valueAsBindDataClosure(Closure $closure): ValueAsBindDataClosureMapper {
 		return new ValueAsBindDataClosureMapper($closure);
 	}
 
@@ -413,7 +410,7 @@ class Mappers {
 		return self::doIfValueClosure(fn ($v) => $v !== null, $abort, $skipNextMappers, $chLogical);
 	}
 
-	static function doIfValueClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
+	static function doIfValueClosure(Closure $closure, bool $abort = false, bool $skipNextMappers = false,
 			?bool $chLogical = null, ?bool $chExists = null, bool $nonExistingSkipped = true,
 			bool $cascaded = false): DoIfSingleClosureMapper {
 		if ($chExists === true && $nonExistingSkipped === true) {
@@ -431,7 +428,7 @@ class Mappers {
 		return self::doIfBindableClosure(fn (Bindable $b) => !$b->isValid(), $abort, $skipNextMappers, $chLogical);
 	}
 
-	static function doIfBindableClosure(\Closure $closure, bool $abort = false, bool $skipNextMappers = false,
+	static function doIfBindableClosure(Closure $closure, bool $abort = false, bool $skipNextMappers = false,
 			?bool $chLogical = null, ?bool $chExists = null, bool $nonExistingSkipped = true,
 			bool $cascaded = false): DoIfSingleClosureMapper {
 		return self::doIfValueClosure($closure, $abort, $skipNextMappers, $chLogical, $chExists, $nonExistingSkipped,
@@ -439,29 +436,29 @@ class Mappers {
 				->setValueAsFirstArg(false);
 	}
 
-	static function deleteIfValueClosure(\Closure $closure, bool $cascaded = true): DoIfSingleClosureMapper {
+	static function deleteIfValueClosure(Closure $closure, bool $cascaded = true): DoIfSingleClosureMapper {
 		return self::doIfValueClosure($closure, chExists: false, cascaded: $cascaded);
 	}
 
-	static function deleteIfBindableClosure(\Closure $closure, bool $cascaded = true): DoIfSingleClosureMapper {
+	static function deleteIfBindableClosure(Closure $closure, bool $cascaded = true): DoIfSingleClosureMapper {
 		return self::doIfBindableClosure($closure, chExists: false, cascaded: $cascaded);
 	}
 
-	static function doIf(\Closure|bool $closureOrBool, bool $abort = false, bool $skipNextMappers = false,
+	static function doIf(Closure|bool $closureOrBool, bool $abort = false, bool $skipNextMappers = false,
 			?bool $chLogical = null, ?bool $chExists = null, bool $cascaded = false): DoIfMapper {
 		return (new DoIfMapper($closureOrBool, $abort, $skipNextMappers, $chLogical, $chExists))
 				->setCascaded($cascaded);
 	}
 
-	static function factoryClosure(\Closure $closure): FactoryClosureMapper  {
+	static function factoryClosure(Closure $closure): FactoryClosureMapper  {
 		return new FactoryClosureMapper($closure);
 	}
 
-	static function deleteIf(\Closure|bool $closureOrBool, bool $cascaded = true): DoIfMapper {
+	static function deleteIf(Closure|bool $closureOrBool, bool $cascaded = true): DoIfMapper {
 		return self::doIf($closureOrBool, chExists: false, cascaded: $cascaded);
 	}
 
-	static function mustExistIf(\Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {
+	static function mustExistIf(Closure|bool $closureOrBool, bool $elseChExistToFalse = false): MustExistIfMapper {
 		return new MustExistIfMapper($closureOrBool, $elseChExistToFalse);
 	}
 
@@ -497,7 +494,7 @@ class Mappers {
 	 * @return Mapper
 	 */
 	static function rename(array $propsMap): Mapper {
-		return self::propsClosure(function (array $props) use ($propsMap) {
+		return self::values(function (array $props) use ($propsMap) {
 			$newProps = [];
 			foreach ($propsMap as $oldName => $newName) {
 				if (array_key_exists($oldName, $props)) {

@@ -154,7 +154,7 @@ class DateMapperTest extends TestCase {
 				->exec($this->createMock(MagicContext::class));
 
 		$this->assertFalse($result->isValid());
-		$this->assertEquals('Invalid', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Date Format', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
 		$this->assertNull($this->tdm->opt('date'));
 	}
 

@@ -3,22 +3,25 @@
 namespace n2n\bind\mapper\impl;
 
 use PHPUnit\Framework\TestCase;
-use n2n\util\magic\TaskInputMismatchException;
 use n2n\util\attr\DataMap;
 use n2n\bind\build\impl\Bind;
 use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindMismatchException;
 use n2n\util\StringUtils;
 use n2n\bind\mapper\Mapper;
-use PHPUnit\Util\Xml\Validator;
 use n2n\validation\validator\impl\Validators;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\UnresolvableBindableException;
 use n2n\bind\mapper\MapResult;
+use n2n\util\attr\InvalidAttributeException;
+use n2n\util\attr\MissingAttributeFieldException;
 
 class PipeMapperTest extends TestCase {
 	/**
-	 * @throws TaskInputMismatchException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
 	 */
 	function testAttrs() {
 		//pipe mapper can chain multiple mapper, but count itself as single mapper
@@ -29,7 +32,7 @@ class PipeMapperTest extends TestCase {
 		$result = Bind::attrs($dataMap)->toAttrs($tdm)
 				->optProps(['clo1', 'clo2', 'clo3', 'clo4', 'clo5'],
 						Mappers::pipe(
-								Mappers::valueNotNullClosure((function($value) use ($dataMap) {
+								Mappers::valueIfNotNull((function($value) use ($dataMap) {
 									if ($value === true) {
 										return 'TRUE';
 									}
@@ -38,7 +41,7 @@ class PipeMapperTest extends TestCase {
 									}
 									return $value;
 								})),
-								Mappers::valueClosure((function($value) use ($dataMap) {
+								Mappers::value((function($value) use ($dataMap) {
 									if ($value === 'TRUE' || $value === 'FALSE') {
 										return $value;
 									}
@@ -112,7 +115,7 @@ class PipeMapperTest extends TestCase {
 				->optProps(['clo1', 'clo2', 'clo3'],
 						Mappers::pipe(
 								Mappers::cleanString(false, 8, 12),
-								Mappers::bindableClosure(function($bindable) use ($dataMap) {
+								Mappers::bindable(function($bindable) use ($dataMap) {
 									$bindable->setValue($bindable->getValue());
 									return false;
 								}),
@@ -154,7 +157,7 @@ class PipeMapperTest extends TestCase {
 		Bind::attrs($dataMap)->toAttrs($tdm)
 				->optProps(['clo1', 'clo2', 'clo3'],
 						Mappers::pipe(Mappers::cleanString(false, 8, 12),
-								Mappers::bindableClosure(function($bindable) use ($dataMap) {
+								Mappers::bindable(function($bindable) use ($dataMap) {
 									$bindable->setValue($bindable->getValue());
 									return true;
 								}),
@@ -163,6 +166,10 @@ class PipeMapperTest extends TestCase {
 	}
 
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testCrazy() {
 		//pipe inside pipe, string and closure mix convert to int :-D
 		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb', 'clo4' => 'blubber']);
@@ -173,12 +180,12 @@ class PipeMapperTest extends TestCase {
 						Mappers::pipe(
 								Mappers::pipe(
 										Mappers::cleanString(false, 3, 8),
-										Mappers::valueClosure((function($value) use ($dataMap) {
+										Mappers::value((function($value) use ($dataMap) {
 												return StringUtils::reduce($value . '§§§', 6);
 								}))),
 								Mappers::pipe(
 										Mappers::cleanString(true, 4, 6),
-										Mappers::bindableClosure(function($bindable) use ($dataMap) {
+										Mappers::bindable(function($bindable) use ($dataMap) {
 												$bindable->setValue(mb_strlen($bindable->getValue()));
 												return true;
 								})),
@@ -189,6 +196,10 @@ class PipeMapperTest extends TestCase {
 
 	}
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testValidatorAsPipeParam() {
 		//have validators instead of mappers inside pipe, because pipe can do that :-D
 		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'blubber@n2n.test']);
@@ -216,6 +227,10 @@ class PipeMapperTest extends TestCase {
 
 	}
 
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
 	function testMapperValidatorMix() {
 		//mappers and validators can given to pipe-mapper :-D
 		$dataMap = new DataMap(['clo1' => 'aaa', 'clo2' => 'blibla', 'clo3' => 'blubb@appagic.test', 'clo4' => 'bli@n2n.test']);

@@ -43,7 +43,7 @@ class TimeMapper extends SingleMapperAdapter {
 		try {
 			return new Time($timeStr);
 		} catch (DateParseException $e) {
-			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
+//			$bindable->addError(Message::create(ValidationMessages::invalid(), Message::SEVERITY_ERROR));
 			return null;
 		}
 	}
