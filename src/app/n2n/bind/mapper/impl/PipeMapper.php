@@ -18,6 +18,11 @@ class PipeMapper implements Mapper {
 		ArgUtils::valArray($this->mappers, Mapper::class);
 	}
 
+	function add(Mapper $mapper): static {
+		$this->mappers[] = $mapper;
+		return $this;
+	}
+
 	function map(BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		foreach ($this->mappers as $mapper) {
 			$mapResult = $mapper->map($bindBoundary, $magicContext);
