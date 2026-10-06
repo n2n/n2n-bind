@@ -62,6 +62,8 @@ class EmailMapperTest extends TestCase {
 	function testDocsUsage(): void {
 		$result = Bind::values(' Test@Testerich.ch ', null)->map(Mappers::email())->toArray()->exec();
 		var_dump($result->get());
+
+		$this->assertSame(['test@testerich.ch', null], $result->get());
 	}
 
 	/**

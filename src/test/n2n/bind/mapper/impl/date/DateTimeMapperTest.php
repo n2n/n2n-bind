@@ -472,6 +472,8 @@ class DateTimeMapperTest extends TestCase {
 	function testDocsUsage(): void {
 		$result = Bind::values('2023-12-13 12:04:12', null)->map(Mappers::dateTime())->toArray()->exec();
 		var_dump($result->get());
+
+		$this->assertEquals([new \DateTime('2023-12-13 12:04:12'), null], $result->get());
 	}
 
 	/**

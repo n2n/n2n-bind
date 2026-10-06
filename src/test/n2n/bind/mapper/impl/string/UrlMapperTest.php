@@ -225,4 +225,33 @@ class UrlMapperTest extends TestCase {
 
 		$this->assertFalse($result->isValid());
     }
+
+	function testDocsUsage(): void {
+		$result = Bind::values('https://example.com', null)->map(Mappers::url())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertEquals([Url::create('https://example.com'), null], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['url1' => 'invalid-url', 'url2' => 'ftp://example.com', 'url3' => null])
+				->props(['url1', 'url2', 'url3'], Mappers::url(true))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all url properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('url1')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('url2')->isEmpty()); // false due to disallowed scheme
+		var_dump($result->getErrorMap()->getChild('url3')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('url1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('url2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('url3')->isEmpty());
+	}
 } 

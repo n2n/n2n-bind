@@ -104,14 +104,23 @@ class Mappers {
 		return new TypeMapper($typeConstraint, true);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/email
+	 */
 	static function email(bool $mandatory = false): EmailMapper {
 		return new EmailMapper($mandatory);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/phone
+	 */
 	static function phone(bool $mandatory = false): PhoneMapper {
 		return new PhoneMapper($mandatory);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/url
+	 */
 	static function url(bool $mandatory = false, ?array $allowedSchemas = ['https', 'http'], bool $schemeRequired = true,
 			int $maxLength = 2048): UrlMapper {
 		return new UrlMapper($mandatory, $allowedSchemas, $schemeRequired, $maxLength);
@@ -245,6 +254,7 @@ class Mappers {
 	 * @param \DateTimeInterface|null $min
 	 * @param \DateTimeInterface|null $max
 	 * @return DateTimeMapper
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/datetime
 	 */
 	public static function dateTime(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
