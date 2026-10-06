@@ -215,6 +215,9 @@ class Mappers {
 		return self::bindable($closure, $nonExistingSkipped, $dirtySkipped);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/bindable
+	 */
 	static function bindable(Closure $closure, bool $nonExistingSkipped = true, bool $dirtySkipped = true): BindableClosureMapper {
 		return new BindableClosureMapper($closure, false, $nonExistingSkipped, $dirtySkipped);
 	}
@@ -226,6 +229,9 @@ class Mappers {
 		return self::bindableIfNotNull($closure);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/bindable
+	 */
 	static function bindableIfNotNull(Closure $closure): BindableClosureMapper {
 		return new BindableClosureMapper($closure, true);
 	}
