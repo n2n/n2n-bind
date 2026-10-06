@@ -275,6 +275,9 @@ class Mappers {
 		return new DateSqlMapper();
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/n2n-locale
+	 */
 	static function n2nLocale(bool $mandatory = false, ?array $allowedValues = null): N2nLocaleMapper {
 		return new N2nLocaleMapper($mandatory, $allowedValues);
 	}
