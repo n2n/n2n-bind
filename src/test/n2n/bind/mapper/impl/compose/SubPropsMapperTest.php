@@ -60,5 +60,35 @@ class SubPropsMapperTest extends TestCase {
 		$this->assertFalse($targetDataMap->has('sub/ignored'));
 	}
 
+	function testDocsUsage(): void {
+		$src = new DataMap(['sub' => ['huii' => 'bar', 'ignored' => '!!']]);
+		$target = new DataMap();
 
+		$result = Bind::attrs($src)->toAttrs($target)
+				->logicalProp('sub', Mappers::subProps()
+						->prop('huii', Mappers::value(fn ($v) => $v . '2')))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals('bar2', $target->req('sub/huii'));
+		$this->assertFalse($target->has('sub/ignored'));
+	}
+
+	function testDocsNested(): void {
+		$src = new DataMap(['holeradio' => 'foo', 'ignored' => '!!', 'sub' => ['huii' => 'bar', 'ignored' => '!!']]);
+		$target = new DataMap();
+
+		$result = Bind::attrs($src)->toAttrs($target)
+				->logicalRoot(Mappers::subProps()
+						->prop('holeradio', Mappers::value(fn ($v) => $v . '2'))
+						->logicalProp('sub', Mappers::subProps()
+								->prop('huii', Mappers::value(fn ($v) => $v . '2'))))
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals('foo2', $target->req('holeradio'));
+		$this->assertEquals('bar2', $target->req('sub/huii'));
+		$this->assertFalse($target->has('ignored'));
+		$this->assertFalse($target->has('sub/ignored'));
+	}
 }

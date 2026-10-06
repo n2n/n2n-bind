@@ -362,4 +362,22 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('CustomErrorMessage unique', $errorMap->getChild('pathPart5')->jsonSerialize()['messages'][0]); //unique violation
 	}
 
+	function testDocsUsage(): void {
+		$result = Bind::values('Asdf', null)->map(Mappers::pathPart(null, null))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['asdf', null], $result->get());
+	}
+
+	/**
+	 * @throws TaskInputMismatchException
+	 */
+	function testDocsGeneration(): void {
+		$result = Bind::values(null)->map(Mappers::pathPart(fn ($v) => true, 'Blubb', minlength: 8, maxlength: 12))
+				->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['blubb-path'], $result->get());
+	}
+
 }

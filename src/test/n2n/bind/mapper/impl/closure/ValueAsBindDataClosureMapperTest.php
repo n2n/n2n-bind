@@ -35,4 +35,16 @@ class ValueAsBindDataClosureMapperTest extends TestCase {
 		$this->assertEquals(['prop' => ['key1' => 'holeradio1', 'key2' => 'holeradio2']], $targetArr);
 	}
 
+	function testDocsUsage(): void {
+		$result = Bind::attrs(['prop' => ['key1' => 'value1', 'key2' => 'value2']])
+				->prop('prop', Mappers::valueAsBindDataClosure(function (BindData $bindData) {
+					return ['key1' => 'holeradio1', 'key2' => 'holeradio2'];
+				}))
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['prop' => ['key1' => 'holeradio1', 'key2' => 'holeradio2']], $result->get());
+	}
+
 }

@@ -54,5 +54,22 @@ class TypeMapperTest extends TestCase {
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
 
+	function testDocsUsage(): void {
+		$result = Bind::attrs(['userIds' => [1, 2, 3]])
+				->props(['userIds'], Mappers::type(TypeConstraints::array(false, 'int')))
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['userIds' => [1, 2, 3]], $result->get());
+	}
+
+	function testDocsNotNull(): void {
+		$result = Bind::values(null)->map(Mappers::typeNotNull(TypeConstraints::int()))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame([null], $result->get());
+	}
+
 
 }

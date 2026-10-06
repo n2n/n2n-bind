@@ -446,4 +446,19 @@ class DoIfSingleClosureMapperTest extends TestCase {
 
 		$this->assertSame(['prop' => 'holeradio-1', 'prop2' => 'blubb-1', 'prop3' => 'holeradio-1'], $result->get());
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsSkipNull(): void {
+		$result = Bind::attrs(['prop' => null])->prop('prop',
+				Mappers::doIfNull(skipNextMappers: true),
+				Mappers::value(fn (string $v) => $v . '-x'))
+				->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['prop' => null], $result->get());
+	}
 }

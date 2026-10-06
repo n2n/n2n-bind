@@ -191,4 +191,40 @@ class TimeMapperTest extends TestCase {
 		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('time')->jsonSerialize()['messages'][0]);
 		$this->assertEmpty($this->tdm->toArray());
 	}
+
+	public function testDocsUsage(): void {
+		$result = Bind::values('11:59', null)->map(Mappers::time())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals([new Time('11:59'), null], $result->get());
+	}
+
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	public function testDocsVal(): void {
+		$result = Bind::attrs([
+				't1' => null,
+				't2' => new Time('06:00:00'),
+				't3' => new Time('23:00:00'),
+			])
+				->props(['t1', 't2', 't3'], Mappers::time(true, new Time('08:00:00'), new Time('22:45:00')))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all time properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('t1')->isEmpty()); // false because mandatory
+		var_dump($result->getErrorMap()->getChild('t2')->isEmpty()); // false due to min
+		var_dump($result->getErrorMap()->getChild('t3')->isEmpty()); // false due to max
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('t1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('t2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('t3')->isEmpty());
+	}
 }

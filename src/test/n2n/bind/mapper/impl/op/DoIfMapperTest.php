@@ -229,5 +229,21 @@ class DoIfMapperTest extends TestCase {
 		$this->assertSame(['prop' => 'holeradio-1-1', 'prop2' => 'blubb-1-1', 'prop3' => 'holeradio-1-1'], $result->get());
 	}
 
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsAbort(): void {
+		$result = Bind::attrs(['prop' => 'holeradio'])->prop('prop',
+				Mappers::value(fn (string $v) => $v . '-1'),
+				Mappers::doIf(fn (BindBoundary $b) => true, abort: true),
+				Mappers::value(function () { /* never reached */ }))
+				->toArray()->exec();
+		var_dump($result->isValid()); // false
+
+		$this->assertFalse($result->isValid());
+	}
+
 
 }

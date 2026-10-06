@@ -120,4 +120,37 @@ class FloatMapperTest extends TestCase {
 
 
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values('20', null)->map(Mappers::float(min: 0, max: 100, step: 10))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertEquals([20.0, null], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['valuenull' => null, 'valuemin' => 0, 'value1' => 20, 'value2' => 60, 'valuemax' => 100])
+				->props(['valuenull', 'valuemin', 'value1', 'value2', 'valuemax'],
+						Mappers::float(mandatory: true, min: 20, max: 80, step: 30))
+				->toArray()
+				->exec();
+
+		// result will be invalid; each value reports its first violated rule.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('valuenull')->jsonSerialize()['messages'][0]); // "Mandatory"
+		var_dump($result->getErrorMap()->getChild('valuemin')->jsonSerialize()['messages'][0]);  // "Min [min = 20]"
+		var_dump($result->getErrorMap()->getChild('value1')->jsonSerialize()['messages'][0]);    // "Step [step = 30]"
+		var_dump($result->getErrorMap()->getChild('valuemax')->jsonSerialize()['messages'][0]);  // "Max [max = 80]"
+
+		$this->assertFalse($result->isValid());
+		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('valuenull')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Min [min = 20]', $result->getErrorMap()->getChild('valuemin')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Step [step = 30]', $result->getErrorMap()->getChild('value1')->jsonSerialize()['messages'][0]);
+		$this->assertEquals('Max [max = 80]', $result->getErrorMap()->getChild('valuemax')->jsonSerialize()['messages'][0]);
+	}
 }

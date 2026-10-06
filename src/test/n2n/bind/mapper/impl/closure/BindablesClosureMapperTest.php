@@ -28,4 +28,19 @@ class BindablesClosureMapperTest extends TestCase {
 		$this->assertFalse($targetDm->has('int'));
 		$this->assertEquals(123, $targetDm->reqInt('superInt'));
 	}
+
+	function testDocsUsage(): void {
+		$target = new DataMap();
+		Bind::attrs(['string' => 'test', 'int' => 321])->toAttrs($target)
+				->props(['string', 'int'], Mappers::bindables(function (array $bindables, BindBoundary $bindBoundary) {
+					$bindables['string']->setValue('huii');
+					$bindables['int']->setExist(false);
+					$bindBoundary->acquireBindable('superInt')->setExist(true)->setValue(123);
+				}))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		var_dump($target->toArray());
+
+		$this->assertSame(['string' => 'huii', 'superInt' => 123], $target->toArray());
+	}
 }

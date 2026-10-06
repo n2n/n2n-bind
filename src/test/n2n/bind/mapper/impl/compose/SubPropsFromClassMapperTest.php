@@ -80,4 +80,18 @@ class SubPropsFromClassMapperTest extends TestCase {
 				['subProp' => 'sub-huii', 'prop' => 'huii', 'nullableProp' => null, 'mixedProp' => []],
 				$targetAttrs);
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$targetAttrs = Bind::attrs(['prop' => 'huii', 'nullableProp' => null, 'mixedProp' => []])
+				->logicalRoot(Mappers::subPropsFromClass(SimpleBaseRecord::class))
+				->toArray()->exec()->get();
+		var_dump($targetAttrs);
+
+		$this->assertSame(['prop' => 'huii', 'nullableProp' => null, 'mixedProp' => []], $targetAttrs);
+	}
 }

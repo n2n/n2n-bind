@@ -190,4 +190,21 @@ class SubPropsForClassMapperTest extends TestCase {
 
 		$this->assertSame(['undefPropWithDefault' => Undefined::val(), 'prop' => 'value'], $targetAttrs);
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$targetAttrs = Bind::attrs(['prop' => 'value1', 'nullableProp' => 'value2',
+				'undefNullableProp' => 'value3', 'mixedProp' => ['value4']])
+				->logicalRoot(Mappers::subPropsForClass(SimpleBaseRecord::class))
+				->toArray()->exec()->get();
+		var_dump($targetAttrs);
+
+		$this->assertSame(
+				['prop' => 'value1', 'nullableProp' => 'value2', 'undefNullableProp' => 'value3', 'mixedProp' => ['value4']],
+				$targetAttrs);
+	}
 }

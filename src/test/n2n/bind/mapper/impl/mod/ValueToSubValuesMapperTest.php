@@ -45,4 +45,44 @@ class ValueToSubValuesMapperTest extends TestCase {
 				$result->get());
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$result = Bind::attrs(['prop1' => 'value1', 'prop2' => 'value2'])
+				->logicalProp('prop1', Mappers::valueToSubValues(fn (string $value) => [
+						'subProp1' => 'subValue1',
+						'subProp2' => 'subValue2',
+				]))
+				->prop('prop2')
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(
+				['prop1/subProp1' => 'subValue1', 'prop1/subProp2' => 'subValue2', 'prop2' => 'value2'],
+				$result->get());
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsArray(): void {
+		$result = Bind::attrs(['prop1' => 'value1', 'prop2' => 'value2'])
+				->logicalProp('prop1', Mappers::valueToSubValues([
+						'subProp1' => 'subValue1',
+						'subProp2' => 'subValue2',
+				]))
+				->prop('prop2')
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(
+				['prop1/subProp1' => 'subValue1', 'prop1/subProp2' => 'subValue2', 'prop2' => 'value2'],
+				$result->get());
+	}
+
 }

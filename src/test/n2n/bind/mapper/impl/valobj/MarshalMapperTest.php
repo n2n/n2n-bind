@@ -32,6 +32,21 @@ class MarshalMapperTest extends TestCase  {
 
 	/**
 	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsMarshal(): void {
+		$values = [];
+		Bind::values(new ValueObjectMock('test@email.ch'), null)->toArray($values)
+				->map(Mappers::marshal())
+				->exec($this->createMock(MagicContext::class));
+		var_dump($values);
+
+		$this->assertEquals(['test@email.ch', null], $values);
+	}
+
+	/**
+	 * @throws BindTargetException
 	 * @throws BindMismatchException
 	 * @throws UnresolvableBindableException
 	 */
