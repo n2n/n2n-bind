@@ -19,7 +19,7 @@ class ValueObjectMock implements StringValueObject, \Stringable {
 
 	#[Marshal]
 	static function marshalMapper(): Mapper {
-		return Mappers::valueClosure(fn (ValueObjectMock $mock) => $mock->toScalar());
+		return Mappers::value(fn (ValueObjectMock $mock) => $mock->toScalar());
 	}
 
 	#[Unmarshal]
