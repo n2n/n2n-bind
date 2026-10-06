@@ -400,6 +400,9 @@ class Mappers {
 		return new MarshalMapper();
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/unmarshal
+	 */
 	static function unmarshal(string $typeName): UnmarshalMapper {
 		return new UnmarshalMapper($typeName);
 	}
