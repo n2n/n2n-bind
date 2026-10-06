@@ -183,6 +183,9 @@ class Mappers {
 		return new ValueClosureMapper($closure, false);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/value
+	 */
 	public static function value(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, false);
 	}
@@ -194,6 +197,9 @@ class Mappers {
 		return new ValueClosureMapper($closure, true);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/value
+	 */
 	public static function valueIfNotNull(Closure $closure): ValueClosureMapper {
 		return new ValueClosureMapper($closure, true);
 	}
