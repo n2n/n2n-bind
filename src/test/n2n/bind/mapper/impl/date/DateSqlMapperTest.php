@@ -35,7 +35,6 @@ class DateSqlMapperTest extends TestCase {
 //		$dateTimeImmutable1->setTime(11,12,13);
 		$date = new Date('2010-10-10');
 
-
 		$sourceDataMap = new DataMap(['DateTime1' => $dateTime1, 'DateTime2' => $dateTime2,
 				'DateTimeImmutable1' => $dateTimeImmutable1, 'Date' => $date, 'Null' => null]);
 		$toDataMap = new DataMap();
