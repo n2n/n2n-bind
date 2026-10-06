@@ -260,6 +260,9 @@ class Mappers {
 		return new DateTimeMapper($mandatory, $min, $max);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/datetime
+	 */
 	public static function dateTimeImmutable(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeImmutableMapper {
 		return new DateTimeImmutableMapper($mandatory, $min, $max);
 	}
