@@ -26,6 +26,8 @@ class BindableClosureMapper extends SingleMapperAdapter {
 
 		$invoker = new MagicMethodInvoker($magicContext);
 		$invoker->setClosure($this->closure);
+		$invoker->setClassParamObject(BindBoundary::class, $bindBoundary);
+		$invoker->setClassParamObject(BindContext::class, $bindBoundary->getBindContext());
 		$invoker->setReturnTypeConstraint(TypeConstraints::type(['bool', MapResult::class, 'null']));
 
 		return MapResult::fromArg($invoker->invoke(null, null, [$bindable]));

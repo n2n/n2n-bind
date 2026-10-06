@@ -9,11 +9,27 @@ use n2n\bind\mapper\impl\Mappers;
 use n2n\validation\validator\impl\Validators;
 use n2n\util\col\TypedArray;
 use n2n\util\ex\err\ConfigurationError;
+use n2n\util\col\attribute\ValueType;
+use n2n\bind\mapper\impl\valobj\ValueObjectMock;
+use n2n\bind\mapper\impl\valobj\mock\TypedArrayMarshalUnmarshalMock;
 
+/**
+ * Provides a basic unmarshal Mapper which works as long as the value type has a unmarshaler defined as well.
+ *
+ * Usage example:
+ *
+ * ```php
+ * #[ValueType(Email::class)]
+ * class EmailArray extends TypedArray {
+ *     use TypedArrayUnmarshalTrait;
+ *
+ * }
+ * ```
+ */
 trait TypedArrayUnmarshalTrait {
 	#[Unmarshal]
 	static function unmarshalMapper(): Mapper {
-		if (!is_a(static::class, TypedArray::class)) {
+		if (!is_subclass_of(static::class, TypedArray::class)) {
 			throw new ConfigurationError(self::class
 					. ' must be only used in TypedArrays but it was used in ' . static::class);
 		}
