@@ -299,6 +299,9 @@ class Mappers {
 		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/pipe
+	 */
 	static function pipe(Mapper|Validator ...$mappers): PipeMapper {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 		return new PipeMapper($mappers);
