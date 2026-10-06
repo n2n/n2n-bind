@@ -234,7 +234,18 @@ class Mappers {
 		return new EnumMapper(EnumUtils::valEnumArg($enum), $mandatory);
 	}
 
-
+	/**
+	 * Example Usage:
+	 * ```php
+	 * $result = Bind::values('2023-12-13 12:04:12')->map(Mappers::dateTime())->exec();
+	 * var_dump($result->get());
+	 * ```
+	 *
+	 * @param bool $mandatory
+	 * @param \DateTimeInterface|null $min
+	 * @param \DateTimeInterface|null $max
+	 * @return DateTimeMapper
+	 */
 	public static function dateTime(bool $mandatory = false, ?\DateTimeInterface $min = null, ?\DateTimeInterface $max = null): DateTimeMapper {
 		return new DateTimeMapper($mandatory, $min, $max);
 	}
