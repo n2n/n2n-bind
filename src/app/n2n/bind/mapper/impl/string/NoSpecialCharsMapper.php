@@ -21,18 +21,23 @@ class NoSpecialCharsMapper extends SingleMapperAdapter {
 	private ?Message $maxlengthErrorMessage = null;
 	private ?Message $noSpecialCharsErrorMessage = null;
 
-	function __construct(private bool $mandatory, private bool $lowerCase, private ?int $minlength,
+	function __construct(private bool $mandatory, private bool $lowerCaseOnly, private ?int $minlength,
 			private ?int $maxlength) {
 		if ($this->minlength !== null && $this->maxlength !== null && $this->minlength > $this->maxlength) {
 			throw new InvalidArgumentException('Maxlength need to be greater or equal to minlength.');
 		}
 	}
 
+	function setLowerCaseOnly(bool $lowerCaseOnly): static {
+		$this->lowerCaseOnly = $lowerCaseOnly;
+		return $this;
+	}
+
 	protected function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): bool {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true, true));
 		if ($value !== null) {
 			$value = IoUtils::stripSpecialChars($value, true);
-			if ($this->lowerCase) {
+			if ($this->lowerCaseOnly) {
 				$value = mb_strtolower($value);
 			}
 		}

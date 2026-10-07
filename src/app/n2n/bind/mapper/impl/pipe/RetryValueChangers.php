@@ -16,7 +16,7 @@ class RetryValueChangers {
 	 */
 	public static function numberSuffixOnRetry(\Closure $closure, int $min, int $max,
 			string|\Stringable|null $fallBackOnNullValue,
-			string $fillStr = 'path', string $valueNumberSuffixSeparator = ' ',
+			string $fillStr = 'unnamed', string $valueNumberSuffixSeparator = ' ',
 			int $maxRetryNo = 9999): RetryValueChanger {
 		return new NumberSuffixOnRetryValueChanger($closure, $min, $max, $fallBackOnNullValue, $fillStr,
 				$valueNumberSuffixSeparator, $maxRetryNo);

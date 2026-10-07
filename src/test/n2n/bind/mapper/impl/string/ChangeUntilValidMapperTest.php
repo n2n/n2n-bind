@@ -355,7 +355,8 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 12, fallBackOnNullValue: 'path');
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 12,
+				fallBackOnNullValue: 'path', fillStr: 'path');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -401,7 +402,8 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 8, max: 255, fallBackOnNullValue: 'path');
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 8, max: 255,
+				fallBackOnNullValue: 'path', fillStr: 'path');
 
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)

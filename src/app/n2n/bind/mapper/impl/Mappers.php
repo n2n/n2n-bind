@@ -76,6 +76,7 @@ use n2n\bind\mapper\impl\pipe\ChangeUntilValidMapper;
 use n2n\util\StringUtils;
 use n2n\bind\mapper\impl\pipe\RetryValueChanger;
 use n2n\bind\mapper\impl\pipe\RetryValueChangers;
+use n2n\validation\validator\impl\Validators;
 
 class Mappers {
 
@@ -349,13 +350,23 @@ class Mappers {
 	/**
 	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/path-part
 	 */
-	static function pathPart(Closure $uniqueTester, ?string $fallBackValue, int $minlength = 3, int $maxlength = 63,
-			string $fillStr = 'path', int $maxRetryNo = 9999): ChangeUntilValidMapper {
+	static function pathPart(?Closure $uniqueTester = null, ?string $fallBackOnNullValue = null, bool $mandatory = false,
+			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
+		if ($uniqueTester === null) {
+			return self::pipe(Mappers::cleanString(), Mappers::noSpecialChars($mandatory, minlength: $minlength, maxlength: $maxlength));
+		}
+
 		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
-				min: $minlength, max: $maxlength, fallBackOnNullValue: $fallBackValue, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
+				min: $minlength, max: $maxlength, fallBackOnNullValue: $fallBackOnNullValue, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
 				maxRetryNo: $maxRetryNo);
-		return self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
+		$changeUntilValidMapper = self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
+
+		if (!$mandatory) {
+			return $changeUntilValidMapper;
+		}
+
+		return Mappers::pipe($changeUntilValidMapper, Validators::mandatory());
 	}
 
 	/**

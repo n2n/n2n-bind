@@ -14,6 +14,7 @@ use n2n\bind\err\BindMismatchException;
 use n2n\util\attr\InvalidAttributeException;
 use n2n\util\attr\MissingAttributeFieldException;
 use n2n\bind\err\MisconfiguredMapperException;
+use n2n\validation\plan\ErrorMap;
 
 class PathPartMapperTest extends TestCase {
 	private \Closure $simpleClosure;
@@ -131,6 +132,25 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('blubb-3', $tdm->reqString('pathPart2')); //basename exist, first alternate exist and is skipped
 		$this->assertEquals('blubb-4', $tdm->reqString('pathPart3')); //basename exist, first alternates exist and are skipped
 		$this->assertEquals('blubb-6', $tdm->reqString('pathPart4')); //basename exist, first free alternate is used
+	}
+
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws InvalidAttributeException
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 */
+	function testMandatory() {
+		$result = Bind::values('Some Name', null)->map(Mappers::pathPart(mandatory: true))->toArray()
+				->exec();
+		$this->assertFalse($result->isValid());
+		$errorMap = $result->getErrorMap();
+		assert($errorMap instanceof ErrorMap);
+		$this->assertNull($errorMap->getChild(0));
+		$this->assertFalse($errorMap->getChild(1)->isEmpty());
+		$this->assertEquals('Mandatory', (string) $errorMap->getChild(1)->getMessages()[0]);
+
 	}
 
 
