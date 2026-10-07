@@ -16,8 +16,7 @@ class SimpleNumberSuffixRetryValueChanger implements RetryValueChanger {
 	 */
 	public function __construct(
 			public \Closure $uniqueValidationClosure,
-			public int $maxRetryNo = 999
-	) {
+			public int $maxRetryNo = 999) {
 	}
 
 	function getValueTypeConstraint(): TypeConstraint {

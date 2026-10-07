@@ -16,12 +16,13 @@ use n2n\bind\mapper\impl\string\mock\StringValObjMock;
 use n2n\bind\mapper\impl\string\mock\StringableObjMock;
 use n2n\bind\mapper\impl\string\mock\OrgObjMock;
 use n2n\bind\mapper\impl\pipe\ChangeUntilLoopState;
-use n2n\bind\mapper\impl\string\mock\RetryValueChangers;
 use n2n\bind\mapper\Mapper;
 use n2n\util\StringUtils;
 use n2n\bind\mapper\impl\string\mock\PathPartObjMock;
 use n2n\test\case\N2nTestCaseTrait;
 use n2n\bind\err\MisconfiguredMapperException;
+use n2n\bind\mapper\impl\string\mock\RetryValueChangersMock;
+use n2n\bind\mapper\impl\pipe\RetryValueChangers;
 
 class ChangeUntilValidMapperTest extends TestCase {
 	use N2nTestCaseTrait;
@@ -48,7 +49,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'path',
 				false,
 				Mappers::changeUntilValid(
-						RetryValueChangers::uniquePathPart(
+						RetryValueChangers::numberSuffixOnRetry(
 								$org->title,
 								(function($value) use (&$invalidValues) {
 									$return = !in_array($value, $invalidValues);
@@ -125,7 +126,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'genericGeneratedValue4' => new StringValObjMock('abc'), 'genericGeneratedValue5' => new StringableObjMock('cba')]);
 		$tdm = new DataMap();
 		$invalidValues = ['blubber', 'somepath', 'blubb-4', 'blubb-5', 'blubb-6', 'blubb-7', 'blubb-8', 'abc'];
-		$retry = RetryValueChangers::uniquePathPart('blubb', (function($value) use (&$invalidValues) {
+		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', (function($value) use (&$invalidValues) {
 			$return = !in_array($value, $invalidValues);
 			if ($return) {
 				$invalidValues[] = $value;
@@ -163,7 +164,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'genericGeneratedValue4' => new StringValObjMock('abc'), 'genericGeneratedValue5' => new StringableObjMock('cba')]);
 		$tdm = new DataMap();
 		$invalidValues = ['blubber', 'somepath', 'blubb-4', 'blubb-5', 'blubb-6', 'blubb-7', 'blubb-8', 'abc'];
-		$retry = RetryValueChangers::numberSuffixOnRetry((function($value) use (&$invalidValues) {
+		$retry = RetryValueChangersMock::simpleNumberSuffixOnRetry((function($value) use (&$invalidValues) {
 			$return = !in_array($value, $invalidValues);
 			if ($return) {
 				$invalidValues[] = $value;
@@ -198,7 +199,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'genericGeneratedValue3' => 'max-holeradio', 'genericGeneratedValue4' => ' ',
 				'genericGeneratedValue5' => 'blubb']);
 		$tdm = new DataMap();
-		$retry = RetryValueChangers::uniquePathPart('blubb', (function($value) use (&$invalidValues) {
+		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', (function($value) use (&$invalidValues) {
 			$return = !in_array($value, $invalidValues);
 			if ($return) {
 				$invalidValues[] = $value;
@@ -233,7 +234,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 		$this->expectExceptionMessage('could not find a unique value after');
 		Bind::attrs($dm)->toAttrs($tdm)
 				->props(['genericGeneratedValue1', 'genericGeneratedValue2'],
-						Mappers::changeUntilValid(RetryValueChangers::numberSuffixOnRetry((function($value) use (&$unique) {
+						Mappers::changeUntilValid(RetryValueChangersMock::simpleNumberSuffixOnRetry((function($value) use (&$unique) {
 							$unique[] = $value;
 							return false;
 						}), 999), Mappers::noSpecialChars(), Mappers::cleanString()))
@@ -260,11 +261,11 @@ class ChangeUntilValidMapperTest extends TestCase {
 			return $return;
 		});
 
-		$retry1 = RetryValueChangers::uniquePathPart('blubb', $closure, 4, 120);
-		$retry2 = RetryValueChangers::uniquePathPart('Blubb', $closure, 4, 120);
-		$retry3 = RetryValueChangers::uniquePathPart('bl ubb', $closure, 4, 120);
-		$retry4 = RetryValueChangers::uniquePathPart('bl ubb', $closure, 4, 120);
-		$retry5 = RetryValueChangers::uniquePathPart(null, $closure, 4, 120);
+		$retry1 = RetryValueChangers::numberSuffixOnRetry('blubb', $closure, 4, 120);
+		$retry2 = RetryValueChangers::numberSuffixOnRetry('Blubb', $closure, 4, 120);
+		$retry3 = RetryValueChangers::numberSuffixOnRetry('bl ubb', $closure, 4, 120);
+		$retry4 = RetryValueChangers::numberSuffixOnRetry('bl ubb', $closure, 4, 120);
+		$retry5 = RetryValueChangers::numberSuffixOnRetry(null, $closure, 4, 120);
 
 		$mapper = Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false));
 
@@ -310,7 +311,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::uniquePathPart('blubb', $closure, 4, 120);
+		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', $closure, 4, 120);
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -351,7 +352,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::uniquePathPart('path', $closure, 4, 12);
+		$retry = RetryValueChangers::numberSuffixOnRetry('path', $closure, 4, 12);
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -397,7 +398,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::uniquePathPart('path', $closure, 8, 255);
+		$retry = RetryValueChangers::numberSuffixOnRetry('path', $closure, 8, 255);
 
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
@@ -444,7 +445,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::uniquePathPart('hui', $closure, 8, 10, 'hoi');
+		$retry = RetryValueChangers::numberSuffixOnRetry('hui', $closure, 8, 10, 'hoi');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',

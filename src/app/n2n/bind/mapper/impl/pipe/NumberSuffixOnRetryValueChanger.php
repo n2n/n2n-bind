@@ -11,7 +11,7 @@ use n2n\validation\validator\impl\ValidationUtils;
 use n2n\util\magic\impl\MagicMethodInvoker;
 use n2n\bind\err\MisconfiguredMapperException;
 
-class PathPartRetryValueChanger implements RetryValueChanger {
+class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 
 	private \WeakMap $retryStateInfoMap;
 
@@ -21,7 +21,7 @@ class PathPartRetryValueChanger implements RetryValueChanger {
 			public int $minLength,
 			public int $maxLength,
 			public string $fillStr,
-			public string $numberSuffixOnRetry,
+			public string $valueNumberSuffixSeparator,
 			public int $maxRetryNo = 9999) {
 
 		ArgUtils::assertTrue(ValidationUtils::isNotShorterThan($fillStr, 1),
@@ -30,7 +30,7 @@ class PathPartRetryValueChanger implements RetryValueChanger {
 		ArgUtils::assertTrue(!($this->minLength > $this->maxLength),
 				'Maxlength need to be greater or equal to minlength.');
 
-		ArgUtils::assertTrue(($this->maxLength > (mb_strlen($this->numberSuffixOnRetry) + mb_strlen($this->maxRetryNo))),
+		ArgUtils::assertTrue(($this->maxLength > (mb_strlen($this->valueNumberSuffixSeparator) + mb_strlen($this->maxRetryNo))),
 				'maxLength need to be greater than (numberSuffixOnRetry + maxRetries) length');
 
 		$this->retryStateInfoMap = new \WeakMap();
@@ -114,8 +114,8 @@ class PathPartRetryValueChanger implements RetryValueChanger {
 		} else {
 			$manipulatedValue = StringUtils::reduce(
 							$value,
-							($this->maxLength - (mb_strlen($this->numberSuffixOnRetry) + strlen((string) $no))))
-					. $this->numberSuffixOnRetry
+							($this->maxLength - (mb_strlen($this->valueNumberSuffixSeparator) + strlen((string) $no))))
+					. $this->valueNumberSuffixSeparator
 					. $no;
 		}
 
@@ -126,7 +126,7 @@ class PathPartRetryValueChanger implements RetryValueChanger {
 	private function fillToMinlength(?string $value, bool &$modified = false): string {
 		$manipulatedValue = ($value === null ? $this->fillStr : $value);
 		while (mb_strlen($manipulatedValue) < $this->minLength) {
-			$manipulatedValue .= $this->numberSuffixOnRetry . $this->fillStr;
+			$manipulatedValue .= $this->valueNumberSuffixSeparator . $this->fillStr;
 		}
 		$modified = $manipulatedValue !== $value;
 		return $manipulatedValue;
