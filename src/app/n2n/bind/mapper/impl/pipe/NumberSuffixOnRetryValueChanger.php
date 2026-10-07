@@ -16,7 +16,7 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 	private \WeakMap $retryStateInfoMap;
 
 	public function __construct(
-			public \Closure $uniqueValidationClosure,
+			public ?\Closure $uniqueValidationClosure,
 			public int $minLength,
 			public int $maxLength,
 			public string|Stringable|null $fallBackOnNullValue,
@@ -92,6 +92,10 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 		}
 
 		$retryStateInfo->validatedAtLeastOnce = true;
+
+		if ($this->uniqueValidationClosure === null) {
+			return new RetryProcessResult(true);
+		}
 
 		$invoker = new MagicMethodInvoker($state->magicContext);
 		$invoker->setClosure($this->uniqueValidationClosure);

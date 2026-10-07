@@ -35,7 +35,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['noSpecialChars1', 'noSpecialChars2', 'noSpecialChars3', 'noSpecialChars3',
 						'noSpecialChars4', 'noSpecialChars5'],
-						Mappers::noSpecialChars(false, true, minlength: null))
+						Mappers::noSpecialChars(false, minlength: null, lowercaseOnly: true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -56,7 +56,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['noSpecialChars1', 'noSpecialChars2', 'noSpecialChars3'],
-						Mappers::noSpecialChars(true, true, 4, 8))
+						Mappers::noSpecialChars(true, 4, 8, lowercaseOnly: true))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertFalse($result->isValid());
 		$this->assertTrue($tdm->isEmpty());
@@ -77,7 +77,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 		//prevent epic fail
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/maxlength.*[greater|equals].*minlength/i');
-		Mappers::noSpecialChars(true, true, minlength: 8, maxlength: 6);
+		Mappers::noSpecialChars(true, minlength: 8, maxlength: 6, lowercaseOnly: true);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['noSpecialChars1', 'noSpecialChars2', 'noSpecialChars3'],
-						Mappers::noSpecialChars(true, true, 4, 8, false)
+						Mappers::noSpecialChars(true, 4, 8, lowercaseOnly: true)
 								->setMaxlengthErrorMessage('CustomErrorMessage max')
 								->setMinlengthErrorMessage('CustomErrorMessage min')
 								->setMandatoryErrorMessage('CustomErrorMessage req'))
@@ -130,7 +130,7 @@ class NoSpecialCharsMapperTest extends TestCase {
 	 */
 	function testDocsVal(): void {
 		$result = Bind::attrs(['a' => null, 'b' => 'min', 'c' => 'holeradio'])
-				->props(['a', 'b', 'c'], Mappers::noSpecialChars(true, true, 4, 8))
+				->props(['a', 'b', 'c'], Mappers::noSpecialChars(true, 4, 8, lowercaseOnly: true))
 				->toArray()->exec();
 		var_dump($result->getErrorMap()->getChild('a')->isEmpty()); // false becuase mandatory
 		var_dump($result->getErrorMap()->getChild('b')->isEmpty()); // false because to short

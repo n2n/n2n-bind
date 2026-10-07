@@ -14,7 +14,7 @@ class RetryValueChangers {
 	 * @param int $maxRetryNo
 	 * @return RetryValueChanger
 	 */
-	public static function numberSuffixOnRetry(\Closure $closure, int $min, int $max,
+	public static function numberSuffixOnRetry(?\Closure $closure, int $min, int $max,
 			string|\Stringable|null $fallBackOnNullValue,
 			string $fillStr = 'unnamed', string $valueNumberSuffixSeparator = ' ',
 			int $maxRetryNo = 9999): RetryValueChanger {

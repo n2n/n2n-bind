@@ -137,7 +137,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['genericGeneratedValue1', 'genericGeneratedValue2', 'genericGeneratedValue3',
 						'genericGeneratedValue3', 'genericGeneratedValue4', 'genericGeneratedValue5'],
-						Mappers::changeUntilValid($retry, Mappers::noSpecialChars(lowercase: false), Mappers::cleanString()))
+						Mappers::changeUntilValid($retry, Mappers::noSpecialChars(lowercaseOnly: false), Mappers::cleanString()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertTrue($result->isValid());
 
@@ -174,7 +174,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['genericGeneratedValue1', 'genericGeneratedValue2', 'genericGeneratedValue3',
 						'genericGeneratedValue3', 'genericGeneratedValue4', 'genericGeneratedValue5'],
-						Mappers::changeUntilValid($retry, Mappers::noSpecialChars(lowercase: false), Mappers::cleanString()))
+						Mappers::changeUntilValid($retry, Mappers::noSpecialChars(lowercaseOnly: false), Mappers::cleanString()))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 		$this->assertTrue($result->isValid());
 

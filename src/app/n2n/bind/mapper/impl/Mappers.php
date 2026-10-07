@@ -352,10 +352,6 @@ class Mappers {
 	 */
 	static function pathPart(?Closure $uniqueTester = null, ?string $fallBackOnNullValue = null, bool $mandatory = false,
 			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
-		if ($uniqueTester === null) {
-			return self::pipe(Mappers::cleanString(), Mappers::noSpecialChars($mandatory, minlength: $minlength, maxlength: $maxlength));
-		}
-
 		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
 				min: $minlength, max: $maxlength, fallBackOnNullValue: $fallBackOnNullValue, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
 				maxRetryNo: $maxRetryNo);
@@ -372,9 +368,9 @@ class Mappers {
 	/**
 	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/no-special-chars
 	 */
-	static function noSpecialChars(bool $mandatory = false, bool $lowercase = true, ?int $minlength = 1,
-			?int $maxlength = 255): NoSpecialCharsMapper {
-		return new NoSpecialCharsMapper($mandatory, $lowercase, $minlength, $maxlength);
+	static function noSpecialChars(bool $mandatory = false, ?int $minlength = 1, ?int $maxlength = 255,
+			bool $lowercaseOnly = true): NoSpecialCharsMapper {
+		return new NoSpecialCharsMapper($mandatory, $lowercaseOnly, $minlength, $maxlength);
 	}
 
 	/**
