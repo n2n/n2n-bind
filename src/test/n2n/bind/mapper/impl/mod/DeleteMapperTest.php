@@ -31,6 +31,22 @@ class DeleteMapperTest extends TestCase {
 		$this->assertEquals('foo', $targetMock->holeradio);
 		$this->assertNull($targetMock->sub->huii);
 	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$target = new DataMap();
+		Bind::attrs(['keep' => 'a', 'drop' => 'b'])->toAttrs($target)
+				->prop('keep')
+				->prop('drop', Mappers::delete())
+				->exec($this->createMock(MagicContext::class));
+		var_dump($target->toArray());
+
+		$this->assertSame(['keep' => 'a'], $target->toArray());
+	}
 }
 
 class OuterTargetMock {

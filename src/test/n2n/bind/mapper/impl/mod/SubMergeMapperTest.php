@@ -63,6 +63,23 @@ class SubMergeMapperTest extends TestCase {
 				['sub' => ['sub2' => ['huii1' => 'foobar', 'huii2' => 'foobar2']]],
 				$result->get());
 	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsUsage(): void {
+		$result = Bind::attrs(['sub' => ['sub2' => ['huii1' => 'foobar', 'huii2' => 'foobar2']]])
+				->toValue($v)
+				->props(['sub/sub2/huii1', 'sub/sub2/huii2'])
+				->root(Mappers::subMerge())
+				->exec($this->createMock(MagicContext::class));
+		var_dump($result->get());
+
+		$this->assertSame(
+				['sub' => ['sub2' => ['huii1' => 'foobar', 'huii2' => 'foobar2']]],
+				$result->get());
+	}
 }
 
 class MergedValuesObjMock {

@@ -81,5 +81,34 @@ class CleanStringMapperTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('huii')->getChild('hoi')->getMessages());
 	}
 
+	function testDocsUsage(): void {
+		$result = Bind::values('  Hello   World  ', null)->map(Mappers::cleanString())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['Hello World', null], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['title' => str_repeat('A', 256), 'name' => 'a', 'missing' => null])
+				->props(['title', 'name', 'missing'], Mappers::cleanString(true, 11, 255))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('title')->isEmpty()); // false due to maxlength
+		var_dump($result->getErrorMap()->getChild('name')->isEmpty()); // false due to minlength
+		var_dump($result->getErrorMap()->getChild('missing')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('title')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('name')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('missing')->isEmpty());
+	}
+
 
 }

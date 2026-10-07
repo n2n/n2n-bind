@@ -91,4 +91,22 @@ class BindableClosureMapperTest extends TestCase {
 
 		$this->assertTrue($called);
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values('test')->map(Mappers::bindable(function (Bindable $b) {
+			$b->setValue(strtoupper($b->getValue()));
+		}))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['TEST'], $result->get());
+	}
+
+	function testDocsIfNotNull(): void {
+		$result = Bind::values('test', null)->map(Mappers::bindableIfNotNull(function (Bindable $b) {
+			$b->setValue(strtoupper($b->getValue()));
+		}))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['TEST', null], $result->get());
+	}
 }

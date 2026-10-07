@@ -239,4 +239,40 @@ class DateMapperTest extends TestCase {
 		$this->assertEquals('Mandatory', $result->getErrorMap()->getChild('date')->jsonSerialize()['messages'][0]);
 		$this->assertEmpty($this->tdm->toArray());
 	}
+
+	public function testDocsUsage(): void {
+		$result = Bind::values('2023-10-01', null)->map(Mappers::date())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals([new Date('2023-10-01'), null], $result->get());
+	}
+
+	/**
+	 * @throws InvalidAttributeException
+	 * @throws UnresolvableBindableException
+	 * @throws BindTargetException
+	 * @throws BindMismatchException
+	 */
+	public function testDocsVal(): void {
+		$result = Bind::attrs([
+				'd1' => null,
+				'd2' => new Date('2023-01-01'),
+				'd3' => new Date('2025-01-01'),
+			])
+				->props(['d1', 'd2', 'd3'], Mappers::date(true, new Date('2023-06-01'), new Date('2024-06-01')))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all date properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('d1')->isEmpty()); // false because mandatory
+		var_dump($result->getErrorMap()->getChild('d2')->isEmpty()); // false due to min
+		var_dump($result->getErrorMap()->getChild('d3')->isEmpty()); // false due to max
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('d1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('d2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('d3')->isEmpty());
+	}
 }

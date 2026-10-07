@@ -174,4 +174,51 @@ class PropsClosureMapperTest extends TestCase {
 		$this->assertTrue($result->isValid());
 		$this->assertSame(['b' => 'B', 'c' => 'A'], $result->get());
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::attrs(['password' => 'secret'])
+				->props(['password'], Mappers::values(fn ($values) => [
+						'passwordHash' => 'hash:' . $values['password'],
+				]))
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['passwordHash' => 'hash:secret'], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsBindData(): void {
+		$result = Bind::attrs(['string' => 'test'])
+				->props(['string'], Mappers::propsAsBindDataClosure(function (BindData $bindData) {
+					return [
+						'string' => $bindData->reqString('string') . '-holeradio',
+						'int' => 7,
+					];
+				}))
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['string' => 'test-holeradio', 'int' => 7], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsRename(): void {
+		$result = Bind::attrs(['a' => 'A', 'b' => 'B'])
+				->optProps(['a', 'b'], Mappers::rename(['a' => 'alpha', 'b' => 'beta']))
+				->toArray()
+				->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['alpha' => 'A', 'beta' => 'B'], $result->get());
+	}
 }

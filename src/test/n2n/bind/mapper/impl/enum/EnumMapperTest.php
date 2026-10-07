@@ -101,4 +101,30 @@ class EnumMapperTest extends TestCase {
 		Bind::attrs($sdm)->toAttrs($tdm)->props(['timezone'], Mappers::enum(MockEnum::class))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values('Europe/Zurich', null)->map(Mappers::enum(MockEnum::class))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals([MockEnum::EUROPE_ZURICH, null], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['timezone' => null])
+				->props(['timezone'], Mappers::enum(MockEnum::class, true))
+				->toArray()
+				->exec();
+
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('timezone')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('timezone')->isEmpty());
+	}
 }

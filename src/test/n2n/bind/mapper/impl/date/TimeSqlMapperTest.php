@@ -70,4 +70,12 @@ class TimeSqlMapperTest extends TestCase {
 				->props(['time'], Mappers::timeSql())
 				->exec($this->createMock(MagicContext::class));
 	}
+
+	public function testDocsUsage(): void {
+		$time = new Time('10:11:12');
+		$result = Bind::values($time, null)->map(Mappers::timeSql())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame([$time->toSql(), null], $result->get());
+	}
 }

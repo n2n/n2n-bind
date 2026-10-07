@@ -45,6 +45,21 @@ class FactoryClosureMapperTest extends TestCase {
 		$this->assertEquals(5, $targetDataMap->req('maxNum'));
 	}
 
+	function testDocsUsage(): void {
+		$target = new DataMap();
+		Bind::attrs(['minNum' => 2, 'maxNum' => 4])->toAttrs($target)
+				->optProp('maxNum', Mappers::factoryClosure(function (BindContext $bindContext) {
+					$minNum = $bindContext->getValue('minNum');
+					return Mappers::value(fn (int $maxNum) => $maxNum + 1);
+				}))
+				->optProp('minNum', Mappers::int())
+				->exec($this->createMock(MagicContext::class));
+		var_dump($target->toArray());
+
+		$this->assertEquals(2, $target->req('minNum'));
+		$this->assertEquals(5, $target->req('maxNum'));
+	}
+
 	/**
 	 * @throws InvalidAttributeException
 	 * @throws UnresolvableBindableException

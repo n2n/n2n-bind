@@ -37,6 +37,21 @@ class FromBindDataClosureMapperTest extends TestCase {
 		$this->assertEquals('bar2', $targetDataMap->req('sub/huii'));
 	}
 
+	/**
+	 * @throws \Throwable
+	 */
+	function testDocsUsage(): void {
+		$target = new DataMap();
+		Bind::attrs(['holeradio' => 'foo', 'sub' => ['huii' => 'bar']])->toAttrs($target)
+				->prop('sub', Mappers::fromBindDataClosure(function (BindData $bindData) {
+					return Mappers::subProps()->prop('huii', Mappers::value(fn ($v) => $v . '2'));
+				}))
+				->exec($this->createMock(MagicContext::class));
+		var_dump($target->req('sub/huii'));
+
+		$this->assertEquals('bar2', $target->req('sub/huii'));
+	}
+
 
 	function testSubPropMismatch(): void {
 		$dataMap = new DataMap(['holeradio' => 'foo', 'sub' => ['huii' => 'bar']]);

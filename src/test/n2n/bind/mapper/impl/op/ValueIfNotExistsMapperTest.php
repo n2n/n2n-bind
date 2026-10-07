@@ -62,4 +62,26 @@ class ValueIfNotExistsMapperTest extends TestCase {
 		$this->assertEquals('hmm', $tdm->reqString('holeradio'));
 		$this->assertEquals('hii', $tdm->reqString('hahaha'));
 	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindTargetException
+	 * @throws MissingAttributeFieldException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$sdm = new DataMap();
+		$tdm = new DataMap();
+
+		$result = Bind::attrs($sdm)->toAttrs($tdm)
+				->optProp('holeradio', Mappers::valueIfNotExists('holeradio'))
+				->optProp('hahaha', Mappers::valueIfNotExists(fn () => 'hahaha'))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		var_dump($result->isValid()); // true
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals('holeradio', $tdm->reqString('holeradio'));
+		$this->assertEquals('hahaha', $tdm->reqString('hahaha'));
+	}
 }

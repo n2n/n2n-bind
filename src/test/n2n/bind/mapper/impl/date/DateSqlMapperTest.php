@@ -32,9 +32,8 @@ class DateSqlMapperTest extends TestCase {
 		$dateTime2 = new \DateTime('2010-01-01');
 		$dateTime2->setTime(8,9,10);
 		$dateTimeImmutable1 = new \DateTimeImmutable('+7 days');
-		$dateTimeImmutable1->setTime(11,12,13);
+//		$dateTimeImmutable1->setTime(11,12,13);
 		$date = new Date('2010-10-10');
-
 
 		$sourceDataMap = new DataMap(['DateTime1' => $dateTime1, 'DateTime2' => $dateTime2,
 				'DateTimeImmutable1' => $dateTimeImmutable1, 'Date' => $date, 'Null' => null]);
@@ -64,6 +63,14 @@ class DateSqlMapperTest extends TestCase {
 
 		Bind::attrs($sourceDataMap)->toAttrs($toDataMap)->props(['date'], Mappers::dateSql())
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values(new \DateTime('2010-01-01'), null)
+				->map(Mappers::dateSql())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['2010-01-01', null], $result->get());
 	}
 
 

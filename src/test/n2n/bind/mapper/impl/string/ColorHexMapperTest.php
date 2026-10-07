@@ -60,4 +60,34 @@ class ColorHexMapperTest extends TestCase {
 		$this->assertStringContainsString('Hex Color',  $errorMap->getChild('colorHex3')->getMessages()[0]);
 		$this->assertStringContainsString('Mandatory',  $errorMap->getChild('colorHex4')->getMessages()[0]);
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values(' #aaBBcc ', null)->map(Mappers::colorHex())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['#aabbcc', null], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['color1' => 'asdf', 'color2' => '#GG0000', 'color3' => null])
+				->props(['color1', 'color2', 'color3'], Mappers::colorHex(true))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all color properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('color1')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('color2')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('color3')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('color1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('color2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('color3')->isEmpty());
+	}
 }

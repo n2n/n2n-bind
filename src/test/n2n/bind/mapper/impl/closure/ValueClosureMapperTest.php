@@ -55,4 +55,18 @@ class ValueClosureMapperTest extends TestCase {
 				}))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values('test')->map(Mappers::value(fn ($v) => strtoupper($v)))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['TEST'], $result->get());
+	}
+
+	function testDocsIfNotNull(): void {
+		$result = Bind::values('test', null)->map(Mappers::valueIfNotNull(fn ($v) => strtoupper($v)))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['TEST', null], $result->get());
+	}
 }

@@ -62,4 +62,33 @@ class PhoneMapperTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('phone2')->getMessages());
 		$this->assertCount(1, $errorMap->getChild('phone3')->getMessages());
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values(' +41 (0) 52 233 79 77 ', null)->map(Mappers::phone())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['+41 (0) 52 233 79 77', null], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['phone1' => '+ 41! 12 123 45 67a', 'phone2' => 'äöl@äsdf.adsf', 'phone3' => null])
+				->props(['phone1', 'phone2', 'phone3'], Mappers::phone(true))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all phone properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('phone1')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('phone2')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('phone3')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('phone1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('phone2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('phone3')->isEmpty());
+	}
 }

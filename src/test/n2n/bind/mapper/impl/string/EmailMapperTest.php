@@ -58,4 +58,34 @@ class EmailMapperTest extends TestCase {
 		$this->assertCount(1, $errorMap->getChild('email2')->getMessages());
 		$this->assertCount(1, $errorMap->getChild('email3')->getMessages());
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values(' Test@Testerich.ch ', null)->map(Mappers::email())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['test@testerich.ch', null], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['email1' => 'asdf@', 'email2' => 'no-at-sign', 'email3' => null])
+				->props(['email1', 'email2', 'email3'], Mappers::email(true))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all email properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('email1')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('email2')->isEmpty()); // false due to invalid format
+		var_dump($result->getErrorMap()->getChild('email3')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('email1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('email2')->isEmpty());
+	}
+
+
 }

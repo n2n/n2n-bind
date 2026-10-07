@@ -256,4 +256,33 @@ class PipeMapperTest extends TestCase {
 		$this->assertCount(0, $errorMap->getOrCreateChild('clo4')->getMessages());
 
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values(' test@email.ch ', null)->map(Mappers::pipe(
+				Mappers::email(),
+				Mappers::valueIfNotNull(fn (string $v) => strtoupper($v)),
+		))->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertSame(['TEST@EMAIL.CH', null], $result->get());
+	}
+
+	function testDocsVal(): void {
+		$result = Bind::attrs(['email1' => 'not-an-email', 'email2' => 'also-bad'])
+				->props(['email1', 'email2'], Mappers::pipe(
+						Mappers::email(),
+						Mappers::valueIfNotNull(fn (string $v) => strtoupper($v)),
+				))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all email properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('email1')->isEmpty()); // false due to invalid email
+		var_dump($result->getErrorMap()->getChild('email2')->isEmpty()); // false due to invalid email
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('email1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('email2')->isEmpty());
+	}
 }

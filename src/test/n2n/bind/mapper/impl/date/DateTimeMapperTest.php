@@ -468,4 +468,36 @@ class DateTimeMapperTest extends TestCase {
 				->optProp('date', Mappers::dateTimeImmutable(!$nullable, $min, $max))
 				->exec($this->createMock(MagicContext::class));
 	}
+
+	function testDocsUsage(): void {
+		$result = Bind::values('2023-12-13 12:04:12', null)->map(Mappers::dateTime())->toArray()->exec();
+		var_dump($result->get());
+
+		$this->assertEquals([new \DateTime('2023-12-13 12:04:12'), null], $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testDocsVal(): void {
+		$min = new \DateTime('2009-12-31');
+		$max = new \DateTimeImmutable('2010-01-02');
+
+		$result = Bind::attrs(['dateTime1' => '2009-12-30 00:00:00', 'dateTime2' => '2010-01-03 00:00:00', 'dateTime3' => null])
+				->props(['dateTime1', 'dateTime2', 'dateTime3'], Mappers::dateTime(true, $min, $max))
+				->toArray()
+				->exec();
+
+		// result will be invalid with error messages provided for all dateTime properties.
+		var_dump($result->isValid()); // false
+		var_dump($result->getErrorMap()->getChild('dateTime1')->isEmpty()); // false because before $min
+		var_dump($result->getErrorMap()->getChild('dateTime2')->isEmpty()); // false because after $max
+		var_dump($result->getErrorMap()->getChild('dateTime3')->isEmpty()); // false because mandatory
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('dateTime1')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('dateTime2')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('dateTime3')->isEmpty());
+	}
 }
