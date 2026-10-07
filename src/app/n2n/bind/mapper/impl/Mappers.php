@@ -357,6 +357,9 @@ class Mappers {
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/no-special-chars
+	 */
 	static function noSpecialChars(bool $mandatory = false, bool $lowercase = true, ?int $minlength = 1,
 			?int $maxlength = 255): NoSpecialCharsMapper {
 		return new NoSpecialCharsMapper($mandatory, $lowercase, $minlength, $maxlength);

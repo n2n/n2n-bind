@@ -40,12 +40,12 @@ class NoSpecialCharsMapperTest extends TestCase {
 
 		$this->assertTrue($result->isValid());
 
-		$this->assertTypeSafeEquals(null, $tdm->reqString('noSpecialChars1', true));
-		$this->assertTypeSafeEquals('jkloe', $tdm->reqString('noSpecialChars2'));
+		$this->assertNull($tdm->reqString('noSpecialChars1', true));
+		$this->assertSame('jkloe', $tdm->reqString('noSpecialChars2'));
 		$this->assertNull($tdm->reqString('noSpecialChars3', true));
 		$this->assertTypeSafeEquals(new StringValObjMock('abc'), $tdm->reqStringValueObject('noSpecialChars4', StringValObjMock::class));
-		$this->assertTypeSafeEquals('abc', $tdm->reqString('noSpecialChars4'));
-		$this->assertTypeSafeEquals('cba', $tdm->reqString('noSpecialChars5'));
+		$this->assertSame('abc', $tdm->reqString('noSpecialChars4'));
+		$this->assertSame('cba', $tdm->reqString('noSpecialChars5'));
 	}
 
 	/**
@@ -107,6 +107,39 @@ class NoSpecialCharsMapperTest extends TestCase {
 
 		$this->assertCount(1, $errorMap->getChild('noSpecialChars3')->getMessages()); //more chars than max allows
 		$this->assertEquals('CustomErrorMessage max', $errorMap->getChild('noSpecialChars3')->jsonSerialize()['messages'][0]); //max violation
+
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUsage(): void {
+		$result = Bind::values(' Jklö ', null)->map(Mappers::noSpecialChars(minlength: null))
+				->toArray()->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		var_dump($result->get());
+
+		$this->assertSame(['jkloe', null], $result->get());
+	}
+
+	/**
+	 * @throws BindTargetException
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsVal(): void {
+		$result = Bind::attrs(['a' => null, 'b' => 'min', 'c' => 'holeradio'])
+				->props(['a', 'b', 'c'], Mappers::noSpecialChars(true, true, 4, 8))
+				->toArray()->exec();
+		var_dump($result->getErrorMap()->getChild('a')->isEmpty()); // false becuase mandatory
+		var_dump($result->getErrorMap()->getChild('b')->isEmpty()); // false because to short
+		var_dump($result->getErrorMap()->getChild('c')->isEmpty()); // false because to long
+
+		$this->assertFalse($result->isValid());
+		$this->assertFalse($result->getErrorMap()->getChild('a')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('b')->isEmpty());
+		$this->assertFalse($result->getErrorMap()->getChild('c')->isEmpty());
 
 	}
 
