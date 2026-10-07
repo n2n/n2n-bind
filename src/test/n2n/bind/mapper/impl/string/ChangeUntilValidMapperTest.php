@@ -50,14 +50,14 @@ class ChangeUntilValidMapperTest extends TestCase {
 				false,
 				Mappers::changeUntilValid(
 						RetryValueChangers::numberSuffixOnRetry(
-								$org->title,
-								(function($value) use (&$invalidValues) {
+								closure: (function($value) use (&$invalidValues) {
 									$return = !in_array($value, $invalidValues);
 									if ($return) {
 										$invalidValues[] = $value;
 									}
 									return $return;
-								}), 3, 63, 'path', '-'),
+								}), min: 3, max: 63, fallBackOnNullValue: $org->title, fillStr: 'path',
+								valueNumberSuffixSeparator: '-'),
 						Mappers::noSpecialChars(), Mappers::cleanString()
 				),
 				Mappers::value(function(?string $value) {
@@ -126,13 +126,13 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'genericGeneratedValue4' => new StringValObjMock('abc'), 'genericGeneratedValue5' => new StringableObjMock('cba')]);
 		$tdm = new DataMap();
 		$invalidValues = ['blubber', 'somepath', 'blubb-4', 'blubb-5', 'blubb-6', 'blubb-7', 'blubb-8', 'abc'];
-		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', (function($value) use (&$invalidValues) {
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: (function($value) use (&$invalidValues) {
 			$return = !in_array($value, $invalidValues);
 			if ($return) {
 				$invalidValues[] = $value;
 			}
 			return $return;
-		}), 3, 70, 'blubb', '-');
+		}), min: 3, max: 70, fallBackOnNullValue: 'blubb', fillStr: 'blubb', valueNumberSuffixSeparator: '-');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['genericGeneratedValue1', 'genericGeneratedValue2', 'genericGeneratedValue3',
@@ -199,13 +199,16 @@ class ChangeUntilValidMapperTest extends TestCase {
 				'genericGeneratedValue3' => 'max-holeradio', 'genericGeneratedValue4' => ' ',
 				'genericGeneratedValue5' => 'blubb']);
 		$tdm = new DataMap();
-		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', (function($value) use (&$invalidValues) {
-			$return = !in_array($value, $invalidValues);
-			if ($return) {
-				$invalidValues[] = $value;
-			}
-			return $return;
-		}), 4, 7, 'blue', '_', 999);
+		$retry = RetryValueChangers::numberSuffixOnRetry(
+				closure: (function($value) use (&$invalidValues) {
+					$return = !in_array($value, $invalidValues);
+					if ($return) {
+						$invalidValues[] = $value;
+					}
+					return $return;
+				}),
+				min: 4, max: 7, fallBackOnNullValue: 'blubb', fillStr: 'blue', valueNumberSuffixSeparator: '_',
+				maxRetryNo: 999);
 
 		$invalidValues = ['blubb', 'somepath', 'blubb_4', 'blubb_5', 'blubb_6', 'blubb_7', 'blubb_8', 'blubb_9'];
 		$result = Bind::attrs($dm)->toAttrs($tdm)
@@ -261,11 +264,11 @@ class ChangeUntilValidMapperTest extends TestCase {
 			return $return;
 		});
 
-		$retry1 = RetryValueChangers::numberSuffixOnRetry('blubb', $closure, 4, 120);
-		$retry2 = RetryValueChangers::numberSuffixOnRetry('Blubb', $closure, 4, 120);
-		$retry3 = RetryValueChangers::numberSuffixOnRetry('bl ubb', $closure, 4, 120);
-		$retry4 = RetryValueChangers::numberSuffixOnRetry('bl ubb', $closure, 4, 120);
-		$retry5 = RetryValueChangers::numberSuffixOnRetry(null, $closure, 4, 120);
+		$retry1 = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: 'blubb');
+		$retry2 = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: 'Blubb');
+		$retry3 = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: 'bl ubb');
+		$retry4 = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: 'bl ubb');
+		$retry5 = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: null);
 
 		$mapper = Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false));
 
@@ -311,7 +314,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry('blubb', $closure, 4, 120);
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 120, fallBackOnNullValue: 'blubb');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -352,7 +355,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry('path', $closure, 4, 12);
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 4, max: 12, fallBackOnNullValue: 'path');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -398,7 +401,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry('path', $closure, 8, 255);
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 8, max: 255, fallBackOnNullValue: 'path');
 
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
@@ -445,7 +448,7 @@ class ChangeUntilValidMapperTest extends TestCase {
 			}
 			return $return;
 		});
-		$retry = RetryValueChangers::numberSuffixOnRetry('hui', $closure, 8, 10, 'hoi');
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $closure, min: 8, max: 10, fallBackOnNullValue: 'hui', fillStr: 'hoi');
 
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('genericGeneratedValue1',
@@ -508,7 +511,8 @@ class ChangeUntilValidMapperTest extends TestCase {
 			$taken[] = $value;
 			return true;
 		};
-		$retry = RetryValueChangers::numberSuffixOnRetry('slug', $isUnique, 4, 30, valueNumberSuffixSeparator: '-');
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $isUnique, min: 4, max: 30, fallBackOnNullValue: 'slug',
+				valueNumberSuffixSeparator: '-');
 		$tdm = new DataMap();
 
 		$result = Bind::attrs(['a' => null, 'b' => null])->toAttrs($tdm)
@@ -532,7 +536,8 @@ class ChangeUntilValidMapperTest extends TestCase {
 			$taken[] = $value;
 			return true;
 		};
-		$retry = RetryValueChangers::numberSuffixOnRetry('slug', $isUnique, 4, 30, valueNumberSuffixSeparator: '-');
+		$retry = RetryValueChangers::numberSuffixOnRetry(closure: $isUnique, min: 4, max: 30, fallBackOnNullValue: 'slug',
+				valueNumberSuffixSeparator: '-');
 		$tdm = new DataMap();
 
 		$result = Bind::attrs(['c' => 'a§%sdf'])->toAttrs($tdm)

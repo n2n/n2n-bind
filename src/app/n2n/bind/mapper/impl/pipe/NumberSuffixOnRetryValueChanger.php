@@ -16,10 +16,10 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 	private \WeakMap $retryStateInfoMap;
 
 	public function __construct(
-			public string|Stringable|null $fallBackValue,
 			public \Closure $uniqueValidationClosure,
 			public int $minLength,
 			public int $maxLength,
+			public string|Stringable|null $fallBackOnNullValue,
 			public string $fillStr,
 			public string $valueNumberSuffixSeparator,
 			public int $maxRetryNo = 9999) {
@@ -54,9 +54,9 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 		if ($value === null && $state->retryNo === 0) {
 			if (!$retryStateInfo->fallbackApplied) {
 				$retryStateInfo->fallbackApplied = true;
-				if ($this->fallBackValue !== null) {
+				if ($this->fallBackOnNullValue !== null) {
 					$state->retryNo = -1;
-					return new RetryProcessResult(false, true, $this->fallBackValue);
+					return new RetryProcessResult(false, true, $this->fallBackOnNullValue);
 				}
 			}
 

@@ -351,8 +351,8 @@ class Mappers {
 	 */
 	static function pathPart(Closure $uniqueTester, ?string $fallBackValue, int $minlength = 3, int $maxlength = 63,
 			string $fillStr = 'path', int $maxRetryNo = 9999): ChangeUntilValidMapper {
-		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(fallBackValue: $fallBackValue, closure: $uniqueTester,
-				min: $minlength, max: $maxlength, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
+		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
+				min: $minlength, max: $maxlength, fallBackOnNullValue: $fallBackValue, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
 				maxRetryNo: $maxRetryNo);
 		return self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
