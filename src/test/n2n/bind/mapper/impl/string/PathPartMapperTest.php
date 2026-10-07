@@ -17,13 +17,6 @@ use n2n\bind\err\MisconfiguredMapperException;
 use n2n\validation\plan\ErrorMap;
 
 class PathPartMapperTest extends TestCase {
-	private \Closure $simpleClosure;
-
-	function setUp(): void {
-		$this->simpleClosure = function() {
-			return true;
-		};
-	}
 
 	/**
 	 * @throws BindMismatchException
@@ -37,7 +30,7 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2', 'pathPart3', 'pathPart3', 'pathPart4'],
-						Mappers::pathPart($this->simpleClosure,null))
+						Mappers::pathPart(null,null))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -79,13 +72,13 @@ class PathPartMapperTest extends TestCase {
 		$tdm = new DataMap();
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->prop('pathPart1',
-						Mappers::pathPart($this->simpleClosure, 'blubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart2',
-						Mappers::pathPart($this->simpleClosure, 'blubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart(null, 'blubb', minlength: 4, maxlength: 12))
 				->prop('pathPart3',
-						Mappers::pathPart($this->simpleClosure, 'bl ubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
 				->prop('pathPart4',
-						Mappers::pathPart($this->simpleClosure, 'bl ubb', minlength: 4, maxlength: 12))
+						Mappers::pathPart(null, 'bl ubb', minlength: 4, maxlength: 12))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertTrue($result->isValid());
@@ -319,7 +312,7 @@ class PathPartMapperTest extends TestCase {
 
 
 	function testDocsUsage(): void {
-		$result = Bind::values('Asdf', null)->map(Mappers::pathPart($this->simpleClosure,null))->toArray()->exec();
+		$result = Bind::values('Asdf', null)->map(Mappers::pathPart(null,null))->toArray()->exec();
 		var_dump($result->get());
 
 		$this->assertSame(['asdf', null], $result->get());
