@@ -366,6 +366,9 @@ class Mappers {
 		return new NoSpecialCharsMapper($mandatory, $lowercase, $minlength, $maxlength);
 	}
 
+	/**
+	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/change-until-valid
+	 */
 	static function changeUntilValid(RetryValueChanger $retryValueChanger, Mapper|Validator ... $mappers): ChangeUntilValidMapper {
 		$mappers = ValidatorMapper::convertValidators($mappers);
 		return new ChangeUntilValidMapper($retryValueChanger, $mappers);

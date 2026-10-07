@@ -494,7 +494,53 @@ class ChangeUntilValidMapperTest extends TestCase {
 			$this->expectExceptionMessageMatches('/maxLength need to be greater than/i');
 			Mappers::generateAlternateValue(minlength: 0, maxlength: 5, FallBack: null,
 					fillStr: 'Blu&bb', uniqueTester: fn($v) => $this->fail());
-		}
+	}
 	*/
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsUniqueSlugGeneration(): void {
+		$taken = [];
+		$isUnique = function (string $value) use (&$taken) {
+			if (in_array($value, $taken, true)) return false;
+			$taken[] = $value;
+			return true;
+		};
+		$retry = RetryValueChangers::numberSuffixOnRetry('slug', $isUnique, 4, 30, valueNumberSuffixSeparator: '-');
+		$tdm = new DataMap();
+
+		$result = Bind::attrs(['a' => null, 'b' => null])->toAttrs($tdm)
+				->props(['a', 'b'], Mappers::changeUntilValid($retry, Mappers::noSpecialChars(), Mappers::cleanString()))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		var_dump($result->isValid(), $tdm->reqString('a', true, true), $tdm->reqString('b', true, true));
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals('slug', $tdm->reqString('a'));
+		$this->assertEquals('slug-2', $tdm->reqString('b'));
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testDocsSanitizeThenUnique(): void {
+		$taken = ['asdf'];
+		$isUnique = function (string $value) use (&$taken) {
+			if (in_array($value, $taken, true)) return false;
+			$taken[] = $value;
+			return true;
+		};
+		$retry = RetryValueChangers::numberSuffixOnRetry('slug', $isUnique, 4, 30, valueNumberSuffixSeparator: '-');
+		$tdm = new DataMap();
+
+		$result = Bind::attrs(['c' => 'a§%sdf'])->toAttrs($tdm)
+				->prop('c', Mappers::changeUntilValid($retry, Mappers::noSpecialChars(), Mappers::cleanString()))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+		var_dump($result->isValid(), $tdm->reqString('c', true, true));
+
+		$this->assertTrue($result->isValid());
+		$this->assertEquals('asdf-2', $tdm->reqString('c'));
+	}
 }
