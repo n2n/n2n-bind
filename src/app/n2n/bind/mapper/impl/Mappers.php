@@ -350,10 +350,10 @@ class Mappers {
 	/**
 	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/path-part
 	 */
-	static function pathPart(?Closure $uniqueTester = null, ?string $fallBackOnNullValue = null, bool $mandatory = false,
+	static function pathPart(?Closure $uniqueTester = null, ?string $generationIfNullBaseName = null, bool $mandatory = false,
 			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
 		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
-				min: $minlength, max: $maxlength, fallBackOnNullValue: $fallBackOnNullValue, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
+				min: $minlength, max: $maxlength, fallBackOnNullValue: $generationIfNullBaseName, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
 				maxRetryNo: $maxRetryNo);
 		$changeUntilValidMapper = self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
