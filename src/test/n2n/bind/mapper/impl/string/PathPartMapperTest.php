@@ -185,8 +185,8 @@ class PathPartMapperTest extends TestCase {
 	 * @throws InvalidAttributeException
 	 * @throws BindMismatchException
 	 */
-	function testModificationNotAllowedWithGeneration() {
-		$dm = new DataMap(['pathPart1' => 'holeradio', 'pathPart2' => null, 'pathPart3' => 'holeradio', 'pathPart4' => null]);
+	function testModificationNotAllowed() {
+		$dm = new DataMap(['pathPart1' => ' HoleRadio ', 'pathPart2' => null, 'pathPart3' => ' HoleRadio ', 'pathPart4' => null]);
 		$result = Bind::attrs($dm)
 				->props(['pathPart1', 'pathPart2'],
 						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12)
