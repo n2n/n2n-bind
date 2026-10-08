@@ -21,4 +21,12 @@ class RetryValueChangers {
 		return new NumberSuffixOnRetryValueChanger($closure, $min, $max, $fallBackOnNullValue, $fillStr,
 				$valueNumberSuffixSeparator, $maxRetryNo);
 	}
+
+	public static function generatedOnNullWithNumberSuffixOnRetry(?\Closure $closure, int $minlength, int $maxlength,
+			string $fallBackOnNullValue,
+			string $fillStr = 'unnamed', string $valueNumberSuffixSeparator = ' ',
+			int $maxRetryNo = 9999): RetryValueChanger {
+		return new GenerateOnNullWithNumberSuffixOnRetryValueChanger($closure, $minlength, $maxlength, $fallBackOnNullValue, $fillStr,
+				$valueNumberSuffixSeparator, $maxRetryNo);
+	}
 }

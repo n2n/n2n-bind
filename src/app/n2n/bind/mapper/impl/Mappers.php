@@ -77,6 +77,7 @@ use n2n\util\StringUtils;
 use n2n\bind\mapper\impl\pipe\RetryValueChanger;
 use n2n\bind\mapper\impl\pipe\RetryValueChangers;
 use n2n\validation\validator\impl\Validators;
+use n2n\bind\mapper\impl\string\PathPartMapper;
 
 class Mappers {
 
@@ -352,6 +353,8 @@ class Mappers {
 	 */
 	static function pathPart(?Closure $uniqueTester = null, ?string $generationIfNullBaseName = null, bool $mandatory = false,
 			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
+
+		return new PathPartMapper();
 		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
 				min: $minlength, max: $maxlength, fallBackOnNullValue: $generationIfNullBaseName, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
 				maxRetryNo: $maxRetryNo);

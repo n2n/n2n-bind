@@ -11,15 +11,15 @@ use n2n\validation\validator\impl\ValidationUtils;
 use n2n\util\magic\impl\MagicMethodInvoker;
 use n2n\bind\err\MisconfiguredMapperException;
 
-class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
+class GenerateOnNullWithNumberSuffixOnRetryValueChanger implements RetryValueChanger {
 
 	private \WeakMap $retryStateInfoMap;
 
 	public function __construct(
-			public ?\Closure $uniqueValidationClosure,
+			public ?\Closure $validationClosure,
 			public int $minLength,
 			public int $maxLength,
-			public string|Stringable|null $fallBackOnNullValue,
+			public string $fallBackOnNullValue,
 			public string $fillStr,
 			public string $valueNumberSuffixSeparator,
 			public int $maxRetryNo = 9999) {
@@ -50,30 +50,31 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 	}
 
 	final function processValue(mixed $value, ChangeUntilLoopState $state): RetryProcessResult {
+		if ($state->retryNo === 0 && $value !== null) {
+			return new RetryProcessResult(true);
+		}
+
 		$retryStateInfo = $this->getWeakMapInfo($state);
-		if ($value === null && $state->retryNo === 0) {
+		if ($state->retryNo === 0 && $value !== null) {
 			if (!$retryStateInfo->fallbackApplied) {
 				$retryStateInfo->fallbackApplied = true;
-				if ($this->fallBackOnNullValue !== null) {
-					$state->retryNo = -1;
-					return new RetryProcessResult(false, true, $this->fallBackOnNullValue);
-				}
+				$state->retryNo = -1;
+				return new RetryProcessResult(false, true, $this->fallBackOnNullValue);
 			}
 
 			if (!$retryStateInfo->fillStrApplied) {
 				$retryStateInfo->fillStrApplied = true;
-				if ($state->originalValue !== null) {
-					$state->retryNo = -1;
-					return new RetryProcessResult(false, true, $this->fillToMinlength($value));
-				}
+				$state->retryNo = -1;
+				return new RetryProcessResult(false, true, $this->fillToMinlength($value));
 			}
 
-			if ($state->originalValue !== null) {
-				throw new MisconfiguredMapperException(self::class
-						. ' was not able to adjust value. Possible illegal fillStr: ' . $this->fillStr);
-			}
 
-			return new RetryProcessResult(true);
+//			return new RetryProcessResult(false);
+		}
+
+		if ($value === null) {
+			throw new MisconfiguredMapperException(self::class
+					. ' was not able to adjust value. Possible illegal fillStr: ' . $this->fillStr);
 		}
 
 
@@ -93,12 +94,12 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 
 		$retryStateInfo->validatedAtLeastOnce = true;
 
-		if ($this->uniqueValidationClosure === null) {
+		if ($this->validationClosure === null) {
 			return new RetryProcessResult(true);
 		}
 
 		$invoker = new MagicMethodInvoker($state->magicContext);
-		$invoker->setClosure($this->uniqueValidationClosure);
+		$invoker->setClosure($this->validationClosure);
 		$invoker->setReturnTypeConstraint(TypeConstraints::bool());
 		if ($invoker->invoke(firstArgs: [$value])) {
 			return new RetryProcessResult(true);
@@ -137,3 +138,5 @@ class NumberSuffixOnRetryValueChanger implements RetryValueChanger {
 	}
 
 }
+
+
