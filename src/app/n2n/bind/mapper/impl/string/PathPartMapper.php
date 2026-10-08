@@ -31,6 +31,7 @@ class PathPartMapper extends SingleMapperAdapter {
 	private ?Message $maxlengthErrorMessage = null;
 	private ?Message $uniqueErrorMessage = null;
 	private ?Message $noSpecialCharsErrorMessage = null;
+	private int $maxRetryNo = 9999;
 
 	/**
 	 *
@@ -45,7 +46,15 @@ class PathPartMapper extends SingleMapperAdapter {
 	public function __construct(?Closure $uniqueTester, private ?string $generationIfNullBaseName,
 			private ?int $minlength, private ?int $maxlength, private bool $mandatory = false) {
 		$this->uniqueTester = $uniqueTester;
-		$this->validateBoundaryArgs();
+	}
+
+	function setMaxRetryNo(int $maxRetryNo): static {
+		$this->maxRetryNo = $maxRetryNo;
+		return $this;
+	}
+
+	function getMaxRetryNo(): int {
+		return $this->maxRetryNo;
 	}
 
 	public function getGenerationIfNullBaseName(): ?string {
@@ -54,7 +63,6 @@ class PathPartMapper extends SingleMapperAdapter {
 
 	public function setGenerationIfNullBaseName(?string $generationIfNullBaseName): static {
 		$this->generationIfNullBaseName = $generationIfNullBaseName;
-		$this->validateBoundaryArgs();
 		return $this;
 	}
 
@@ -64,7 +72,6 @@ class PathPartMapper extends SingleMapperAdapter {
 
 	public function setMinlength(?int $minlength): static {
 		$this->minlength = $minlength;
-		$this->validateBoundaryArgs();
 		return $this;
 	}
 
@@ -74,7 +81,6 @@ class PathPartMapper extends SingleMapperAdapter {
 
 	public function setMaxlength(?int $maxlength): static {
 		$this->maxlength = $maxlength;
-		$this->validateBoundaryArgs();
 		return $this;
 	}
 
@@ -88,23 +94,10 @@ class PathPartMapper extends SingleMapperAdapter {
 	}
 
 	function setFillStr(string $fillStr): static {
-		$fillStr = StringUtils::clean($fillStr);
-		ArgUtils::assertTrue(ValidationUtils::isLowerCaseOnly($fillStr) && !IoUtils::hasSpecialChars($fillStr)
-				&& ValidationUtils::isNotShorterThan($fillStr, 1),
-				'Invalid fill str, make sure it is lowercase, contains no specialChars and is at least 1 char long: ' . $fillStr);
 		$this->fillStr = $fillStr;
 		return $this;
 	}
 
-	private function validateBoundaryArgs(): void {
-		if ($this->minlength !== null && $this->maxlength !== null && $this->minlength > $this->maxlength) {
-			throw new InvalidArgumentException('Maxlength need to be greater or equal to minlength.');
-		}
-
-		if ($this->generationIfNullBaseName !== null && $this->maxlength < 6) {
-			throw new InvalidArgumentException('If path generation is enabled the maxlength must be greater than 5.');
-		}
-	}
 
 	private function validate(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): void {
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
@@ -115,14 +108,14 @@ class PathPartMapper extends SingleMapperAdapter {
 		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
 
 		$baseMappers = [Mappers::cleanString(), Mappers::noSpecialChars(),
-				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))]
+				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))];
 
 		if ($this->generationIfNullBaseName === null) {
 			$mappers = $baseMappers;
 		} else {
 			$mappers[] = Mappers::changeUntilValid(
 					RetryValueChangers::generatedOnNullWithNumberSuffixOnRetry($this->uniqueTester, $this->minlength,
-							$this->maxlength, $this->generationIfNullBaseName, $this->fillStr, '-'),
+							$this->maxlength, $this->generationIfNullBaseName, $this->fillStr, '-', $this->maxRetryNo),
 					...$baseMappers);
 		}
 

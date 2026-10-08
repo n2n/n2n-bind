@@ -354,18 +354,8 @@ class Mappers {
 	static function pathPart(?Closure $uniqueTester = null, ?string $generationIfNullBaseName = null, bool $mandatory = false,
 			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
 
-		return new PathPartMapper();
-		$retryValueChanger = RetryValueChangers::numberSuffixOnRetry(closure: $uniqueTester,
-				min: $minlength, max: $maxlength, fallBackOnNullValue: $generationIfNullBaseName, fillStr: $fillStr, valueNumberSuffixSeparator: '-',
-				maxRetryNo: $maxRetryNo);
-		$changeUntilValidMapper = self::changeUntilValid($retryValueChanger, Mappers::cleanString(), Mappers::noSpecialChars(),
-				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false)));
-
-		if (!$mandatory) {
-			return $changeUntilValidMapper;
-		}
-
-		return Mappers::pipe($changeUntilValidMapper, Validators::mandatory());
+		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory)
+				->setFillStr($fillStr)->setMaxRetryNo($maxRetryNo);
 	}
 
 	/**

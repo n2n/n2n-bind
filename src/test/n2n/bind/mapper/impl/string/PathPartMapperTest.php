@@ -37,7 +37,7 @@ class PathPartMapperTest extends TestCase {
 
 		$this->assertSame(null, $tdm->reqString('pathPart1', true));
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2'));
-		$this->assertSame('path', $tdm->reqString('pathPart3', true));
+		$this->assertSame(null, $tdm->reqString('pathPart3', true));
 		$this->assertEquals('abc', $tdm->reqString('pathPart4'));
 	}
 
@@ -90,6 +90,49 @@ class PathPartMapperTest extends TestCase {
 	}
 
 	/**
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindMismatchException
+	 */
+	function testAttrsGenerationIfNullBaseNameIgnored() {
+		$dm = new DataMap(['pathPart1' => 'holeradio', 'pathPart2' => 'Hole Radio', 'pathPart3' => 'Höle_Radiö ']);
+		$tdm = new DataMap();
+		$result = Bind::attrs($dm)->toAttrs($tdm)
+				->props(['pathPart1', 'pathPart2', 'pathPart3'],
+						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertTrue($result->isValid());
+
+		$this->assertEquals('holeradio', $tdm->reqString('pathPart1'));
+		$this->assertEquals('hole-radio', $tdm->reqString('pathPart2'));
+		$this->assertEquals('hoele-radioe', $tdm->reqString('pathPart3'));
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testAttrsGenerationIfErrors() {
+		$dm = new DataMap(['pathPart1' => 'h', 'pathPart2' => 'Hole Radio Hole Radio', 'pathPart3' => 'blubb']);
+		$tdm = new DataMap();
+		$result = Bind::attrs($dm)->toAttrs($tdm)
+				->props(['pathPart1', 'pathPart2', 'pathPart3'],
+						Mappers::pathPart((function($value) use ($dm) {
+							return !in_array($value, ['blubb', 'path']);
+						}), 'Base Name', minlength: 4, maxlength: 12))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertFalse($result->isValid());
+		$errorMap = $result->getErrorMap();
+
+		$this->assertEquals('Minlength [minlength = 4]', (string) $errorMap->getChild('pathPart1')->getMessages()[0]);
+		$this->assertEquals('Maxlength [maxlength = 12]', (string) $errorMap->getChild('pathPart2')->getMessages()[0]);
+		$this->assertEquals('Already Taken', (string) $errorMap->getChild('pathPart3')->getMessages()[0]);
+	}
+
+	/**
 	 * @throws BindMismatchException
 	 * @throws InvalidAttributeException
 	 * @throws MissingAttributeFieldException
@@ -130,8 +173,6 @@ class PathPartMapperTest extends TestCase {
 
 	/**
 	 * @throws BindMismatchException
-	 * @throws InvalidAttributeException
-	 * @throws MissingAttributeFieldException
 	 * @throws UnresolvableBindableException
 	 */
 	function testMandatory() {
@@ -143,7 +184,6 @@ class PathPartMapperTest extends TestCase {
 		$this->assertNull($errorMap->getChild(0));
 		$this->assertFalse($errorMap->getChild(1)->isEmpty());
 		$this->assertEquals('Mandatory', (string) $errorMap->getChild(1)->getMessages()[0]);
-
 	}
 
 
@@ -189,7 +229,7 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('blubb', $tdm->reqString('pathPart1')); //use lowercase
 		$this->assertEquals('asdf', $tdm->reqString('pathPart2')); //stripped special-chars
 		$this->assertEquals('awaytolongst', $tdm->reqString('pathPart3')); //reduced to max
-		$this->assertEquals('path', $tdm->reqString('pathPart4')); //fallback used
+		$this->assertEquals(null, $tdm->reqString('pathPart4', true)); //changed to null
 		$this->assertEquals('xy-path', $tdm->reqString('pathPart5')); //extended to reach min
 		$this->assertEquals('awaytolong-2', $tdm->reqString('pathPart6')); //reduced max and added num count for unique
 	}
@@ -236,7 +276,7 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('blubb-path', $tdm->reqString('pathPart1')); ////use lowercase and extended to reach min
 		$this->assertEquals('asdf-path', $tdm->reqString('pathPart2')); //stripped special-chars and extended to reach min
 		$this->assertEquals('awaytolongstring', $tdm->reqString('pathPart3')); //nothing done
-		$this->assertEquals('path-path', $tdm->reqString('pathPart4')); //fallback used, extended to reach min
+		$this->assertEquals(null, $tdm->reqString('pathPart4', true)); //stay null
 		$this->assertEquals('xy-path-path', $tdm->reqString('pathPart5')); //extended(twice) to reach min
 		$this->assertEquals('awaytolongstring-2', $tdm->reqString('pathPart6')); //added num count for unique
 	}
@@ -266,7 +306,8 @@ class PathPartMapperTest extends TestCase {
 						}), 'aWayToLongString', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart4',
 						Mappers::pathPart((function($value) use ($dm) {
-							return !in_array($value, []);
+							return !in_array($value, ['hoi-hoi-ho', 'hoi-hoi-2', 'hoi-hoi-3',
+									'hoi-hoi-4', 'hoi-hoi-5', 'hoi-hoi-6', 'hoi-hoi-7', 'hoi-hoi-8', 'hoi-hoi-9']);
 						}), '§§§§', minlength: 8, maxlength: 10, fillStr: 'hoi'))
 				->prop('pathPart5',
 						Mappers::pathPart((function($value) use ($dm) {
@@ -283,34 +324,49 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('blubb-hoi', $tdm->reqString('pathPart1')); ////use lowercase and extended to reach min
 		$this->assertEquals('asdf-hoi', $tdm->reqString('pathPart2')); //stripped special-chars and extended to reach min
 		$this->assertEquals('awaytolong', $tdm->reqString('pathPart3')); //reduced to max
-		$this->assertEquals('hoi-hoi-ho', $tdm->reqString('pathPart4')); //fallback used, extended(twice) to reach min, reduced to max
+		$this->assertEquals('hoi-hoi-10', $tdm->reqString('pathPart4')); //fallback used, extended(twice) to reach min, reduced to max
 		$this->assertEquals('xy-hoi-hoi', $tdm->reqString('pathPart5')); //extended(twice) to reach min
 		$this->assertEquals('awaytolo-2', $tdm->reqString('pathPart6')); //reduced to max, added num count for unique
 	}
 
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testSetFillStrViolationToShort() {
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/Invalid fill str, make sure it is at least.*long/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10, fillStr: '');
+		Bind::values('Asdf', null)->map(Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 10, fillStr: ''))->toArray()->exec();
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testMinMaxViolation() {
 		//prevent epic fail
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/maxlength.*[greater|equals].*minlength/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 6);
+		Bind::values('Asdf', null)->map(Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 8, maxlength: 6))->toArray()->exec();
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testMaxToShortForGenerationIfNullBaseNameViolation() {
 		//make sure we have at least a char where a minus sign and a num 2-9999 is added to make unique pathPart
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/maxLength need to be greater than \(numberSuffixOnRetry \+ maxRetries\) length/i');
-		Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 0, maxlength: 5);
+		Bind::values('Asdf', null)->map(Mappers::pathPart(fn($v) => $this->fail(), 'Blu&bb', minlength: 0, maxlength: 5))->toArray()->exec();
 	}
 
 
-
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
 	function testDocsUsage(): void {
 		$result = Bind::values('Asdf', null)->map(Mappers::pathPart(null,null))->toArray()->exec();
 		var_dump($result->get());

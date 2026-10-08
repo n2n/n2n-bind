@@ -5,7 +5,6 @@ namespace n2n\bind\mapper\impl\pipe;
 use n2n\util\type\TypeConstraint;
 use n2n\util\type\TypeConstraints;
 use n2n\util\StringUtils;
-use Stringable;
 use n2n\util\type\ArgUtils;
 use n2n\validation\validator\impl\ValidationUtils;
 use n2n\util\magic\impl\MagicMethodInvoker;
@@ -50,12 +49,12 @@ class GenerateOnNullWithNumberSuffixOnRetryValueChanger implements RetryValueCha
 	}
 
 	final function processValue(mixed $value, ChangeUntilLoopState $state): RetryProcessResult {
-		if ($state->retryNo === 0 && $value !== null) {
+		$retryStateInfo = $this->getWeakMapInfo($state);
+		if ($value !== null && !$retryStateInfo->fallbackApplied) {
 			return new RetryProcessResult(true);
 		}
 
-		$retryStateInfo = $this->getWeakMapInfo($state);
-		if ($state->retryNo === 0 && $value !== null) {
+		if ($state->retryNo === 0) {
 			if (!$retryStateInfo->fallbackApplied) {
 				$retryStateInfo->fallbackApplied = true;
 				$state->retryNo = -1;
@@ -67,9 +66,6 @@ class GenerateOnNullWithNumberSuffixOnRetryValueChanger implements RetryValueCha
 				$state->retryNo = -1;
 				return new RetryProcessResult(false, true, $this->fillToMinlength($value));
 			}
-
-
-//			return new RetryProcessResult(false);
 		}
 
 		if ($value === null) {
