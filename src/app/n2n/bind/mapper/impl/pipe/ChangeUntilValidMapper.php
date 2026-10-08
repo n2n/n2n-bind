@@ -51,9 +51,10 @@ class ChangeUntilValidMapper extends SingleMapperAdapter {
 
 		}
 
-		throw new MisconfiguredMapperException(get_class($this->retryValueChanger) . ' could not find a unique value after ' .
-				$this->retryValueChanger->maxRetryNo . ' retries. Please increase maxRetryNo or review the mapper configuration.'
-		);
+		throw new MisconfiguredMapperException(get_class($this->retryValueChanger)
+				. ' could not find a unique value after ' .
+				$this->retryValueChanger->maxRetryNo
+				. ' retries. Please increase maxRetryNo or review the mapper configuration.');
 
 	}
 }
