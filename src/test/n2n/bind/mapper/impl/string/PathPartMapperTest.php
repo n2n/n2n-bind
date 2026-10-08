@@ -132,6 +132,79 @@ class PathPartMapperTest extends TestCase {
 		$this->assertEquals('Already Taken', (string) $errorMap->getChild('pathPart3')->getMessages()[0]);
 	}
 
+
+	/**
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindMismatchException
+	 */
+	function testModificationNotAllowedWithGenerationError() {
+		$dm = new DataMap(['pathPart1' => 'holeradio', 'pathPart2' => 'Höle_Radiö ']);
+		$tdm = new DataMap();
+		$result = Bind::attrs($dm)->toAttrs($tdm)
+				->props(['pathPart1', 'pathPart2'],
+						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12)
+								->setPathModificationAllowed(false))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertFalse($result->isValid());
+		$errorMap = $result->getErrorMap();
+		assert($errorMap instanceof ErrorMap);
+
+		$this->assertNull($errorMap->getChild('pathPart1'));
+		$this->assertEquals('Special Chars', (string) $errorMap->getChild('pathPart2')->getMessages()[0]);
+	}
+
+	/**
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindMismatchException
+	 */
+	function testModificationNotAllowedWithoutGenerationError() {
+		$dm = new DataMap(['pathPart1' => 'holeradio', 'pathPart2' => 'Höle_Radiö ']);
+		$tdm = new DataMap();
+		$result = Bind::attrs($dm)->toAttrs($tdm)
+				->props(['pathPart1', 'pathPart2'],
+						Mappers::pathPart(null, null, minlength: 4, maxlength: 12)
+								->setPathModificationAllowed(false))
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+		$this->assertFalse($result->isValid());
+		$errorMap = $result->getErrorMap();
+		assert($errorMap instanceof ErrorMap);
+
+		$this->assertNull($errorMap->getChild('pathPart1'));
+		$this->assertEquals('Special Chars', (string) $errorMap->getChild('pathPart2')->getMessages()[0]);
+	}
+
+	/**
+	 * @throws MissingAttributeFieldException
+	 * @throws UnresolvableBindableException
+	 * @throws InvalidAttributeException
+	 * @throws BindMismatchException
+	 */
+	function testModificationNotAllowedWithGeneration() {
+		$dm = new DataMap(['pathPart1' => 'holeradio', 'pathPart2' => null, 'pathPart3' => 'holeradio', 'pathPart4' => null]);
+		$result = Bind::attrs($dm)
+				->props(['pathPart1', 'pathPart2'],
+						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12)
+								->setPathModificationAllowed(false))
+				->props(['pathPart3', 'pathPart4'],
+						Mappers::pathPart(null, null, minlength: 4, maxlength: 12)
+								->setPathModificationAllowed(false))
+				->toArray()
+				->exec($this->getMockBuilder(MagicContext::class)->getMock());
+
+
+		$this->assertTrue($result->isValid());
+
+		$this->assertSame(
+				['pathPart1' => 'holeradio', 'pathPart2' => 'base-name', 'pathPart3' => 'holeradio', 'pathPart4' => null],
+				$result->get());
+	}
+
 	/**
 	 * @throws BindMismatchException
 	 * @throws InvalidAttributeException

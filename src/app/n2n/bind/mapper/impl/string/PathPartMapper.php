@@ -26,6 +26,7 @@ use n2n\bind\mapper\MapResult;
 class PathPartMapper extends SingleMapperAdapter {
 	private ?Closure $uniqueTester;
 	private string $fillStr = 'path';
+	private bool $pathModificationAllowed = true;
 	private ?Message $mandatoryErrorMessage = null;
 	private ?Message $minlengthErrorMessage = null;
 	private ?Message $maxlengthErrorMessage = null;
@@ -98,6 +99,14 @@ class PathPartMapper extends SingleMapperAdapter {
 		return $this;
 	}
 
+	public function isPathModificationAllowed(): bool {
+		return $this->pathModificationAllowed;
+	}
+
+	public function setPathModificationAllowed(bool $pathModificationAllowed): static {
+		$this->pathModificationAllowed = $pathModificationAllowed;
+		return $this;
+	}
 
 	private function validate(Bindable $bindable, BindContext $bindContext, MagicContext $magicContext): void {
 		$validationGroup = new ValidationGroup($this->createValidators(), [$bindable], $bindContext);
@@ -109,12 +118,14 @@ class PathPartMapper extends SingleMapperAdapter {
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))];
 
 		if ($this->generationIfNullBaseName === null) {
-			$mappers = $baseMappers;
-		} else {
+			$mappers = ($this->pathModificationAllowed ? $baseMappers : []);
+		} else if ($this->pathModificationAllowed || null === $bindable->getValue()) {
 			$mappers[] = Mappers::changeUntilValid(
 					RetryValueChangers::generatedOnNullWithNumberSuffixOnRetry($this->uniqueTester, $this->minlength,
 							$this->maxlength, $this->generationIfNullBaseName, $this->fillStr, '-', $this->maxRetryNo),
 					...$baseMappers);
+		} else {
+			$mappers = [];
 		}
 
 		array_push($mappers, ...$this->createValidators());

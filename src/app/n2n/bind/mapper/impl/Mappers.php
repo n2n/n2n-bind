@@ -349,7 +349,7 @@ class Mappers {
 	 * @see https://docs.n2n.rocks/docs/n2n-bind/mappers/path-part
 	 */
 	static function pathPart(?Closure $uniqueTester = null, ?string $generationIfNullBaseName = null, bool $mandatory = false,
-			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): Mapper {
+			int $minlength = 3, int $maxlength = 63, string $fillStr = 'path', int $maxRetryNo = 9999): PathPartMapper {
 
 		return new PathPartMapper($uniqueTester, $generationIfNullBaseName, $minlength, $maxlength, $mandatory)
 				->setFillStr($fillStr)->setMaxRetryNo($maxRetryNo);
