@@ -26,7 +26,7 @@ use n2n\bind\mapper\MapResult;
 class PathPartMapper extends SingleMapperAdapter {
 	private ?Closure $uniqueTester;
 	private string $fillStr = 'path';
-	private bool $pathModificationAllowed = true;
+	private bool $valueModificationAllowed = true;
 	private ?Message $mandatoryErrorMessage = null;
 	private ?Message $minlengthErrorMessage = null;
 	private ?Message $maxlengthErrorMessage = null;
@@ -99,12 +99,12 @@ class PathPartMapper extends SingleMapperAdapter {
 		return $this;
 	}
 
-	public function isPathModificationAllowed(): bool {
-		return $this->pathModificationAllowed;
+	public function isValueModificationAllowed(): bool {
+		return $this->valueModificationAllowed;
 	}
 
-	public function setPathModificationAllowed(bool $pathModificationAllowed): static {
-		$this->pathModificationAllowed = $pathModificationAllowed;
+	public function setValueModificationAllowed(bool $valueModificationAllowed): static {
+		$this->valueModificationAllowed = $valueModificationAllowed;
 		return $this;
 	}
 
@@ -118,8 +118,8 @@ class PathPartMapper extends SingleMapperAdapter {
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))];
 
 		if ($this->generationIfNullBaseName === null) {
-			$mappers = ($this->pathModificationAllowed ? $baseMappers : []);
-		} else if ($this->pathModificationAllowed || null === $bindable->getValue()) {
+			$mappers = ($this->valueModificationAllowed ? $baseMappers : []);
+		} else if ($this->valueModificationAllowed || null === $bindable->getValue()) {
 			$mappers[] = Mappers::changeUntilValid(
 					RetryValueChangers::generatedOnNullWithNumberSuffixOnRetry($this->uniqueTester, $this->minlength,
 							$this->maxlength, $this->generationIfNullBaseName, $this->fillStr, '-', $this->maxRetryNo),

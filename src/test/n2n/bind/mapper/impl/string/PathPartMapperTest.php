@@ -145,7 +145,7 @@ class PathPartMapperTest extends TestCase {
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2'],
 						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12)
-								->setPathModificationAllowed(false))
+								->setValueModificationAllowed(false))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertFalse($result->isValid());
@@ -168,7 +168,7 @@ class PathPartMapperTest extends TestCase {
 		$result = Bind::attrs($dm)->toAttrs($tdm)
 				->props(['pathPart1', 'pathPart2'],
 						Mappers::pathPart(null, null, minlength: 4, maxlength: 12)
-								->setPathModificationAllowed(false))
+								->setValueModificationAllowed(false))
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
 		$this->assertFalse($result->isValid());
@@ -190,10 +190,10 @@ class PathPartMapperTest extends TestCase {
 		$result = Bind::attrs($dm)
 				->props(['pathPart1', 'pathPart2'],
 						Mappers::pathPart(null, 'Base Name', minlength: 4, maxlength: 12)
-								->setPathModificationAllowed(false))
+								->setValueModificationAllowed(false))
 				->props(['pathPart3', 'pathPart4'],
 						Mappers::pathPart(null, null, minlength: 4, maxlength: 12)
-								->setPathModificationAllowed(false))
+								->setValueModificationAllowed(false))
 				->toArray()
 				->exec($this->getMockBuilder(MagicContext::class)->getMock());
 
