@@ -73,7 +73,6 @@ class GenerateOnNullWithNumberSuffixOnRetryValueChanger implements RetryValueCha
 					. ' was not able to adjust value. Possible illegal fillStr: ' . $this->fillStr);
 		}
 
-
 		$fillModified = false;
 		$reducedModified = false;
 		$value = $this->fillToMinlength($value, $fillModified);

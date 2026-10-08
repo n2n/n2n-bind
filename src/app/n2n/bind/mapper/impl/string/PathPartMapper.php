@@ -105,8 +105,6 @@ class PathPartMapper extends SingleMapperAdapter {
 	}
 
 	function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
-		$value = $this->readSafeValue($bindable, TypeConstraints::string(true));
-
 		$baseMappers = [Mappers::cleanString(), Mappers::noSpecialChars(),
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))];
 

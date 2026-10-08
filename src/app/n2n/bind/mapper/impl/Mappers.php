@@ -73,10 +73,7 @@ use n2n\bind\mapper\impl\mod\ValueToSubValuesMapper;
 use n2n\bind\mapper\impl\string\PhoneMapper;
 use n2n\bind\mapper\impl\string\NoSpecialCharsMapper;
 use n2n\bind\mapper\impl\pipe\ChangeUntilValidMapper;
-use n2n\util\StringUtils;
 use n2n\bind\mapper\impl\pipe\RetryValueChanger;
-use n2n\bind\mapper\impl\pipe\RetryValueChangers;
-use n2n\validation\validator\impl\Validators;
 use n2n\bind\mapper\impl\string\PathPartMapper;
 
 class Mappers {
