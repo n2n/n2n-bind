@@ -116,16 +116,18 @@ class PathPartMapper extends SingleMapperAdapter {
 	function mapSingle(Bindable $bindable, BindBoundary $bindBoundary, MagicContext $magicContext): MapResult {
 		$baseMappers = [Mappers::cleanString(), Mappers::noSpecialChars(),
 				Mappers::valueIfNotNull(fn(?string $string): string => StringUtils::hyphenated($string, false))];
+		$minimalMappers = [Mappers::cleanString(),
+				Mappers::valueIfNotNull(fn (?string $s): string => mb_strtolower($s))];
 
 		if ($this->generationIfNullBaseName === null) {
-			$mappers = ($this->valueModificationAllowed ? $baseMappers : []);
+			$mappers = ($this->valueModificationAllowed ? $baseMappers : $minimalMappers);
 		} else if ($this->valueModificationAllowed || null === $bindable->getValue()) {
 			$mappers[] = Mappers::changeUntilValid(
 					RetryValueChangers::generatedOnNullWithNumberSuffixOnRetry($this->uniqueTester, $this->minlength,
 							$this->maxlength, $this->generationIfNullBaseName, $this->fillStr, '-', $this->maxRetryNo),
 					...$baseMappers);
 		} else {
-			$mappers = [];
+			$mappers = $minimalMappers;
 		}
 
 		array_push($mappers, ...$this->createValidators());
