@@ -40,7 +40,7 @@ class ValueObjectMapperExtractor {
 	 */
 	private function extractMapper(string $attributeName): Mapper {
 		$methodAttributes = ReflectionContext::getAttributeSet($this->class)
-				->getMethodAttributesByName($attributeName);
+				->getMethodAttributesByName($attributeName, parentsIncluded: true);
 
 		if (empty($methodAttributes)) {
 			throw new ValueObjectMapperExtractionException('No method annotated with ' . $attributeName
@@ -65,7 +65,7 @@ class ValueObjectMapperExtractor {
 
 	static function isUnmarshalable(\ReflectionClass $class): bool {
 		return ReflectionContext::getAttributeSet($class)
-				->containsMethodAttributeName(Unmarshal::class);
+				->containsMethodAttributeName(Unmarshal::class, parentsIncluded: true);
 	}
 }
 
