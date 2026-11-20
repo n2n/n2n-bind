@@ -105,12 +105,12 @@ class PropBindTask extends PropBindComposer implements MagicTask {
 	}
 
 	function onSuccess(\Closure $onSuccessCallback): static {
-		$this->onSuccessCallbacks[spl_object_hash($onSuccessCallback)] = $onSuccessCallback;
+		$this->onSuccessCallbacks[spl_object_id($onSuccessCallback)] = $onSuccessCallback;
 		return $this;
 	}
 
 	function offSuccess(\Closure $onSuccessCallback): static {
-		unset($this->onSuccessCallbacks[spl_object_hash($onSuccessCallback)]);
+		unset($this->onSuccessCallbacks[spl_object_id($onSuccessCallback)]);
 		return $this;
 	}
 
