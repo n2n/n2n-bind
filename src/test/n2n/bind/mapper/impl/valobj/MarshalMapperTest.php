@@ -93,6 +93,34 @@ class MarshalMapperTest extends TestCase  {
 		$this->assertEquals(999999, $obj->age);
 	}
 
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testUnmarshalObjectUnmarshalTraitFromNull(): void {
+		$result = Bind::values(null)
+				->map(Mappers::unmarshal(ObjectUnmarshalMock::class))
+				->toValue()
+				->exec($this->createMock(MagicContext::class));
+
+		$obj = $result->get();
+		$this->assertNull($obj);
+	}
+
+	/**
+	 * @throws UnresolvableBindableException
+	 * @throws BindMismatchException
+	 */
+	function testUnmarshalObjectWithSpecialMappingFromNull(): void {
+		$result = Bind::values(null)
+				->map(Mappers::unmarshal(ObjectUnmarshalWithSpecialMappingMock::class))
+				->toValue()
+				->exec($this->createMock(MagicContext::class));
+
+		$obj = $result->get();
+		$this->assertNull($obj);
+	}
+
 	function testTypedArrayMarshalTrait(): void {
 		$this->markTestSkipped('Not yet implemented');
 
