@@ -319,4 +319,30 @@ class PipeMapperTest extends TestCase {
 		$this->assertFalse($mapResult->isOk());
 		$this->assertFalse($mapResult->isSkipNext());
 	}
+
+	function testDocsGroup(): void {
+		$result = Bind::values(null)->map(
+				Mappers::group(
+						Mappers::doIfNull(skipNextMappers: true),
+						Mappers::value(fn (string $v) => strtoupper($v)),
+				),
+				Mappers::value(fn (?string $v) => $v ?? 'EMPTY'),
+		)->toValue()->exec();
+		var_dump($result->get());
+
+		$this->assertSame('EMPTY', $result->get());
+	}
+
+	function testDocsGroupVsPipe(): void {
+		$result = Bind::values(null)->map(
+				Mappers::pipe(
+						Mappers::doIfNull(skipNextMappers: true),
+						Mappers::value(fn (string $v) => strtoupper($v)),
+				),
+				Mappers::value(fn (?string $v) => $v ?? 'EMPTY'),
+		)->toValue()->exec();
+		var_dump($result->get());
+
+		$this->assertNull($result->get());
+	}
 }
