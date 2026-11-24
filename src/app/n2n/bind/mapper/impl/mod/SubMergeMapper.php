@@ -36,6 +36,10 @@ class SubMergeMapper extends SingleMapperAdapter {
 
 			$merger->merge($descendantBindable->getPath()->slice($pathSize), $descendantBindable->getValue());
 			$descendantBindable->setExist(false);
+
+			foreach ($descendantBindable->getErrors() as $message) {
+				$bindable->addError($message);
+			}
 		}
 
 		$bindable->setValue($merger->getValues());

@@ -10,6 +10,7 @@ use n2n\util\magic\MagicContext;
 use n2n\bind\err\BindTargetException;
 use n2n\bind\err\BindMismatchException;
 use n2n\bind\err\UnresolvableBindableException;
+use n2n\validation\validator\impl\Validators;
 
 class SubMergeMapperTest extends TestCase {
 
@@ -62,6 +63,34 @@ class SubMergeMapperTest extends TestCase {
 		$this->assertSame(
 				['sub' => ['sub2' => ['huii1' => 'foobar', 'huii2' => 'foobar2']]],
 				$result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testInvalidSubProps(): void {
+		$dataMap = new DataMap([
+				'sub' => [
+						'huii' => 'bar',
+						'sub2' => [
+								'huii1' => 'foobar',
+								'huii2' => 'foobar2'
+						]
+				]
+		]);
+
+		$result = Bind::attrs($dataMap)->toValue($v)
+				->prop('sub/huii', Validators::closure(fn () => false))
+				->prop('sub', Mappers::subMerge())
+				->exec($this->createMock(MagicContext::class));
+
+		$this->assertFalse($result->isValid());
+
+		// the error of the invalid sub property is contained in the error map below the merged 'sub' property
+		$subErrorMap = $result->getErrorMap()->getChild('sub');
+		$this->assertNotNull($subErrorMap);
+		$this->assertNotEmpty($subErrorMap->getAllMessages());
 	}
 
 	/**
