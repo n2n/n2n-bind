@@ -28,6 +28,7 @@ class UrlMapper extends SingleMapperAdapter {
 				$url = Url::create(StringUtils::clean($value));
 			} catch (\InvalidArgumentException $e) {
 				$bindable->addError(ValidationMessages::url());
+				$bindable->setDirty(true);
 			}
             $bindable->setValue($url);
         }

@@ -47,6 +47,7 @@ class ChangeUntilValidMapper extends SingleMapperAdapter {
 			}
 
 			$bindable->addError(ValidationMessages::invalid());
+			$bindable->setDirty(true);
 			return true;
 
 		}
