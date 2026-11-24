@@ -52,7 +52,7 @@ trait ObjectUnmarshalTrait {
 	static function unmarshal(Mapper ...$preMappers): Mapper {
 		$class = new ReflectionClass(static::class);
 
-		return Mappers::pipe(Mappers::doIfNull(skipNextMappers: true), ...$preMappers)
+		return Mappers::group(Mappers::doIfNull(skipNextMappers: true), ...$preMappers)
 				->add(Mappers::subPropsForClass(static::class))
 				->add(Mappers::subMergeToObject(function () use ($class) {
 					try {
