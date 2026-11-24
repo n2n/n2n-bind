@@ -13,8 +13,11 @@ class PipeMapper implements Mapper {
 
 	/**
 	 * @param Mapper[] $mappers
+	 * @param bool $grouped if true, the returned {@see MapResult} only takes over {@see MapResult::isOk()} of the
+	 *     inner mappers, but never {@see MapResult::isSkipNext()}. A skip therefore only affects the mappers inside
+	 *     this group, not the mappers following it.
 	 */
-	public function __construct(private array $mappers) {
+	public function __construct(private array $mappers, private bool $grouped = false) {
 		ArgUtils::valArray($this->mappers, Mapper::class);
 	}
 
@@ -27,7 +30,7 @@ class PipeMapper implements Mapper {
 		foreach ($this->mappers as $mapper) {
 			$mapResult = $mapper->map($bindBoundary, $magicContext);
 			if (!$mapResult->isOk() || $mapResult->isSkipNext()) {
-				return $mapResult;
+				return $this->grouped ? new MapResult($mapResult->isOk()) : $mapResult;
 			}
 		}
 		return new MapResult();

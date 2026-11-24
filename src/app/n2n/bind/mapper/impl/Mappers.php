@@ -379,6 +379,15 @@ class Mappers {
 		return new PipeMapper($mappers);
 	}
 
+	/**
+	 * Like {@see self::pipe()}, but a skip requested by one of the passed mappers ({@see MapResult::isSkipNext()})
+	 * only skips the remaining mappers of this group and not the mappers following the group.
+	 */
+	static function group(Mapper|Validator ...$mappers): PipeMapper {
+		$mappers = ValidatorMapper::convertValidators($mappers);
+		return new PipeMapper($mappers, true);
+	}
+
 
 	/**
 	 * @deprecated use {@link self::subProps()}

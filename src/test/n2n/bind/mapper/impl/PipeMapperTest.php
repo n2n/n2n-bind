@@ -285,4 +285,38 @@ class PipeMapperTest extends TestCase {
 		$this->assertFalse($result->getErrorMap()->getChild('email1')->isEmpty());
 		$this->assertFalse($result->getErrorMap()->getChild('email2')->isEmpty());
 	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testGroupDoesNotPropagateSkipNext(): void {
+		$skipMapper = Mappers::bindable(fn () => new MapResult(true, true));
+
+		$result = Bind::values('a')
+				->map(Mappers::group($skipMapper, Mappers::value(fn () => 'inner')),
+						Mappers::value(fn (string $v) => $v . '-outer'))
+				->toValue()->exec();
+		$this->assertSame('a-outer', $result->get());
+
+		$result = Bind::values('a')
+				->map(Mappers::pipe($skipMapper, Mappers::value(fn () => 'inner')),
+						Mappers::value(fn (string $v) => $v . '-outer'))
+				->toValue()->exec();
+		$this->assertSame('a', $result->get());
+	}
+
+	/**
+	 * @throws BindMismatchException
+	 * @throws UnresolvableBindableException
+	 */
+	function testGroupKeepsNotOk(): void {
+		$mapperMock = $this->createMock(Mapper::class);
+		$mapperMock->method('map')->willReturn(new MapResult(false, true));
+
+		$mapResult = Mappers::group($mapperMock)
+				->map($this->createMock(\n2n\bind\plan\BindBoundary::class), $this->createMock(MagicContext::class));
+		$this->assertFalse($mapResult->isOk());
+		$this->assertFalse($mapResult->isSkipNext());
+	}
 }
